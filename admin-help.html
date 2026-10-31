@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Admin · Help</title><meta name="robots" content="noindex">
+<link rel="stylesheet" href="style.css">
+<style>.tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px}.tabs button.on{outline:2px solid currentColor}.tabs button{white-space:nowrap}.it{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #8884}.it small{opacity:.7}</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+</head><body>
+<header class="top"><div class="wrap"><h1>Admin · Help tabs</h1><p><a href="admin.html">← Bus admin</a> · <a href="index.html#help">View public page</a></p></div></header>
+<main class="wrap">
+<section id="lg"><h2>Admin login</h2><label for="em">Email</label><input id="em" type="email" autocomplete="username"><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password"><div class="row"><button id="go">Login</button></div></section>
+<section id="ap" hidden><div class="tabs" id="tabs"></div><form id="fm" onsubmit="return false"></form><h2>Saved</h2><div id="ls"></div><div class="row"><button class="ghost" id="lo">Log out</button></div></section>
+<p id="ms" role="status"></p>
+</main>
+<script src="/api/config"></script><script src="sections.js"></script>
+<script>
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safeUrl=u=>/^https?:\/\//i.test(u||'')?u:'';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),$=id=>document.getElementById(id);
+const msg=(t,bad)=>{$('ms').textContent=t;$('ms').style.color=bad?'#c0392b':'inherit'};
+let cur=SECTIONS[0],rows=[],edit=null;
+async function enter(){const{data:ok}=await sb.rpc('is_admin');if(!ok){await sb.auth.signOut();return msg('This account is not an admin.',1)}
+ $('lg').hidden=true;$('ap').hidden=false;$('tabs').innerHTML=SECTIONS.map(s=>`<button type="button" data-t="${s.t}">${s.label}</button>`).join('');pick(SECTIONS[0])}
+$('go').onclick=async()=>{const{error}=await sb.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});$('pw').value='';if(error)return msg('Wrong email or password.',1);msg('');enter()};
+$('lo').onclick=async()=>{await sb.auth.signOut();location.reload()};
+$('tabs').onclick=e=>{const b=e.target.closest('button');if(b)pick(SECTIONS.find(s=>s.t===b.dataset.t))};
+async function pick(s){cur=s;edit=null;[...$('tabs').children].forEach(b=>b.classList.toggle('on',b.dataset.t===s.t));form();
+ const{data,error}=await sb.from(s.t).select('*').order('sort_order').order('created_at');if(error)return msg(error.message,1);rows=data;list()}
+function form(){const r=edit||{};$('fm').innerHTML=`<h2>${edit?'Edit':'Add'} · ${cur.label}</h2>`+cur.f.map(([k,l,ty,x])=>{const v=r[k]??'',id='f_'+k;
+ if(ty==='check')return `<label><input type="checkbox" id="${id}" ${r[k]?'checked':''}> ${l}</label>`;
+ const lb=`<label for="${id}">${l}${x===1?' *':''}</label>`;
+ if(ty==='select')return lb+`<select id="${id}">${x.map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select>`;
+ if(ty==='area')return lb+`<textarea id="${id}" rows="2" maxlength="300">${esc(v)}</textarea>`;
+ return lb+`<input id="${id}" type="${ty==='tel'?'tel':ty==='url'?'url':'text'}" maxlength="200" value="${esc(v)}">`}).join('')
+ +`<label for="f_sort_order">Order (1 = first)</label><input id="f_sort_order" type="number" value="${r.sort_order??1}">
+<div class="row" style="margin-top:12px"><button type="button" id="sv">${edit?'Save changes':'Add'}</button>${edit?'<button type="button" class="ghost" id="cn">Cancel</button>':''}</div>`;
+ $('sv').onclick=save;if(edit)$('cn').onclick=()=>{edit=null;form()}}
+async function save(){const o={sort_order:parseInt($('f_sort_order').value)||1};
+ for(const[k,,ty,x]of cur.f){const e=$('f_'+k);let v=ty==='check'?e.checked:e.value.trim();
+  if(x===1&&!v)return msg('Please fill: '+k,1);if(ty==='url'&&v&&!safeUrl(v))return msg('Link must start with https://',1);o[k]=ty==='check'?v:(v||null)}
+ const q=edit?sb.from(cur.t).update(o).eq('id',edit.id):sb.from(cur.t).insert(o);const{error}=await q;
+ if(error)return msg(error.message,1);msg('Saved ✔');pick(cur)}
+function list(){$('ls').innerHTML=rows.map(r=>`<div class="it"><span>${r.active?'':'🙈 '}${esc(r[cur.title])}<br><small>${esc(r[cur.phone]||'')}</small></span>
+<span><button type="button" data-a="e" data-id="${r.id}">Edit</button> <button type="button" class="ghost" data-a="h" data-id="${r.id}">${r.active?'Hide':'Show'}</button> <button type="button" class="ghost" data-a="d" data-id="${r.id}">Delete</button></span></div>`).join('')||'<p class="muted">Nothing yet</p>'}
+$('ls').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const r=rows.find(x=>x.id===b.dataset.id);
+ if(b.dataset.a==='e'){edit=r;form();scrollTo(0,0)}
+ else if(b.dataset.a==='h'){const{error}=await sb.from(cur.t).update({active:!r.active}).eq('id',r.id);error?msg(error.message,1):pick(cur)}
+ else if(confirm('Delete "'+r[cur.title]+'"?')){const{error}=await sb.from(cur.t).delete().eq('id',r.id);error?msg(error.message,1):pick(cur)}};
+sb.auth.getSession().then(({data})=>{if(data.session)enter()});
+</script></body></html>

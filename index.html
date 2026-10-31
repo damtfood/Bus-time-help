@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bus Timings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2:wght@500;700;800&family=Noto+Sans+Tamil:wght@400;700&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>.mt{display:flex;gap:8px;overflow-x:auto;padding:6px 0 12px}.mt button{white-space:nowrap;font:inherit;font-weight:700;color:inherit;background:transparent;border:2px solid currentColor;border-radius:99px;padding:8px 16px;cursor:pointer;opacity:.75}.mt button.on{opacity:1;background:rgba(128,128,128,.25)}
+#hl img.pic{width:100%;max-height:190px;object-fit:cover;border-radius:10px;margin-bottom:8px}#hl .card{margin-bottom:12px}#hl p{margin:4px 0}.hchip{display:inline-block;padding:2px 10px;border-radius:99px;border:1px solid currentColor;font-size:.8rem;margin:2px 6px 2px 0}</style>
+</head><body>
+<header class="top">
+<i class="cloud" style="--y:12px;--d:52s;--s:-8s"></i><i class="cloud" style="--y:40px;--d:70s;--s:-40s;width:46px"></i><i class="cloud" style="--y:70px;--d:60s;--s:-22s;width:56px"></i><div class="wrap">
+<h1 id="title">Bus Timings</h1>
+<p class="sub">பேருந்து நேரம் · Free for everyone</p>
+<p class="stop"><i class="pin">📍</i><span><b>THANIKKOTTAGAM - தாணிக்கோட்டகம்</b> Bus Stop · பேருந்து நிறுத்தம்</span></p>
+<div class="clock"><b id="clk">--:--</b><span id="dt"></span><span class="live"><i></i>Live</span></div>
+<p id="who"></p>
+</div>
+<div class="road" aria-hidden="true"></div>
+<div class="busw" aria-hidden="true"><span class="tow"><b><img src="logo.png" alt="" width="20" height="20">Dhineshkumar Adpc - Murugan Trader 🦚📊</b><i class="rope"></i></span><i class="puff"></i><i class="puff p2"></i><svg class="bus" viewBox="0 0 64 30" width="58" height="27"><rect x="2" y="2" width="58" height="20" rx="5" fill="#E3A92B"/><rect x="8" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="20" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="32" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="46" y="6" width="11" height="12" rx="1.5" fill="#0B1B20"/><g class="wh" style="transform-origin:16px 23px"><circle cx="16" cy="23" r="5" fill="#0B1B20" stroke="#E3A92B" stroke-width="2"/><path d="M16 19v8M12 23h8" stroke="#E3A92B" stroke-width="1.3"/></g><g class="wh" style="transform-origin:48px 23px"><circle cx="48" cy="23" r="5" fill="#0B1B20" stroke="#E3A92B" stroke-width="2"/><path d="M48 19v8M44 23h8" stroke="#E3A92B" stroke-width="1.3"/></g></svg></div>
+</header>
+<section id="ntc" hidden aria-live="polite"></section>
+<main class="wrap">
+<nav class="mt" id="mt" role="tablist" aria-label="Sections"><button type="button" role="tab" data-v="bus" class="on">🚌 பேருந்து நேரம்</button><button type="button" role="tab" data-v="help">🛺 ஆட்டோ &amp; உதவி</button></nav>
+<div id="v_bus">
+<h2>Next buses · அடுத்த பேருந்துகள்</h2>
+<div class="next" id="next"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+<h2>All buses</h2>
+<div class="filters">
+<input id="q" type="search" placeholder="Search bus name, number or place" aria-label="Search buses">
+<select id="to" aria-label="Destination"><option value="">All destinations</option></select>
+<select id="ty" aria-label="Bus type"><option value="">All types</option></select>
+</div>
+<div id="list"></div>
+</div>
+<div id="v_help" hidden>
+<h2>ஆட்டோ · கடை · அவசர உதவி · கோயில்</h2>
+<div class="mt" id="ht" role="tablist"></div>
+<div class="filters"><input id="hq" type="search" placeholder="தேடு · Search" aria-label="Search help"></div>
+<div id="hl"></div>
+<small class="muted">தகவல் மாறலாம். போனில் உறுதி செய்யவும்.</small>
+</div>
+<section id="adsec" hidden><h2>Ads · விளம்பரம்</h2><div class="ads" id="ads"><div class="trk" id="trk"></div></div></section>
+</main>
+<dialog id="dlg"></dialog>
+<div class="wrap"><a class="adv" href="https://wa.me/919585298480?text=Hi%2C%20I%20want%20to%20advertise%20on%20the%20Bus%20Timings%20page." target="_blank" rel="noopener"><svg class="wa" viewBox="0 0 24 24" aria-hidden="true"><path fill="#25D366" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg><span><b>உங்கள் விளம்பரம் இங்கே! · Advertise here</b><small>WhatsApp: +91 95852 98480</small></span></a></div>
+<footer class="by"><a href="https://adpc.shop" target="_blank" rel="noopener"><img src="logo.png" alt="Murugan Trader logo" width="64" height="64" loading="lazy"><span>by <b>Dhineshkumar Adpc - Murugan Trader</b> <span class="pk">🦚</span>📊</span></a><small>Timings can change. Please confirm at the bus stand.</small></footer>
+<script src="/api/config"></script>
+<script>
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=id=>document.getElementById(id);
+const D=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safeImg=u=>/^https?:\/\//i.test(u||'')?u:'';
+const hm=t=>t.split(':').map(Number);
+const nowMin=()=>{const n=new Date();return n.getHours()*60+n.getMinutes()};
+const left=t=>{const[h,m]=hm(t.departure_time);return h*60+m-nowMin()};
+const today=t=>{const x=(t.days||'Daily').toLowerCase();return x.includes('daily')||x.includes(D[new Date().getDay()].toLowerCase())};
+const fmt=s=>{let[h,m]=hm(s);const p=h>=12?'PM':'AM';return (h%12||12)+':'+String(m).padStart(2,'0')+' '+p};
+const wait=m=>m<=0?'Now':m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min';
+let buses=[],loaded=false,first=true;
+const seen=new Set();
+const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');seen.add(x.target.dataset.bid);io.unobserve(x.target)}}),{threshold:.1});
+document.getElementById('title').textContent=VILLAGE_NAME+' Bus Timings';
+document.title=VILLAGE_NAME+' Bus Timings';
+function fill(id,vals,all){const s=$(id),v=s.value;s.innerHTML=`<option value="">${all}</option>`+[...new Set(vals.filter(Boolean))].sort().map(x=>`<option>${esc(x)}</option>`).join('');s.value=v}
+function shown(){const q=$('q').value.trim().toLowerCase(),to=$('to').value,ty=$('ty').value;
+return buses.filter(b=>(!to||b.to_place===to)&&(!ty||b.bus_type===ty)&&(!q||[b.name,b.bus_no,b.from_place,b.to_place,b.via].join(' ').toLowerCase().includes(q)))}
+function render(){if(!loaded)return;
+const list=shown(),up=[];
+list.forEach(b=>(b.timings||[]).filter(today).forEach(t=>{const m=left(t);if(m>=0)up.push({b,t,m})}));
+up.sort((a,c)=>a.m-c.m);
+$('next').innerHTML=up.slice(0,6).map(({b,t,m})=>`<div class="n${m<=5?' soon':''}${first?' pop':''}"><span class="t">${fmt(t.departure_time)}</span><span class="i">${esc(b.name)}<br><small class="muted">to ${esc(b.to_place)}${t.stop?' · '+esc(t.stop):''}</small></span><span class="w">${wait(m)}</span></div>`).join('')||'<p class="empty">No more buses today for this filter.</p>';
+$('list').innerHTML=list.map(b=>{
+const ts=(b.timings||[]).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time));
+const nx=ts.find(t=>left(t)>=0);
+const img=safeImg(b.image_url);
+return `<article class="card bus${seen.has(b.id)?'':' rv'}" data-bid="${b.id}">${img?`<img src="${esc(img)}" alt="${esc(b.name)}" loading="lazy">`:''}<div class="body">
+<h3>${esc(b.name)}${b.bus_no?`<span class="tag">${esc(b.bus_no)}</span>`:''}<span class="tag">${esc(b.bus_type||'')}</span></h3>
+<p class="muted">${esc(b.from_place)} to ${esc(b.to_place)}${b.via?' via '+esc(b.via):''}${b.fare?' · Fare '+esc(b.fare):''}</p>
+<div class="chips">${ts.map(t=>`<span class="chip ${left(t)<0?'past':t===nx?'nx':''}">${fmt(t.departure_time)}</span>`).join('')||'<span class="muted">No service today</span>'}</div>
+${b.notes?`<p class="muted">${esc(b.notes)}</p>`:''}<button class="ghost rep" data-id="${b.id}">Timing wrong? Report it</button></div></article>`}).join('')||'<p class="empty">No buses match. Clear the search or filters.</p>';document.querySelectorAll('.rv').forEach(e=>io.observe(e));first=false;
+}
+async function load(){
+loadAds();loadNotices();loadSettings();
+const{data,error}=await sb.from('buses').select('*, timings(*)').eq('active',true).order('name');
+if(error){$('next').innerHTML='<p class="empty">Could not load buses. Check your internet and refresh.</p>';return}
+buses=data;loaded=true;fill('to',buses.map(b=>b.to_place),'All destinations');fill('ty',buses.map(b=>b.bus_type),'All types');render()}
+
+const url=u=>/^https?:\/\//i.test(u||'')?u:'';
+const WA='https://wa.me/919585298480?text='+encodeURIComponent('Hi, I want to advertise on the Bus Timings page.');
+const CTA=`<article class="card ad txt cta"><div class="body"><span class="tag" style="margin:0 0 6px">Ad</span><h3>உங்கள் விளம்பரம் இங்கே!</h3><p class="muted">Advertise here · Reach the whole village</p><div class="row"><a class="wb" href="${WA}" target="_blank" rel="noopener">WhatsApp</a></div></div></article>`;
+async function loadAds(){const{data}=await sb.from('ads').select('*').eq('active',true).order('sort_order');
+const td=new Date().toLocaleDateString('en-CA');
+const list=(data||[]).filter(a=>(!a.start_date||a.start_date<=td)&&(!a.end_date||a.end_date>=td));
+$('adsec').hidden=!list.length;
+const set=list.map(a=>{const im=url(a.image_url),ln=url(a.link_url),ph=(a.phone||'').replace(/[^0-9+]/g,'');
+const wn=ph.replace(/\D/g,''),wd=wn.length===10?'91'+wn:wn;
+return `<article class="card ad${im?'':' txt'}">${im?`<img src="${esc(im)}" alt="${esc(a.title||'Ad')}">`:''}<div class="body"><span class="tag" style="margin:0 0 6px">Ad</span>${a.title?`<h3>${esc(a.title)}</h3>`:''}${a.body?`<p class="muted" style="white-space:pre-line">${esc(a.body)}</p>`:''}
+${ph||ln?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">Call</a><a class="wb" href="https://wa.me/${wd}" target="_blank" rel="noopener">WhatsApp</a>`:''}${ln?`<a href="${esc(ln)}" target="_blank" rel="noopener noreferrer sponsored">Open link</a>`:''}</div>`:''}</div></article>`}).join('')+CTA;
+if(!list.length)return;const trk=$('trk');if(trk.dataset.s===set)return;trk.dataset.s=set;
+trk.innerHTML=set;const k=Math.max(1,Math.ceil(($('ads').clientWidth||360)/(trk.scrollWidth||1)));
+trk.dataset.k=k;const half=set.repeat(k);
+trk.innerHTML=half+half.replace(/<article class="card ad/g,'<article aria-hidden="true" class="card ad dup').replace(/<a /g,'<a tabindex="-1" ');
+trk.style.setProperty('--dur',Math.max(14,list.length*k*7)+'s')}
+let lastMin=-1;
+function tick(){const n=new Date();$('clk').textContent=n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+$('dt').textContent=n.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'});
+if(n.getMinutes()!==lastMin){lastMin=n.getMinutes();render()}}
+['q','to','ty'].forEach(i=>$(i).addEventListener('input',render));
+
+let user=null,cur=null;
+const dlg=$('dlg');
+async function who(){const{data}=await sb.auth.getSession();user=data.session?.user||null;
+$('who').innerHTML=user?`${esc(user.user_metadata?.full_name||user.email)} <button class="lk" id="lo">Log out</button>`:'';
+if(user&&sessionStorage.getItem('rep')){const id=sessionStorage.getItem('rep');sessionStorage.removeItem('rep');openRep(id)}}
+document.addEventListener('click',async e=>{if(e.target.id==='lo'){await sb.auth.signOut();who()}});
+$('list').addEventListener('click',e=>{const b=e.target.closest('.rep');if(b)openRep(b.dataset.id)});
+function openRep(id){cur=buses.find(b=>b.id===id);if(!cur)return;
+if(!user){dlg.innerHTML=`<h3>${esc(cur.name)}</h3><p>Sign in with Google to report a wrong timing. Only the admin can see your name.</p><div class="row"><button id="gg">Continue with Google</button><button class="ghost" id="r_x">Cancel</button></div>`;
+dlg.showModal();$('r_x').onclick=()=>dlg.close();
+$('gg').onclick=()=>{sessionStorage.setItem('rep',id);sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}})};return}
+const ts=[...(cur.timings||[])].sort((a,c)=>a.departure_time.localeCompare(c.departure_time));
+dlg.innerHTML=`<h3>${esc(cur.name)}</h3>
+<label for="r_type">What is wrong?</label><select id="r_type"><option value="wrong_time">A timing is wrong</option><option value="add_time">A timing is missing</option><option value="remove_time">A timing no longer runs</option><option value="other">Something else</option></select>
+<div id="w1"><label for="r_tid">Which timing?</label><select id="r_tid">${ts.map(t=>`<option value="${t.id}">${fmt(t.departure_time)} · ${esc(t.days)}</option>`).join('')}</select></div>
+<div id="w2"><label for="r_time">Correct time</label><input type="time" id="r_time"><label for="r_days">Days</label><input id="r_days" value="Daily"></div>
+<label for="r_msg">Message (optional)</label><textarea id="r_msg" rows="2" maxlength="300"></textarea>
+<div class="row" style="margin-top:12px"><button id="r_send">Send request</button><button class="ghost" id="r_x">Cancel</button></div>`;
+const sync=()=>{const v=$('r_type').value;$('w1').hidden=!(v==='wrong_time'||v==='remove_time');$('w2').hidden=!(v==='wrong_time'||v==='add_time')};
+$('r_type').onchange=sync;sync();dlg.showModal();$('r_x').onclick=()=>dlg.close();
+$('r_send').onclick=async()=>{const v=$('r_type').value;
+const row={bus_id:cur.id,type:v,message:$('r_msg').value.trim()||null};
+if(v==='wrong_time'||v==='remove_time'){row.timing_id=$('r_tid').value;if(!row.timing_id)return alert('This bus has no timing to select.')}
+if(v==='wrong_time'||v==='add_time'){row.proposed_time=$('r_time').value;row.proposed_days=$('r_days').value.trim()||'Daily';if(!row.proposed_time)return alert('Please enter the correct time.')}
+if(v==='other'&&!row.message)return alert('Please write a short message.');
+const{error}=await sb.from('requests').insert(row);
+if(error)return alert('Could not send: '+error.message);
+dlg.innerHTML='<h3>Thank you!</h3><p>Your request was sent. The admin will check it and update the timing.</p><button id="r_x">Close</button>';$('r_x').onclick=()=>dlg.close()}}
+sb.auth.onAuthStateChange(()=>who());who();
+const FEST=[[1,1,1,'🎉','இனிய புத்தாண்டு நல்வாழ்த்துகள்!','Happy New Year!'],
+[1,14,16,'🌾','இனிய பொங்கல் நல்வாழ்த்துகள்!','Happy Pongal!'],
+[1,26,26,'🇮🇳','இனிய குடியரசு தின நல்வாழ்த்துகள்!','Happy Republic Day!'],
+[4,14,14,'🌼','இனிய தமிழ்ப் புத்தாண்டு நல்வாழ்த்துகள்!','Happy Tamil New Year!'],
+[5,1,1,'🛠️','உழைப்பாளர் தின நல்வாழ்த்துகள்!','Happy Labour Day!'],
+[8,15,15,'🇮🇳','இனிய சுதந்திர தின நல்வாழ்த்துகள்!','Happy Independence Day!'],
+[10,2,2,'🕊️','காந்தி ஜெயந்தி நல்வாழ்த்துகள்','Gandhi Jayanti'],
+[12,25,25,'🎄','இனிய கிறிஸ்துமஸ் நல்வாழ்த்துகள்!','Merry Christmas!']];
+const autoWishes=()=>{const d=new Date(),m=d.getMonth()+1,x=d.getDate();return FEST.filter(f=>f[0]===m&&x>=f[1]&&x<=f[2]).map(f=>({kind:'wish',emoji:f[3],title:f[4],body:f[5]}))};
+let nts=[],ni=0,nT=0;
+function drawN(){const el=$('ntc');if(!nts.length){el.hidden=true;return}
+const n=nts[ni%nts.length],wish=n.kind!=='news',em=esc(n.emoji||(wish?'🎉':'📢'));
+el.hidden=false;el.className='nt '+(wish?'wish':'news');
+el.innerHTML=`${wish?'':'<span class="bd">முக்கிய செய்தி · IMPORTANT</span>'}<div class="ln"><span class="em">${em}</span><div class="tx"><h3>${esc(n.title)}</h3>${n.body?`<p>${esc(n.body)}</p>`:''}</div><span class="em e2">${em}</span></div>${nts.length>1?`<div class="dots">${nts.map((_,i)=>`<i${i===ni%nts.length?' class="on"':''}></i>`).join('')}</div>`:''}`;
+if(wish){const C=['#fff','#ffd54a','#ff7ab6','#7be0e6','#9be37a'];for(let i=0;i<18;i++){const c=document.createElement('i');c.className='cf';c.style.cssText=`left:${Math.random()*100}%;background:${C[i%5]};animation-duration:${2.6+Math.random()*2.4}s;animation-delay:${-Math.random()*4}s`;el.appendChild(c)}}}
+async function loadNotices(){let rows=[];
+try{const{data}=await sb.from('notices').select('*').eq('active',true).order('sort_order');const td=new Date().toLocaleDateString('en-CA');
+rows=(data||[]).filter(a=>a.title&&(!a.start_date||a.start_date<=td)&&(!a.end_date||a.end_date>=td))}catch(e){}
+nts=[...rows.filter(r=>r.kind==='news'),...rows.filter(r=>r.kind!=='news'),...autoWishes()];
+if(ni>=nts.length)ni=0;drawN();clearInterval(nT);
+if(nts.length>1)nT=setInterval(()=>{ni++;drawN()},6500)}
+$('ntc').addEventListener('click',()=>{if(nts.length>1){ni++;drawN()}});
+let adMin=1;
+async function loadSettings(){try{const{data}=await sb.from('settings').select('*').eq('key','ad_scroll_min');const v=parseFloat(data&&data[0]&&data[0].value);if([1,2,5,10].includes(v))adMin=v}catch(e){}}
+let ax=0,aT=0,apause=0,adrag=null,amoved=false;
+(function(){const box=$('ads'),trk=$('trk');
+const qm=parseFloat(new URLSearchParams(location.search).get('scroll'));
+function frame(t){const dt=Math.min(64,t-aT);aT=t;
+const half=trk.scrollWidth/2,sw=half/(+trk.dataset.k||1),mins=[1,2,5,10].includes(qm)?qm:adMin;
+if(!adrag&&Date.now()>apause&&!$('adsec').hidden)ax+=sw/(mins*60)*dt/1000;
+if(half>0)ax=((ax%half)+half)%half;
+trk.style.transform='translate3d('+(-ax)+'px,0,0)';requestAnimationFrame(frame)}
+requestAnimationFrame(t=>{aT=t;frame(t)});
+box.addEventListener('pointerdown',e=>{adrag={x:e.clientX,o:ax,id:e.pointerId};amoved=false});
+box.addEventListener('pointermove',e=>{if(!adrag||e.pointerId!==adrag.id)return;const dx=e.clientX-adrag.x;
+if(Math.abs(dx)>6){if(!amoved){amoved=true;try{box.setPointerCapture(e.pointerId)}catch(_){}}ax=adrag.o-dx}});
+const end=()=>{if(adrag){adrag=null;apause=Date.now()+4000}};
+box.addEventListener('pointerup',end);box.addEventListener('pointercancel',end);
+box.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')apause=Date.now()+1e9});
+box.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')apause=Date.now()+600});
+box.addEventListener('click',e=>{if(amoved){e.preventDefault();e.stopPropagation();amoved=false}},true);
+})();
+setInterval(tick,1000);setInterval(load,300000);tick();load();
+</script><script src="sections.js"></script>
+<script>
+(function(){
+const q=id=>document.getElementById(id),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),U=u=>/^https?:\/\//i.test(u||'')?u:'',P=p=>String(p||'').replace(/[^\d+]/g,'');
+let cur=SECTIONS[0],rows={};
+q('ht').innerHTML=SECTIONS.map(s=>`<button type="button" data-t="${s.t}">${s.label}</button>`).join('');
+function view(v){q('v_bus').hidden=v!=='bus';q('v_help').hidden=v!=='help';
+ [...q('mt').children].forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ history.replaceState(null,'',v==='help'?'#help':location.pathname+location.search);if(v==='help')load()}
+q('mt').onclick=e=>{const b=e.target.closest('button');if(b)view(b.dataset.v)};
+q('ht').onclick=e=>{const b=e.target.closest('button');if(b){cur=SECTIONS.find(s=>s.t===b.dataset.t);load()}};
+q('hq').oninput=draw;
+async function load(){[...q('ht').children].forEach(b=>b.classList.toggle('on',b.dataset.t===cur.t));
+ if(!rows[cur.t]){q('hl').innerHTML='<p class="muted">ஏற்றுகிறது…</p>';
+  const{data,error}=await sb.from(cur.t).select('*').eq('active',true).order('sort_order').order('name');
+  if(error){q('hl').innerHTML='<p class="muted">ஏற்ற முடியவில்லை. மீண்டும் முயற்சிக்கவும்.</p>';return}rows[cur.t]=data}
+ draw()}
+function draw(){const s=cur,k=q('hq').value.trim().toLowerCase(),lab=Object.fromEntries(s.f.map(x=>[x[0],x[1]]));
+ const L=(rows[s.t]||[]).filter(r=>!k||JSON.stringify(Object.values(r)).toLowerCase().includes(k));
+ q('hl').innerHTML=L.length?L.map(r=>{const im=U(r[s.img]),ph=P(r[s.phone]),lk=s.link&&U(r[s.link[0]]);
+  return `<article class="card">${im?`<img class="pic" src="${E(im)}" alt="${E(r[s.title])}" loading="lazy">`:''}<h3>${E(r[s.title])}</h3>${s.tag&&r[s.tag]?`<span class="hchip">${E(r[s.tag])}</span>`:''}${s.flag?`<span class="hchip">${r[s.flag[0]]?s.flag[1]:s.flag[2]}</span>`:''}
+${s.show.filter(x=>r[x]).map(x=>`<p><b>${E(lab[x])}:</b> <span style="white-space:pre-line">${E(r[x])}</span></p>`).join('')}
+${ph||lk?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">📞 ${E(r[s.phone])}</a><a class="wb" href="https://wa.me/${ph.replace(/^\+/,'').replace(/^(\d{10})$/,'91$1')}" target="_blank" rel="noopener">WhatsApp</a>`:''}${lk?`<a href="${E(lk)}" target="_blank" rel="noopener noreferrer">${s.link[1]}</a>`:''}</div>`:''}</article>`}).join(''):'<p class="muted">இன்னும் எதுவும் இல்லை</p>'}
+if(location.hash==='#help')view('help');
+})();
+</script>
+</body></html>
