@@ -28,6 +28,7 @@
 <div class="full"><label for="f_via">Via (optional)</label><input id="f_via"></div>
 <div class="full"><label for="f_img">Bus picture URL</label><input id="f_img" placeholder="https://..."></div>
 <div><label for="f_fare">Fare (optional)</label><input id="f_fare"></div>
+<div><label for="f_phone">Phone / call number (optional)</label><input id="f_phone" type="tel" placeholder="9XXXXXXXXX"></div>
 <div><label for="f_act">Show on public site</label><select id="f_act"><option value="1">Yes</option><option value="0">Hidden</option></select></div>
 <div class="full"><label for="f_notes">Notes (optional)</label><textarea id="f_notes" rows="2"></textarea></div>
 </div>
@@ -71,7 +72,7 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=s=>{let[h,m]=s.split(':').map(Number);return (h%12||12)+':'+String(m).padStart(2,'0')+(h>=12?' PM':' AM')};
-const F=['name','no','type','from','to','via','img','fare','notes','act'];
+const F=['name','no','type','from','to','via','img','fare','phone','notes','act'];
 let buses=[];
 function msg(t,bad){const m=$('msg');m.textContent=t;m.className=bad?'err':'ok';m.hidden=false;setTimeout(()=>m.hidden=true,4000)}
 function show(on){$('login').hidden=on;$('app').hidden=!on;if(on){refresh();loadReq();loadAds();loadNts();loadSt()}}
@@ -104,13 +105,13 @@ function draw(){$('rows').innerHTML=buses.map(b=>`<article class="card" data-id=
 <p class="muted">${esc(b.from_place)} to ${esc(b.to_place)}${b.via?' via '+esc(b.via):''}</p>
 <div class="chips">${[...(b.timings||[])].sort((x,y)=>x.departure_time.localeCompare(y.departure_time)).map(t=>`<span class="chip">${fmt(t.departure_time)} · ${esc(t.days)}${t.stop?' · '+esc(t.stop):''}<button data-a="dt" data-t="${t.id}" aria-label="Remove time">×</button></span>`).join('')||'<span class="muted">No timings yet. Add one below.</span>'}</div>
 <div class="row addt"><input type="time" class="tt" aria-label="Time"><input class="td" value="Daily" aria-label="Days" placeholder="Daily or Mon,Wed"><input class="ts" aria-label="Stop" placeholder="Stop (optional)"><button data-a="at">Add time</button></div></div></article>`).join('')||'<p class="empty">No buses yet. Add your first bus above.</p>'}
-function fillForm(b){$('f_id').value=b?.id||'';F.forEach(k=>{const m={name:'name',no:'bus_no',type:'bus_type',from:'from_place',to:'to_place',via:'via',img:'image_url',fare:'fare',notes:'notes'}[k];
+function fillForm(b){$('f_id').value=b?.id||'';F.forEach(k=>{const m={name:'name',no:'bus_no',type:'bus_type',from:'from_place',to:'to_place',via:'via',img:'image_url',fare:'fare',phone:'phone',notes:'notes'}[k];
 if(k==='act')$('f_act').value=b?(b.active?'1':'0'):'1';else $('f_'+k).value=b?(b[m]||''):(k==='type'?'Government':'')});window.scrollTo({top:0,behavior:'smooth'})}
 $('go').onclick=async()=>{const{error}=await sb.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});
 if(error)return msg('Wrong email or password.',1);$('pw').value='';enter()};
 $('out').onclick=async()=>{await sb.auth.signOut();show(false)};
 $('clr').onclick=()=>fillForm(null);
-$('save').onclick=async()=>{const row={name:$('f_name').value.trim(),bus_no:$('f_no').value.trim()||null,bus_type:$('f_type').value,from_place:$('f_from').value.trim(),to_place:$('f_to').value.trim(),via:$('f_via').value.trim()||null,image_url:$('f_img').value.trim()||null,fare:$('f_fare').value.trim()||null,notes:$('f_notes').value.trim()||null,active:$('f_act').value==='1'};
+$('save').onclick=async()=>{const row={name:$('f_name').value.trim(),bus_no:$('f_no').value.trim()||null,bus_type:$('f_type').value,from_place:$('f_from').value.trim(),to_place:$('f_to').value.trim(),via:$('f_via').value.trim()||null,image_url:$('f_img').value.trim()||null,fare:$('f_fare').value.trim()||null,phone:$('f_phone').value.trim()||null,notes:$('f_notes').value.trim()||null,active:$('f_act').value==='1'};
 if(!row.name||!row.from_place||!row.to_place)return msg('Bus name, From and To are required.',1);
 const id=$('f_id').value;const{error}=id?await sb.from('buses').update(row).eq('id',id):await sb.from('buses').insert(row);
 if(error)return msg(error.message,1);msg('Bus saved.');fillForm(null);refresh()};
