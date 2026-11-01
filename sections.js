@@ -12,4 +12,6 @@ const SECTIONS=[
 {t:'temples',label:'🛕 கோயில்கள்',title:'name',phone:'phone',img:'image_url',
  show:['morning_time','evening_time','notes'],
  f:[['name','Temple name','text',1],['phone','Phone','tel'],['morning_time','Morning open–close','text'],['evening_time','Evening open–close','text'],['notes','Notes (festival, special days)','area'],['map_url','Google Maps link','url'],['image_url','Picture link (https)','url']]}
+,{t:'local_news',label:'📰 ஊர் செய்தி',title:'title',tag:'category',phone:'phone',img:'image_url',show:['news_date','details'],
+ f:[['title','Heading','text',1],['category','Category','select',['Water cut · குடிநீர்','Power cut · மின்தடை','Ration · ரேஷன்','School · பள்ளி','Market rate · விலை','Panchayat · ஊராட்சி','Other']],['news_date','Date / time','text'],['details','Details','area'],['phone','Phone (optional)','tel'],['image_url','Picture link (https)','url']]}
 ];
