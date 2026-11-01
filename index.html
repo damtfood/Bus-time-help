@@ -128,7 +128,14 @@ $('list').addEventListener('click',e=>{const b=e.target.closest('.rep');if(b)ope
 function openRep(id){cur=buses.find(b=>b.id===id);if(!cur)return;getSB().catch(()=>{});
 if(!user){dlg.innerHTML=`<h3>${esc(cur.name)}</h3><p>Sign in with Google to report a wrong timing. Only the admin can see your name.</p><div class="row"><button id="gg">Continue with Google</button><button class="ghost" id="r_x">Cancel</button></div>`;
 dlg.showModal();$('r_x').onclick=()=>dlg.close();
-$('gg').onclick=async()=>{sessionStorage.setItem('rep',id);const sb=await getSB();sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}})};return}
+$('gg').onclick=async()=>{sessionStorage.setItem('rep',id);
+if(window.AndroidBridge){/* inside the Android app: use the phone's Google account, no redirect */
+window.onNativeGoogle=async(tok,nonce)=>{try{const c=await getSB();const{error}=await c.auth.signInWithIdToken({provider:'google',token:tok,nonce});
+if(error){sessionStorage.removeItem('rep');return alert('Login failed: '+error.message)}
+dlg.close();await who()}catch(e){alert('Login failed')}};
+window.onNativeGoogleError=m=>{sessionStorage.removeItem('rep');alert('Google sign-in was cancelled or failed'+(m?' ('+m+')':''))};
+AndroidBridge.googleSignIn();return}
+const sb=await getSB();sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}})};return}
 const ts=[...(cur.timings||[])].sort((a,c)=>a.departure_time.localeCompare(c.departure_time));
 dlg.innerHTML=`<h3>${esc(cur.name)}</h3>
 <label for="r_type">What is wrong?</label><select id="r_type"><option value="wrong_time">A timing is wrong</option><option value="add_time">A timing is missing</option><option value="remove_time">A timing no longer runs</option><option value="other">Something else</option></select>
