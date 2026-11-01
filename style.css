@@ -193,3 +193,6 @@ dialog[open]{animation:dlg .25s ease-out}
 .stop{display:inline-flex;align-items:center;gap:8px;margin:10px 0 0;padding:5px 12px 5px 8px;border:1px solid var(--gold);border-radius:99px;background:#E3A92B1f;font-size:.88rem;line-height:1.3}
 .stop b{color:var(--gold);letter-spacing:.04em}
 .stop .pin{font-style:normal;display:inline-block;animation:bounce 1.3s ease-in-out infinite}
+
+/* Ads: show the full picture (no crop, no zoom) */
+.ad img{aspect-ratio:auto;height:auto;max-height:none;object-fit:contain;animation:none;transform:none}
