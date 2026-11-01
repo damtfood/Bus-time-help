@@ -60,6 +60,18 @@
 <div><label for="p_act">Status</label><select id="p_act"><option value="1">Showing</option><option value="0">Hidden</option></select></div>
 </div><p class="row"><button id="p_save">Save link</button><button class="ghost" id="p_clr">Clear form</button></p></div></div>
 <div id="prows"></div>
+<h2>Special buses · சிறப்பு பேருந்து (festival)</h2>
+<div class="card"><div class="body"><input type="hidden" id="x_id"><div class="grid">
+<div class="full"><label for="x_title">Heading</label><input id="x_title" placeholder="தீபாவளி சிறப்பு பேருந்து"></div>
+<div class="full"><label for="x_route">Route</label><input id="x_route" placeholder="Thanikkottagam → Chennai"></div>
+<div><label for="x_date">Date (hides after this day)</label><input id="x_date" type="date"></div>
+<div><label for="x_time">Time</label><input id="x_time" placeholder="9:30 PM"></div>
+<div><label for="x_phone">Phone (optional)</label><input id="x_phone" type="tel"></div>
+<div><label for="x_order">Order (1 shows first)</label><input id="x_order" type="number" value="1"></div>
+<div class="full"><label for="x_notes">Notes (optional)</label><textarea id="x_notes" rows="2"></textarea></div>
+<div><label for="x_act">Status</label><select id="x_act"><option value="1">Showing</option><option value="0">Hidden</option></select></div>
+</div><p class="row"><button id="x_save">Save special bus</button><button class="ghost" id="x_clr">Clear form</button></p></div></div>
+<div id="xrows"></div>
 <h2>Top notices · செய்தி / வாழ்த்து</h2>
 <div class="card"><div class="body"><input type="hidden" id="n_id">
 <p class="muted" style="margin:0">Quick fill (tap, then edit if needed):</p><div class="qks" id="n_q"></div>
@@ -89,7 +101,7 @@ let buses=[];
 function msg(t,bad){const m=$('msg');m.textContent=t;m.className=bad?'err':'ok';m.hidden=false;setTimeout(()=>m.hidden=true,4000)}
 let shown=false;
 function show(on){$('login').hidden=on;$('app').hidden=!on;if(on===shown)return;shown=on;
-if(on)Promise.allSettled([refresh(),loadReq(),loadFb(),loadAds(),loadNts(),loadSt(),loadApps()]).then(()=>{const y=+sessionStorage.getItem('adm_y')||0;if(y)window.scrollTo(0,y)})}
+if(on)Promise.allSettled([refresh(),loadReq(),loadFb(),loadAds(),loadNts(),loadSt(),loadApps(),loadSp()]).then(()=>{const y=+sessionStorage.getItem('adm_y')||0;if(y)window.scrollTo(0,y)})}
 let sT=0;addEventListener('scroll',()=>{clearTimeout(sT);sT=setTimeout(()=>{if(shown)sessionStorage.setItem('adm_y',String(scrollY))},150)},{passive:true});
 async function verify(){for(let i=0;i<3;i++){const{data,error}=await sb.rpc('is_admin');if(!error)return data?'yes':'no';await new Promise(r=>setTimeout(r,500*(i+1)))}return 'err'}
 async function notAdmin(){localStorage.removeItem('adm_ok');await sb.auth.signOut();show(false);msg('This account is not an admin.',1)}
@@ -164,7 +176,10 @@ let ads=[];
 const AF={title:'title',body:'body',img:'image_url',link:'link_url',phone:'phone',from:'start_date',to:'end_date'};
 function adForm(x){$('a_id').value=x?.id||'';for(const k in AF)$('a_'+k).value=x?(x[AF[k]]||''):'';$('a_order').value=x?x.sort_order:1;$('a_act').value=x?(x.active?'1':'0'):'1';if(x)window.scrollTo({top:$('a_title').offsetTop-80,behavior:'smooth'})}
 async function loadAds(){const{data,error}=await sb.from('ads').select('*').order('sort_order').order('created_at',{ascending:false});if(error)return msg(error.message,1);ads=data;
-$('adrows').innerHTML=data.map(a=>`<article class="card" data-id="${a.id}">${/^https?:\/\//i.test(a.image_url||'')?`<img src="${esc(a.image_url)}" alt="" loading="lazy">`:''}<div class="body"><div class="row"><strong>${esc(a.title||'(no heading)')}</strong>${a.active?'':'<span class="tag off">Hidden</span>'}<span class="sp"></span><button class="ghost" data-a="ed">Edit</button><button class="danger" data-a="dl">Delete</button></div><p class="muted">${esc(a.body||'')}</p>${a.start_date||a.end_date?`<p class="muted">${esc(a.start_date||'...')} to ${esc(a.end_date||'...')}</p>`:''}</div></article>`).join('')||'<p class="empty">No ads yet. Add your first ad above.</p>'}
+let st={};const td=new Date(Date.now()+19800000).toISOString().slice(0,10),d7=new Date(Date.now()+19800000-6*864e5).toISOString().slice(0,10);
+try{const r=await sb.from('ad_stats').select('*');if(!r.error)(r.data||[]).forEach(x=>{const o=st[x.ad_id]||(st[x.ad_id]={v:0,c:0,vt:0,ct:0,v7:0,c7:0});o.v+=x.views;o.c+=x.clicks;if(x.day>=d7){o.v7+=x.views;o.c7+=x.clicks}if(x.day===td){o.vt+=x.views;o.ct+=x.clicks}})}catch(e){}
+const sl=a=>{const o=st[a.id]||{v:0,c:0,vt:0,ct:0,v7:0,c7:0};return `<p class="stat" style="margin:6px 0 0"><b>👁 ${o.v}</b> views · <b>👆 ${o.c}</b> clicks · CTR ${o.v?(o.c/o.v*100).toFixed(1):0}%<br><small class="muted">Today ${o.vt} / ${o.ct} · Last 7 days ${o.v7} / ${o.c7} (views / clicks)</small></p>`};
+$('adrows').innerHTML=data.map(a=>`<article class="card" data-id="${a.id}">${/^https?:\/\//i.test(a.image_url||'')?`<img src="${esc(a.image_url)}" alt="" loading="lazy">`:''}<div class="body"><div class="row"><strong>${esc(a.title||'(no heading)')}</strong>${a.active?'':'<span class="tag off">Hidden</span>'}<span class="sp"></span><button class="ghost" data-a="ed">Edit</button><button class="danger" data-a="dl">Delete</button></div><p class="muted">${esc(a.body||'')}</p>${sl(a)}${a.start_date||a.end_date?`<p class="muted">${esc(a.start_date||'...')} to ${esc(a.end_date||'...')}</p>`:''}</div></article>`).join('')||'<p class="empty">No ads yet. Add your first ad above.</p>'}
 $('a_clr').onclick=()=>adForm(null);
 $('a_save').onclick=async()=>{const row={title:$('a_title').value.trim()||null,body:$('a_body').value.trim()||null,image_url:$('a_img').value.trim()||null,link_url:$('a_link').value.trim()||null,phone:$('a_phone').value.trim()||null,start_date:$('a_from').value||null,end_date:$('a_to').value||null,sort_order:parseInt($('a_order').value)||1,active:$('a_act').value==='1'};
 if(!row.title&&!row.body&&!row.image_url)return msg('Add a heading, text or picture.',1);
@@ -215,5 +230,18 @@ if(error)return msg(error.message,1);msg('App link saved.');appForm(null);loadAp
 $('prows').onclick=async e=>{const t=e.target.dataset.a;if(!t)return;const id=e.target.closest('.card').dataset.id;
 if(t==='ed')appForm(apps.find(x=>x.id===id));
 if(t==='dl'&&confirm('Delete this app link?')){const{error}=await sb.from('app_links').delete().eq('id',id);error?msg(error.message,1):(msg('App link deleted.'),loadApps())}};
+let sps=[];
+function spForm(x){$('x_id').value=x?.id||'';$('x_title').value=x?.title||'';$('x_route').value=x?.route||'';$('x_date').value=x?.bus_date||'';$('x_time').value=x?.dep_time||'';$('x_phone').value=x?.phone||'';$('x_notes').value=x?.notes||'';$('x_order').value=x?x.sort_order:1;$('x_act').value=x?(x.active?'1':'0'):'1';if(x)window.scrollTo({top:$('x_title').offsetTop-80,behavior:'smooth'})}
+async function loadSp(){const{data,error}=await sb.from('special_buses').select('*').order('bus_date',{nullsFirst:true}).order('sort_order');
+if(error){$('xrows').innerHTML='<p class="empty">Special buses table not found. Run schema_v11_features.sql in Supabase.</p>';return}sps=data;
+$('xrows').innerHTML=data.map(a=>`<article class="card" data-id="${a.id}"><div class="body"><div class="row"><span class="nk">🎉</span><strong>${esc(a.title)}</strong>${a.active?'':'<span class="tag off">Hidden</span>'}<span class="sp"></span><button class="ghost" data-a="ed">Edit</button><button class="danger" data-a="dl">Delete</button></div><p class="muted">${esc(a.route||'')} ${a.bus_date?'· '+esc(a.bus_date):''} ${a.dep_time?'· '+esc(a.dep_time):''}</p></div></article>`).join('')||'<p class="empty">No special buses. Add one above for festivals.</p>'}
+$('x_clr').onclick=()=>spForm(null);
+$('x_save').onclick=async()=>{const row={title:$('x_title').value.trim(),route:$('x_route').value.trim()||null,bus_date:$('x_date').value||null,dep_time:$('x_time').value.trim()||null,phone:$('x_phone').value.trim()||null,notes:$('x_notes').value.trim()||null,sort_order:parseInt($('x_order').value)||1,active:$('x_act').value==='1'};
+if(!row.title)return msg('Add a heading.',1);
+const id=$('x_id').value;const{error}=id?await sb.from('special_buses').update(row).eq('id',id):await sb.from('special_buses').insert(row);
+if(error)return msg(error.message,1);msg('Special bus saved.');spForm(null);loadSp()};
+$('xrows').onclick=async e=>{const t=e.target.dataset.a;if(!t)return;const id=e.target.closest('.card').dataset.id;
+if(t==='ed')spForm(sps.find(x=>x.id===id));
+if(t==='dl'&&confirm('Delete this special bus?')){const{error}=await sb.from('special_buses').delete().eq('id',id);error?msg(error.message,1):(msg('Deleted.'),loadSp())}};
 boot();
 </script></body></html>
