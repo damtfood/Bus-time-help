@@ -8,7 +8,8 @@ const Q = [
   ['helpers',   'select=*&active=eq.true&order=sort_order,name'],
   ['shops',     'select=*&active=eq.true&order=sort_order,name'],
   ['emergency', 'select=*&active=eq.true&order=sort_order,name'],
-  ['temples',   'select=*&active=eq.true&order=sort_order,name']
+  ['temples',   'select=*&active=eq.true&order=sort_order,name'],
+  ['app_links', 'select=*&active=eq.true&order=sort_order,created_at']
 ];
 module.exports = async (req, res) => {
   const base = process.env.SUPABASE_URL, key = process.env.SUPABASE_ANON_KEY;
