@@ -226,7 +226,7 @@ box.addEventListener('click',e=>{if(amoved){e.preventDefault();e.stopPropagation
 })();
 try{const c=localStorage.getItem(CK);if(c)apply(JSON.parse(c))}catch(e){}
 setInterval(tick,1000);setInterval(load,120000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});tick();load();
-</script><script src="sections.js"></script>
+</script><script src="sections.js?v=2"></script>
 <script>
 (function(){
 const q=id=>document.getElementById(id),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),U=u=>/^https?:\/\//i.test(u||'')?u:'',P=p=>String(p||'').replace(/[^\d+]/g,'');
@@ -243,10 +243,10 @@ window.__hd=draw;
 function draw(){const s=cur,k=q('hq').value.trim().toLowerCase(),lab=Object.fromEntries(s.f.map(x=>[x[0],x[1]]));
  if(!window.__D){q('hl').innerHTML='<p class="muted">ஏற்றுகிறது…</p>';return}
  const L=((window.__D[s.t])||[]).filter(r=>!k||JSON.stringify(Object.values(r)).toLowerCase().includes(k));
- q('hl').innerHTML=L.length?L.map(r=>{const im=U(r[s.img]),ph=P(r[s.phone]),lk=s.nomap?'':U(r.map_url)||((r.address||r.area||s.t==='temples')?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([r[s.title],r.address||r.area,VN].filter(Boolean).join(' ')):'');
+ q('hl').innerHTML=L.length?L.map(r=>{const im=U(r[s.img]),ph=P(r[s.phone]),lk=s.t==='helpers'?'':U(r.map_url)||((r.address||r.area||s.t==='temples')?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([r[s.title],r.address||r.area,VN].filter(Boolean).join(' ')):'');
   return `<article class="card">${im?`<img class="pic" src="${E(im)}" alt="${E(r[s.title])}" loading="lazy">`:''}<h3>${E(r[s.title])}</h3>${s.tag&&r[s.tag]?`<span class="hchip">${E(r[s.tag])}</span>`:''}${s.flag?`<span class="hchip">${r[s.flag[0]]?s.flag[1]:s.flag[2]}</span>`:''}
 ${s.show.filter(x=>r[x]).map(x=>`<p><b>${E(lab[x])}:</b> <span style="white-space:pre-line">${E(r[x])}</span></p>`).join('')}
-${ph||lk?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">📞 ${E(r[s.phone])}</a>${s.nowa?'':`<a class="wb" href="https://wa.me/${ph.replace(/^\+/,'').replace(/^(\d{10})$/,'91$1')}" target="_blank" rel="noopener">WhatsApp</a>`}`:''}${lk?`<a href="${E(lk)}" target="_blank" rel="noopener noreferrer">📍 Map · வரைபடம்</a>`:''}</div>`:''}</article>`}).join(''):'<p class="muted">இன்னும் எதுவும் இல்லை</p>'}
+${ph||lk?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">📞 ${E(r[s.phone])}</a>${s.t==='helpers'?'':`<a class="wb" href="https://wa.me/${ph.replace(/^\+/,'').replace(/^(\d{10})$/,'91$1')}" target="_blank" rel="noopener">WhatsApp</a>`}`:''}${lk?`<a href="${E(lk)}" target="_blank" rel="noopener noreferrer">📍 Map · வரைபடம்</a>`:''}</div>`:''}</article>`}).join(''):'<p class="muted">இன்னும் எதுவும் இல்லை</p>'}
 {let hh=location.hash;if(!/^#help/.test(hh)){const sh=sessionStorage.getItem('hash');if(sh){hh=sh;sessionStorage.removeItem('hash')}}
 const m=/^#help(?:-(\w+))?$/.exec(hh);if(m){const f=m[1]&&SECTIONS.find(s=>s.t===m[1]);if(f)cur=f;view('help')}}
 })();
