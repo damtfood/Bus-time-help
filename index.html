@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2:wght@500;700;800&family=Noto+Sans+Tamil:wght@400;700&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2:wght@500;700;800&family=Noto+Sans+Tamil:wght@400;700&display=swap"></noscript>
 <link rel="preload" href="/api/data" as="fetch" crossorigin>
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 <style>.mt{display:flex;gap:8px;overflow-x:auto;padding:6px 0 12px}.mt button{white-space:nowrap;font:inherit;font-weight:700;color:inherit;background:transparent;border:2px solid currentColor;border-radius:99px;padding:8px 16px;cursor:pointer;opacity:.75}.mt button.on{opacity:1;background:rgba(128,128,128,.25)}
 #hl img.pic{width:100%;max-height:190px;object-fit:cover;border-radius:10px;margin-bottom:8px}#hl .card{margin-bottom:12px}#hl p{margin:4px 0}.hchip{display:inline-block;padding:2px 10px;border-radius:99px;border:1px solid currentColor;font-size:.8rem;margin:2px 6px 2px 0}.alk{text-align:center;margin:10px auto 18px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .alk a{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:7px;font-size:.85rem;font-weight:800;text-decoration:none;color:#1a1200;border-radius:99px;padding:8px 18px;background:linear-gradient(135deg,#F6D06F,#E3A92B 60%,#C98A12);box-shadow:0 6px 16px #E3A92B55;animation:aRing 2.4s ease-in-out infinite;transition:transform .2s}
@@ -20,6 +20,7 @@
 @keyframes aDown{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
 .wx{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:5px 14px 5px 8px;border-radius:99px;font-size:.88rem;font-weight:700;background:linear-gradient(135deg,#ffffff1f,#ffffff0a);border:1px solid #ffffff33;animation:wIn .6s cubic-bezier(.2,.8,.3,1) both}
 .wx[hidden]{display:none}
+.wx .wn{font-size:.62rem;font-weight:400;opacity:.65;white-space:nowrap}
 .wx .we{font-size:1.5rem;line-height:1;display:inline-block;animation:wBob 2.4s ease-in-out infinite}
 .wx .wt{font-family:"Baloo Thambi 2",sans-serif;font-size:1rem;color:var(--gold)}
 .wx.wsun .we{animation:wSun 3s ease-in-out infinite;filter:drop-shadow(0 0 8px #FFD54A)}
@@ -56,7 +57,9 @@
 <main class="wrap">
 <nav class="mt" id="mt" role="tablist" aria-label="Sections"><button type="button" role="tab" data-v="bus" class="on">🚌 பேருந்து நேரம்</button><button type="button" role="tab" data-v="help">🛺 ஆட்டோ &amp; உதவி</button></nav>
 <div id="v_bus">
+<section id="spec" hidden></section>
 <h2>Next buses · அடுத்த பேருந்துகள்</h2>
+<p class="fl" id="fl" hidden></p>
 <div class="next" id="next"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
 <h2>All buses</h2>
 <div class="filters">
@@ -67,7 +70,7 @@
 <div id="list"></div>
 </div>
 <div id="v_help" hidden>
-<h2>ஆட்டோ · கடை · அவசர உதவி · கோயில்</h2>
+<h2>ஆட்டோ · கடை · அவசர உதவி · கோயில் · செய்தி</h2>
 <div class="mt" id="ht" role="tablist"></div>
 <div class="filters"><input id="hq" type="search" placeholder="தேடு · Search" aria-label="Search help"></div>
 <div id="hl"></div>
@@ -98,31 +101,36 @@ const today=t=>{const x=(t.days||'Daily').toLowerCase();return x.includes('daily
 const fmt=s=>{let[h,m]=hm(s);const p=h>=12?'PM':'AM';return (h%12||12)+':'+String(m).padStart(2,'0')+' '+p};
 const wait=m=>m<=0?'Now':m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min';
 let buses=[],loaded=false,first=true;
+let FV=new Set();try{FV=new Set(JSON.parse(localStorage.getItem('bt_fav')||'[]'))}catch(e){}
+const isF=id=>FV.has(id)?1:0;
 const seen=new Set();
 const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');seen.add(x.target.dataset.bid);io.unobserve(x.target)}}),{threshold:.1});
 function fill(id,vals,all){const s=$(id),v=s.value;s.innerHTML=`<option value="">${all}</option>`+[...new Set(vals.filter(Boolean))].sort().map(x=>`<option>${esc(x)}</option>`).join('');s.value=v}
 function shown(){const q=$('q').value.trim().toLowerCase(),to=$('to').value,ty=$('ty').value;
-return buses.filter(b=>(!to||b.to_place===to)&&(!ty||b.bus_type===ty)&&(!q||[b.name,b.bus_no,b.from_place,b.to_place,b.via].join(' ').toLowerCase().includes(q)))}
+return buses.filter(b=>(!to||b.to_place===to)&&(!ty||b.bus_type===ty)&&(!q||[b.name,b.bus_no,b.from_place,b.to_place,b.via].join(' ').toLowerCase().includes(q))).sort((a,c)=>isF(c.id)-isF(a.id))}
 function render(){if(!loaded)return;
 const list=shown(),up=[];
-list.forEach(b=>(b.timings||[]).filter(today).forEach(t=>{const m=left(t);if(m>=0)up.push({b,t,m})}));
+const tdAll=[];
+list.forEach(b=>{const td=(b.timings||[]).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time)),ls=td[td.length-1];td.forEach(t=>{tdAll.push({b,t});const m=left(t);if(m>=0)up.push({b,t,m,last:t===ls&&td.length>1})})});
+tdAll.sort((x,y)=>x.t.departure_time.localeCompare(y.t.departure_time));
+const fe=$('fl');if(tdAll.length){const f0=tdAll[0],l0=tdAll[tdAll.length-1];fe.hidden=false;fe.innerHTML=`<span class="hchip" title="${esc(f0.b.name)}">🌅 முதல் பேருந்து · ${fmt(f0.t.departure_time)}</span><span class="hchip" title="${esc(l0.b.name)}">🌙 கடைசி பேருந்து · ${fmt(l0.t.departure_time)}</span>`}else fe.hidden=true;
 up.sort((a,c)=>a.m-c.m);
-$('next').innerHTML=up.slice(0,6).map(({b,t,m})=>`<div class="n${m<=5?' soon':''}${first?' pop':''}"><span class="t">${fmt(t.departure_time)}</span><span class="i">${esc(b.name)}<br><small class="muted">to ${esc(b.to_place)}${t.stop?' · '+esc(t.stop):''}</small></span><span class="w">${wait(m)}</span></div>`).join('')||'<p class="empty">No more buses today for this filter.</p>';
+$('next').innerHTML=up.slice(0,6).map(({b,t,m,last})=>`<div class="n${m<=5?' soon':''}${first?' pop':''}"><span class="t">${fmt(t.departure_time)}</span><span class="i">${esc(b.name)}<br><small class="muted">to ${esc(b.to_place)}${t.stop?' · '+esc(t.stop):''}${last?' · <b class="lastb">கடைசி பேருந்து!</b>':''}</small></span><span class="w">${wait(m)}</span></div>`).join('')||'<p class="empty">No more buses today for this filter.</p>';
 $('list').innerHTML=list.map(b=>{
 const ts=(b.timings||[]).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time));
-const nx=ts.find(t=>left(t)>=0);
+const nx=ts.find(t=>left(t)>=0),firstT=ts[0],lastT=ts[ts.length-1],isLast=nx&&nx===lastT&&ts.length>1,done=ts.length&&!nx;
 const img=safeImg(b.image_url);
-return `<article class="card bus${seen.has(b.id)?'':' rv'}" data-bid="${b.id}">${img?`<img src="${esc(img)}" alt="${esc(b.name)}" loading="lazy">`:''}<div class="body">
+return `<article class="card bus${seen.has(b.id)?'':' rv'}${isF(b.id)?' isfav':''}" data-bid="${b.id}"><button type="button" class="fav${isF(b.id)?' on':''}" data-id="${b.id}" aria-label="Favourite" aria-pressed="${isF(b.id)?'true':'false'}">${isF(b.id)?'❤️':'🤍'}</button>${img?`<img src="${esc(img)}" alt="${esc(b.name)}" loading="lazy">`:''}<div class="body">
 <h3>${esc(b.name)}${b.bus_no?`<span class="tag">${esc(b.bus_no)}</span>`:''}<span class="tag">${esc(b.bus_type||'')}</span></h3>
 <p class="muted">${esc(b.from_place)} to ${esc(b.to_place)}${b.via?' via '+esc(b.via):''}${b.fare?' · Fare '+esc(b.fare):''}</p>
-<div class="chips">${ts.map(t=>`<span class="chip ${left(t)<0?'past':t===nx?'nx':''}">${fmt(t.departure_time)}</span>`).join('')||'<span class="muted">No service today</span>'}</div>
-${b.notes?`<p class="muted">${esc(b.notes)}</p>`:''}${(()=>{const ph=String(b.phone||'').replace(/[^\d+]/g,'');return ph?`<div class="row" style="margin:8px 0"><a class="fill" href="tel:${ph}">📞 Call · ${esc(b.phone)}</a></div>`:''})()}<button class="ghost rep" data-id="${b.id}">Timing wrong? Report it</button></div></article>`}).join('')||'<p class="empty">No buses match. Clear the search or filters.</p>';document.querySelectorAll('.rv').forEach(e=>io.observe(e));first=false;
+<div class="chips">${ts.map(t=>`<span class="chip ${left(t)<0?'past':t===nx?'nx':''}${t===lastT&&ts.length>1?' last':''}">${fmt(t.departure_time)}${t===lastT&&ts.length>1?' <small>கடைசி</small>':''}</span>`).join('')||'<span class="muted">No service today</span>'}</div>
+${ts.length?`<p class="fl2">🌅 முதல் ${fmt(firstT.departure_time)} · 🌙 கடைசி ${fmt(lastT.departure_time)}${isLast?' <b class="lastb">⚠️ இன்றைய கடைசி பேருந்து!</b>':done?' <span class="done">இன்றைய சேவை முடிந்தது</span>':''}</p>`:''}${b.notes?`<p class="muted">${esc(b.notes)}</p>`:''}${(()=>{const ph=String(b.phone||'').replace(/[^\d+]/g,'');return ph?`<div class="row" style="margin:8px 0"><a class="fill" href="tel:${ph}">📞 Call · ${esc(b.phone)}</a></div>`:''})()}<button class="ghost rep" data-id="${b.id}">Timing wrong? Report it</button><button class="ghost shr" data-id="${b.id}">📤 Share</button></div></article>`}).join('')||'<p class="empty">No buses match. Clear the search or filters.</p>';document.querySelectorAll('.rv').forEach(e=>io.observe(e));first=false;
 }
 const CK='bt_cache_v2';
 function apply(d){if(!d)return;window.__D=d;
 if(d.v){VN=d.v;$('title').textContent=d.v+' Bus Timings';document.title=d.v+' Bus Timings'}
 buses=d.buses||[];loaded=true;fill('to',buses.map(b=>b.to_place),'All destinations');fill('ty',buses.map(b=>b.bus_type),'All types');render();
-loadAds(d.ads);loadApps(d.app_links);loadNotices(d.notices);loadSettings(d.settings);if(window.__hd)window.__hd()}
+loadAds(d.ads);loadApps(d.app_links);loadSpecial(d.special_buses);loadNotices(d.notices);loadSettings(d.settings);if(window.__hd)window.__hd()}
 async function load(){
 try{const r=await fetch('/api/data');if(!r.ok)throw 0;const d=await r.json();if(!d||!d.buses)throw 0;
 try{localStorage.setItem(CK,JSON.stringify(d))}catch(e){}apply(d)}
@@ -132,14 +140,23 @@ const url=u=>/^https?:\/\//i.test(u||'')?u:'';
 const AI={android:'🤖',windows:'🪟',ios:'🍎',other:'📥'};
 function loadApps(a){const el=$('alk');if(!el)return;const L=(a||[]).filter(x=>url(x.url));el.hidden=!L.length;
 el.innerHTML=L.map(x=>`<a href="${esc(url(x.url))}" target="_blank" rel="noopener noreferrer" download><span class="ai">${AI[x.platform]||'📥'}</span> ${esc(x.label)} <span class="dl">⬇</span></a>`).join('')}
+function loadSpecial(a){const el=$('spec');if(!el)return;const td=new Date().toLocaleDateString('en-CA');
+const L=(a||[]).filter(x=>x.title&&(!x.bus_date||x.bus_date>=td));el.hidden=!L.length;
+el.innerHTML=L.length?'<h2>🎉 சிறப்பு பேருந்து · Special buses</h2>'+L.map(x=>{const ph=String(x.phone||'').replace(/[^\d+]/g,''),d=x.bus_date?new Date(x.bus_date+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'}):'';
+return `<article class="card sp"><div class="body"><h3>🎉 ${esc(x.title)}</h3>${x.route?`<p>🚌 ${esc(x.route)}</p>`:''}<p>${d?`<span class="hchip">📅 ${esc(d)}</span>`:''}${x.dep_time?`<span class="hchip">⏰ ${esc(x.dep_time)}</span>`:''}</p>${x.notes?`<p class="muted" style="white-space:pre-line">${esc(x.notes)}</p>`:''}${ph?`<div class="row"><a class="fill" href="tel:${ph}">📞 ${esc(x.phone)}</a></div>`:''}</div></article>`}).join(''):''}
+let adIds=[];
+const hit=(ids,k)=>{try{const body=JSON.stringify({ids,k});if(!(navigator.sendBeacon&&navigator.sendBeacon('/api/hit',new Blob([body],{type:'application/json'}))))fetch('/api/hit',{method:'POST',headers:{'Content-Type':'application/json'},body,keepalive:true})}catch(e){}};
+new IntersectionObserver(es=>{if(!es.some(x=>x.isIntersecting))return;const n=adIds.filter(i=>{try{return !sessionStorage.getItem('av_'+i)}catch(e){return true}});
+n.forEach(i=>{try{sessionStorage.setItem('av_'+i,'1')}catch(e){}});if(n.length)hit(n,'v')},{threshold:.3}).observe($('adsec'));
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('#ads a');if(!a)return;const c=a.closest('[data-aid]');if(c)hit([c.dataset.aid],'c')});
 const WA='https://wa.me/919585298480?text='+encodeURIComponent('Hi, I want to advertise on the Bus Timings page.');
 function loadAds(data){
 const td=new Date().toLocaleDateString('en-CA');
 const list=(data||[]).filter(a=>(!a.start_date||a.start_date<=td)&&(!a.end_date||a.end_date>=td));
-$('adsec').hidden=!list.length;
+$('adsec').hidden=!list.length;adIds=list.map(a=>a.id);
 const set=list.map(a=>{const im=url(a.image_url),ln=url(a.link_url),ph=(a.phone||'').replace(/[^0-9+]/g,'');
 const wn=ph.replace(/\D/g,''),wd=wn.length===10?'91'+wn:wn;
-return `<article class="card ad${im?'':' txt'}">${im?`<img src="${esc(im)}" alt="${esc(a.title||'Ad')}">`:''}<div class="body"><span class="tag" style="margin:0 0 6px">Ad</span>${a.title?`<h3>${esc(a.title)}</h3>`:''}${a.body?`<p class="muted" style="white-space:pre-line">${esc(a.body)}</p>`:''}
+return `<article class="card ad${im?'':' txt'}" data-aid="${a.id}">${im?`<img src="${esc(im)}" alt="${esc(a.title||'Ad')}">`:''}<div class="body"><span class="tag" style="margin:0 0 6px">Ad</span>${a.title?`<h3>${esc(a.title)}</h3>`:''}${a.body?`<p class="muted" style="white-space:pre-line">${esc(a.body)}</p>`:''}
 ${ph||ln?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">Call</a><a class="wb" href="https://wa.me/${wd}" target="_blank" rel="noopener">WhatsApp</a>`:''}${ln?`<a href="${esc(ln)}" target="_blank" rel="noopener noreferrer sponsored">Open link</a>`:''}</div>`:''}</div></article>`}).join('');
 if(!list.length)return;const trk=$('trk');if(trk.dataset.s===set)return;trk.dataset.s=set;
 trk.innerHTML=set;const k=Math.max(1,Math.ceil(($('ads').clientWidth||360)/(trk.scrollWidth||1)));
@@ -163,7 +180,13 @@ try{nm?localStorage.setItem('bt_who',nm):localStorage.removeItem('bt_who')}catch
 const af=sessionStorage.getItem('after');if(user&&af){sessionStorage.removeItem('after');if(af==='fb')openFb();else if(af.startsWith('rep:'))openRep(af.slice(4))}}
 document.addEventListener('click',async e=>{if(e.target.id==='lo'){const sb=await getSB();await sb.auth.signOut();try{localStorage.removeItem('bt_who')}catch(_){}user=null;paintWho('');who()}});
 $('fbBtn').addEventListener('click',openFb);
-$('list').addEventListener('click',e=>{const b=e.target.closest('.rep');if(b)openRep(b.dataset.id)});
+$('list').addEventListener('click',e=>{const r=e.target.closest('.rep');if(r)return openRep(r.dataset.id);
+const f=e.target.closest('.fav');if(f){const id=f.dataset.id;FV.has(id)?FV.delete(id):FV.add(id);try{localStorage.setItem('bt_fav',JSON.stringify([...FV]))}catch(_){}render();return}
+const sh=e.target.closest('.shr');if(sh)shareBus(sh.dataset.id)});
+function shareBus(id){const b=buses.find(x=>x.id===id);if(!b)return;
+const ts=(b.timings||[]).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time)).map(t=>fmt(t.departure_time)).join(', ')||'-';
+const txt=`🚌 ${b.name}${b.bus_no?' ('+b.bus_no+')':''}\n${b.from_place} ➜ ${b.to_place}${b.via?' via '+b.via:''}\n⏰ இன்றைய நேரம்: ${ts}\n\n${location.origin}`;
+window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener')}
 function loginDlg(title,note,key){getSB().catch(()=>{});
 dlg.innerHTML=`<h3>${esc(title)}</h3><p>${esc(note)}</p><div class="row"><button id="gg">Continue with Google</button><button class="ghost" id="r_x">Cancel</button></div>`;
 if(!dlg.open)dlg.showModal();$('r_x').onclick=()=>dlg.close();
@@ -291,14 +314,14 @@ function paint(){
  const now=Date.now(),c=W.code,t=Math.round(W.temp)+'°C';
  let cls='',em='',msg='',dr=false;
  const mins=W.rainAt!=null?Math.max(0,Math.ceil((W.rainAt-now)/60000)):null;
- if(W.rainNow||RAIN(c)){cls='wrain';em='☔';msg='மழை பெய்யுது! குடை எங்கே? 😅';dr=true}
- else if(mins!=null&&mins<=15){cls='wrain wsoon';em='☔';msg=(mins<=1?'இப்போவே':'~'+mins+' min ல')+' மழை வருது! குடை எடுத்துக்கோ 🏃';dr=true}
+ if(W.rainNow||RAIN(c)){cls='wrain';em='☔';msg='மழை பெய்ய வாய்ப்பு! குடை எடுத்துக்கோ 😅';dr=true}
+ else if(mins!=null&&mins<=15){cls='wrain wsoon';em='☔';msg='சில நிமிடங்களில் மழை வரலாம்! குடை எடுத்துக்கோங்க 🏃';dr=true}
  else if(c===45||c===48){cls='wcl';em='🌫️';msg='பனி மூட்டம் - மெதுவா போங்க'}
  else if(c>=3){cls='wcl';em='⛅';msg='மேகமூட்டம் - மழை இல்லை போல'}
  else if(W.day===0){cls='';em='🌙';msg='இரவு அமைதி - நிம்மதியா போங்க'}
  else{cls='wsun';em='😎';msg='வெயில் சுள்ளுனு இருக்கு!'}
  el.className='wx '+cls;el.hidden=false;
- el.innerHTML=(dr?drops():'')+`<span class="we">${em}</span><span class="wt">${t}</span><span>${msg}</span>`;
+ el.innerHTML=(dr?drops():'')+`<span class="we">${em}</span><span class="wt">${t}</span><span>${msg}</span><small class="wn">forecast · தோராயம்</small>`;
 }
 const TQ=new URLSearchParams(location.search).get('wx'),T0=Date.now();
 const MOCK={rain:{temp:27,code:61,day:1,rainNow:true,rainAt:null},soon:{temp:29,code:3,day:1,rainNow:false,rainAt:T0+8*60000},sun:{temp:34,code:0,day:1,rainNow:false,rainAt:null},cloud:{temp:29,code:3,day:1,rainNow:false,rainAt:null},night:{temp:25,code:0,day:0,rainNow:false,rainAt:null},fog:{temp:24,code:45,day:1,rainNow:false,rainAt:null}};
