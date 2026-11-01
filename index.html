@@ -9,7 +9,8 @@
 <link rel="preload" href="/api/data" as="fetch" crossorigin>
 <link rel="stylesheet" href="style.css">
 <style>.mt{display:flex;gap:8px;overflow-x:auto;padding:6px 0 12px}.mt button{white-space:nowrap;font:inherit;font-weight:700;color:inherit;background:transparent;border:2px solid currentColor;border-radius:99px;padding:8px 16px;cursor:pointer;opacity:.75}.mt button.on{opacity:1;background:rgba(128,128,128,.25)}
-#hl img.pic{width:100%;max-height:190px;object-fit:cover;border-radius:10px;margin-bottom:8px}#hl .card{margin-bottom:12px}#hl p{margin:4px 0}.hchip{display:inline-block;padding:2px 10px;border-radius:99px;border:1px solid currentColor;font-size:.8rem;margin:2px 6px 2px 0}</style>
+#hl img.pic{width:100%;max-height:190px;object-fit:cover;border-radius:10px;margin-bottom:8px}#hl .card{margin-bottom:12px}#hl p{margin:4px 0}.hchip{display:inline-block;padding:2px 10px;border-radius:99px;border:1px solid currentColor;font-size:.8rem;margin:2px 6px 2px 0}.alk{text-align:center;margin:6px auto 14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.alk a{display:inline-block;font-size:.8rem;font-weight:700;text-decoration:none;color:inherit;border:1px solid currentColor;border-radius:99px;padding:6px 14px;opacity:.8}.alk a:hover{opacity:1}
+</style>
 </head><body>
 <header class="top">
 <i class="cloud" style="--y:12px;--d:52s;--s:-8s"></i><i class="cloud" style="--y:40px;--d:70s;--s:-40s;width:46px"></i><i class="cloud" style="--y:70px;--d:60s;--s:-22s;width:56px"></i><div class="wrap">
@@ -49,6 +50,7 @@
 <div class="wrap" style="text-align:center;margin:18px auto 6px"><button type="button" id="fbBtn">💬 Feedback · கருத்து</button></div>
 <div class="wrap"><a class="adv" href="https://wa.me/919585298480?text=Hi%2C%20I%20want%20to%20advertise%20on%20the%20Bus%20Timings%20page." target="_blank" rel="noopener"><svg class="wa" viewBox="0 0 24 24" aria-hidden="true"><path fill="#25D366" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg><span><b>உங்கள் விளம்பரம் இங்கே! · Advertise here</b><small>WhatsApp: +91 95852 98480</small></span></a></div>
 <footer class="by"><a href="https://adpc.shop" target="_blank" rel="noopener"><img src="logo.png" alt="Murugan Trader logo" width="64" height="64" loading="lazy"><span>by <b>Dhineshkumar Adpc - Murugan Trader</b> <span class="pk">🦚</span>📊</span></a><small>Timings can change. Please confirm at the bus stand.</small></footer>
+<div class="alk" id="alk" hidden></div>
 <script>
 let _sb=null;
 const addJS=u=>new Promise((ok,no)=>{const e=document.createElement('script');e.src=u;e.onload=ok;e.onerror=no;document.head.appendChild(e)});
@@ -91,13 +93,16 @@ const CK='bt_cache_v2';
 function apply(d){if(!d)return;window.__D=d;
 if(d.v){VN=d.v;$('title').textContent=d.v+' Bus Timings';document.title=d.v+' Bus Timings'}
 buses=d.buses||[];loaded=true;fill('to',buses.map(b=>b.to_place),'All destinations');fill('ty',buses.map(b=>b.bus_type),'All types');render();
-loadAds(d.ads);loadNotices(d.notices);loadSettings(d.settings);if(window.__hd)window.__hd()}
+loadAds(d.ads);loadApps(d.app_links);loadNotices(d.notices);loadSettings(d.settings);if(window.__hd)window.__hd()}
 async function load(){
 try{const r=await fetch('/api/data');if(!r.ok)throw 0;const d=await r.json();if(!d||!d.buses)throw 0;
 try{localStorage.setItem(CK,JSON.stringify(d))}catch(e){}apply(d)}
 catch(e){if(!loaded)$('next').innerHTML='<p class="empty">Could not load buses. Check your internet and refresh.</p>'}}
 
 const url=u=>/^https?:\/\//i.test(u||'')?u:'';
+const AI={android:'🤖',windows:'🪟',ios:'🍎',other:'📥'};
+function loadApps(a){const el=$('alk');if(!el)return;const L=(a||[]).filter(x=>url(x.url));el.hidden=!L.length;
+el.innerHTML=L.map(x=>`<a href="${esc(url(x.url))}" target="_blank" rel="noopener noreferrer" download>${AI[x.platform]||'📥'} ${esc(x.label)}</a>`).join('')}
 const WA='https://wa.me/919585298480?text='+encodeURIComponent('Hi, I want to advertise on the Bus Timings page.');
 function loadAds(data){
 const td=new Date().toLocaleDateString('en-CA');
@@ -238,10 +243,10 @@ window.__hd=draw;
 function draw(){const s=cur,k=q('hq').value.trim().toLowerCase(),lab=Object.fromEntries(s.f.map(x=>[x[0],x[1]]));
  if(!window.__D){q('hl').innerHTML='<p class="muted">ஏற்றுகிறது…</p>';return}
  const L=((window.__D[s.t])||[]).filter(r=>!k||JSON.stringify(Object.values(r)).toLowerCase().includes(k));
- q('hl').innerHTML=L.length?L.map(r=>{const im=U(r[s.img]),ph=P(r[s.phone]),lk=U(r.map_url)||((r.address||r.area||s.t==='temples')?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([r[s.title],r.address||r.area,VN].filter(Boolean).join(' ')):'');
+ q('hl').innerHTML=L.length?L.map(r=>{const im=U(r[s.img]),ph=P(r[s.phone]),lk=s.nomap?'':U(r.map_url)||((r.address||r.area||s.t==='temples')?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([r[s.title],r.address||r.area,VN].filter(Boolean).join(' ')):'');
   return `<article class="card">${im?`<img class="pic" src="${E(im)}" alt="${E(r[s.title])}" loading="lazy">`:''}<h3>${E(r[s.title])}</h3>${s.tag&&r[s.tag]?`<span class="hchip">${E(r[s.tag])}</span>`:''}${s.flag?`<span class="hchip">${r[s.flag[0]]?s.flag[1]:s.flag[2]}</span>`:''}
 ${s.show.filter(x=>r[x]).map(x=>`<p><b>${E(lab[x])}:</b> <span style="white-space:pre-line">${E(r[x])}</span></p>`).join('')}
-${ph||lk?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">📞 ${E(r[s.phone])}</a><a class="wb" href="https://wa.me/${ph.replace(/^\+/,'').replace(/^(\d{10})$/,'91$1')}" target="_blank" rel="noopener">WhatsApp</a>`:''}${lk?`<a href="${E(lk)}" target="_blank" rel="noopener noreferrer">📍 Map · வரைபடம்</a>`:''}</div>`:''}</article>`}).join(''):'<p class="muted">இன்னும் எதுவும் இல்லை</p>'}
+${ph||lk?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">📞 ${E(r[s.phone])}</a>${s.nowa?'':`<a class="wb" href="https://wa.me/${ph.replace(/^\+/,'').replace(/^(\d{10})$/,'91$1')}" target="_blank" rel="noopener">WhatsApp</a>`}`:''}${lk?`<a href="${E(lk)}" target="_blank" rel="noopener noreferrer">📍 Map · வரைபடம்</a>`:''}</div>`:''}</article>`}).join(''):'<p class="muted">இன்னும் எதுவும் இல்லை</p>'}
 {let hh=location.hash;if(!/^#help/.test(hh)){const sh=sessionStorage.getItem('hash');if(sh){hh=sh;sessionStorage.removeItem('hash')}}
 const m=/^#help(?:-(\w+))?$/.exec(hh);if(m){const f=m[1]&&SECTIONS.find(s=>s.t===m[1]);if(f)cur=f;view('help')}}
 })();
