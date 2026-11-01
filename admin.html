@@ -3,6 +3,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Admin · Bus Timings</title>
 <meta name="robots" content="noindex">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://vcbeqwwdpjbragccnyxh.supabase.co" crossorigin>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head><body class="adm">
@@ -13,8 +15,8 @@
 <div id="msg" hidden></div>
 <section id="login" class="card"><div class="body">
 <h2>Admin login</h2>
-<div class="grid"><div class="full"><label for="em">Email</label><input id="em" type="email" autocomplete="username"></div>
-<div class="full"><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password"></div></div>
+<div class="grid"><div class="full"><label for="em">Email</label><input id="em" type="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
+<div class="full"><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password"><label style="display:flex;gap:6px;align-items:center;margin-top:6px"><input type="checkbox" id="sp" style="width:auto"> Show password</label></div></div>
 <p><button id="go">Log in</button></p></div></section>
 <section id="app" hidden>
 <div class="row"><h2 class="sp">Add or edit bus</h2><button class="ghost" id="out">Log out</button></div>
@@ -76,8 +78,19 @@ const fmt=s=>{let[h,m]=s.split(':').map(Number);return (h%12||12)+':'+String(m).
 const F=['name','no','type','from','to','via','img','fare','phone','notes','act'];
 let buses=[];
 function msg(t,bad){const m=$('msg');m.textContent=t;m.className=bad?'err':'ok';m.hidden=false;setTimeout(()=>m.hidden=true,4000)}
-function show(on){$('login').hidden=on;$('app').hidden=!on;if(on){refresh();loadReq();loadFb();loadAds();loadNts();loadSt()}}
-async function enter(){const{data:ok}=await sb.rpc('is_admin');if(!ok){show(false);return msg('This account is not an admin.',1)}show(true)}
+let shown=false;
+function show(on){$('login').hidden=on;$('app').hidden=!on;if(on===shown)return;shown=on;
+if(on)Promise.allSettled([refresh(),loadReq(),loadFb(),loadAds(),loadNts(),loadSt()]).then(()=>{const y=+sessionStorage.getItem('adm_y')||0;if(y)window.scrollTo(0,y)})}
+let sT=0;addEventListener('scroll',()=>{clearTimeout(sT);sT=setTimeout(()=>{if(shown)sessionStorage.setItem('adm_y',String(scrollY))},150)},{passive:true});
+async function verify(){for(let i=0;i<3;i++){const{data,error}=await sb.rpc('is_admin');if(!error)return data?'yes':'no';await new Promise(r=>setTimeout(r,500*(i+1)))}return 'err'}
+async function notAdmin(){localStorage.removeItem('adm_ok');await sb.auth.signOut();show(false);msg('This account is not an admin.',1)}
+async function enter(){const{data:{session}}=await sb.auth.getSession();if(!session)return;const em=session.user.email;const r=await verify();
+if(r==='yes'){localStorage.setItem('adm_ok',em);show(true)}
+else if(r==='no')await notAdmin();
+else{msg('Could not check admin right now. Check internet and refresh. You are still logged in.',1);if(localStorage.getItem('adm_ok')===em)show(true)}}
+async function boot(){const{data:{session}}=await sb.auth.getSession();if(!session)return;
+if(localStorage.getItem('adm_ok')===session.user.email){show(true);verify().then(r=>{if(r==='no')notAdmin()})}else enter()}
+sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'){localStorage.removeItem('adm_ok');show(false)}});
 const LBL={wrong_time:'Timing wrong',add_time:'Add timing',remove_time:'Remove timing',other:'Other'};
 let reqs=[];
 async function loadReq(){const{data,error}=await sb.from('requests').select('*, buses(name), timings(departure_time,days)').eq('status','pending').order('created_at');
@@ -108,8 +121,12 @@ function draw(){$('rows').innerHTML=buses.map(b=>`<article class="card" data-id=
 <div class="row addt"><input type="time" class="tt" aria-label="Time"><input class="td" value="Daily" aria-label="Days" placeholder="Daily or Mon,Wed"><input class="ts" aria-label="Stop" placeholder="Stop (optional)"><button data-a="at">Add time</button></div></div></article>`).join('')||'<p class="empty">No buses yet. Add your first bus above.</p>'}
 function fillForm(b){$('f_id').value=b?.id||'';F.forEach(k=>{const m={name:'name',no:'bus_no',type:'bus_type',from:'from_place',to:'to_place',via:'via',img:'image_url',fare:'fare',phone:'phone',notes:'notes'}[k];
 if(k==='act')$('f_act').value=b?(b.active?'1':'0'):'1';else $('f_'+k).value=b?(b[m]||''):(k==='type'?'Government':'')});window.scrollTo({top:0,behavior:'smooth'})}
-$('go').onclick=async()=>{const{error}=await sb.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});
-if(error)return msg('Wrong email or password.',1);$('pw').value='';enter()};
+$('go').onclick=async()=>{const g=$('go');if(g.disabled)return;g.disabled=true;g.textContent='Logging in…';
+try{const{error}=await sb.auth.signInWithPassword({email:$('em').value.trim().toLowerCase(),password:$('pw').value});
+if(error){msg(/invalid login/i.test(error.message)?'Wrong email or password.':error.message,1);return}
+$('pw').value='';await enter()}catch(e){msg('Network problem. Please try again.',1)}finally{g.disabled=false;g.textContent='Log in'}};
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('go').click()});
+$('sp').onchange=()=>{$('pw').type=$('sp').checked?'text':'password'};
 let fbs=[];
 async function loadFb(){const{data,error}=await sb.from('feedback').select('*').order('created_at',{ascending:false}).limit(100);if(error)return msg(error.message,1);fbs=data;
 $('fbc').textContent=data.filter(f=>f.status==='new').length+' new';
@@ -174,5 +191,5 @@ if(t==='dl'&&confirm('Delete this notice?')){const{error}=await sb.from('notices
 async function loadSt(){const{data}=await sb.from('settings').select('*').eq('key','ad_scroll_min');const v=data&&data[0]&&data[0].value;if(['1','2','5','10'].includes(v))$('s_min').value=v}
 $('s_min').onchange=async()=>{const{error}=await sb.from('settings').upsert({key:'ad_scroll_min',value:$('s_min').value});
 error?msg(error.message+' (run schema_v5_settings.sql)',1):msg('Ad scroll time saved: '+$('s_min').value+' min.')};
-sb.auth.getSession().then(({data})=>{if(data.session)enter()});
+boot();
 </script></body></html>
