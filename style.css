@@ -252,3 +252,21 @@ body:not(.adm) .card:not(.ad)::after{content:"";position:absolute;inset:0;pointe
 #fbBtn:hover{transform:translateY(-2px)}
 .alk a{transition:transform .2s,background .2s}.alk a:hover{transform:translateY(-2px);background:#E3A92B22}
 @media(prefers-reduced-motion:reduce){body:not(.adm) *,body:not(.adm) *::before,body:not(.adm) *::after{animation:none!important;transition:none!important}}
+
+/* ===== v11: favourites, share, first/last bus, special buses ===== */
+.fav{position:absolute;top:8px;right:8px;z-index:3;min-height:0!important;width:38px;height:38px;padding:0!important;border-radius:50%;border:1px solid #ffffff44!important;background:#050C0Fb3!important;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);font-size:1.15rem;line-height:1;display:grid;place-items:center;transition:transform .2s}
+.fav:hover{transform:scale(1.12)}.fav.on{animation:favPop .5s cubic-bezier(.2,.8,.3,1)}
+@keyframes favPop{40%{transform:scale(1.45)}}
+.card.bus h3{padding-right:44px}
+.card.bus.isfav{border-color:#ff5d7a88!important}
+button.shr{margin-left:8px;color:#25D366;border-color:#25D366}
+p.fl{margin:2px 0 10px;display:flex;flex-wrap:wrap;gap:4px}
+.fl2{margin:8px 0 2px;font-size:.88rem;opacity:.92}
+.lastb{color:#ff9a3d;animation:lastBl 1.4s ease-in-out infinite}.done{opacity:.7}
+@keyframes lastBl{50%{opacity:.45}}
+.chip.last{border-color:#ff9a3d;box-shadow:0 0 0 1px #ff9a3d55}.chip.last small{font-size:.65rem;color:#ff9a3d;margin-left:2px}
+section#spec h2{margin-top:8px}
+.card.sp{border-color:#E3A92B99!important;background:linear-gradient(135deg,#E3A92B22,var(--card) 60%)!important}
+.card.sp h3{font-size:1.15rem}.card.sp p{margin:4px 0}
+.card.sp .row{display:flex;gap:8px;margin-top:8px}
+.card.sp .row a{flex:1;text-align:center;text-decoration:none;font-weight:700;border-radius:99px;padding:10px 16px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#0F9AA1,#0B5D62)}
