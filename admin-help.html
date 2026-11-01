@@ -4,11 +4,13 @@
 <title>Admin · Help</title><meta name="robots" content="noindex">
 <link rel="stylesheet" href="style.css">
 <style>.tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px}.tabs button.on{outline:2px solid currentColor}.tabs button{white-space:nowrap}.it{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #8884}.it small{opacity:.7}</style>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://vcbeqwwdpjbragccnyxh.supabase.co" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head><body>
 <header class="top"><div class="wrap"><h1>Admin · Help tabs</h1><p><a href="admin.html">← Bus admin</a> · <a href="index.html#help">View public page</a></p></div></header>
 <main class="wrap">
-<section id="lg"><h2>Admin login</h2><label for="em">Email</label><input id="em" type="email" autocomplete="username"><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password"><div class="row"><button id="go">Login</button></div></section>
+<section id="lg"><h2>Admin login</h2><label for="em">Email</label><input id="em" type="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password"><label style="display:flex;gap:6px;align-items:center;margin-top:6px"><input type="checkbox" id="sp" style="width:auto"> Show password</label><div class="row"><button id="go">Login</button></div></section>
 <section id="ap" hidden><div class="tabs" id="tabs"></div><form id="fm" onsubmit="return false"></form><h2>Saved</h2><div id="ls"></div><div class="row"><button class="ghost" id="lo">Log out</button></div></section>
 <p id="ms" role="status"></p>
 </main>
@@ -19,12 +21,27 @@ const safeUrl=u=>/^https?:\/\//i.test(u||'')?u:'';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),$=id=>document.getElementById(id);
 const msg=(t,bad)=>{$('ms').textContent=t;$('ms').style.color=bad?'#c0392b':'inherit'};
 let cur=SECTIONS[0],rows=[],edit=null;
-async function enter(){const{data:ok}=await sb.rpc('is_admin');if(!ok){await sb.auth.signOut();return msg('This account is not an admin.',1)}
- $('lg').hidden=true;$('ap').hidden=false;$('tabs').innerHTML=SECTIONS.map(s=>`<button type="button" data-t="${s.t}">${s.label}</button>`).join('');pick(SECTIONS[0])}
-$('go').onclick=async()=>{const{error}=await sb.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});$('pw').value='';if(error)return msg('Wrong email or password.',1);msg('');enter()};
-$('lo').onclick=async()=>{await sb.auth.signOut();location.reload()};
+function openApp(){$('lg').hidden=true;$('ap').hidden=false;if($('tabs').children.length)return;
+$('tabs').innerHTML=SECTIONS.map(s=>`<button type="button" data-t="${s.t}">${s.label}</button>`).join('');
+pick(SECTIONS.find(s=>s.t===localStorage.getItem('ah_tab'))||SECTIONS[0])}
+async function verify(){for(let i=0;i<3;i++){const{data,error}=await sb.rpc('is_admin');if(!error)return data?'yes':'no';await new Promise(r=>setTimeout(r,500*(i+1)))}return 'err'}
+async function notAdmin(){localStorage.removeItem('adm_ok');await sb.auth.signOut();$('lg').hidden=false;$('ap').hidden=true;msg('This account is not an admin.',1)}
+async function enter(){const{data:{session}}=await sb.auth.getSession();if(!session)return;const em=session.user.email;const r=await verify();
+if(r==='yes'){localStorage.setItem('adm_ok',em);openApp()}
+else if(r==='no')await notAdmin();
+else{msg('Could not check admin right now. Check internet and refresh. You are still logged in.',1);if(localStorage.getItem('adm_ok')===em)openApp()}}
+async function boot(){const{data:{session}}=await sb.auth.getSession();if(!session)return;
+if(localStorage.getItem('adm_ok')===session.user.email){openApp();verify().then(r=>{if(r==='no')notAdmin()})}else enter()}
+sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'){localStorage.removeItem('adm_ok');$('lg').hidden=false;$('ap').hidden=true}});
+$('go').onclick=async()=>{const g=$('go');if(g.disabled)return;g.disabled=true;g.textContent='Logging in…';
+try{const{error}=await sb.auth.signInWithPassword({email:$('em').value.trim().toLowerCase(),password:$('pw').value});
+if(error){msg(/invalid login/i.test(error.message)?'Wrong email or password.':error.message,1);return}
+$('pw').value='';msg('');await enter()}catch(e){msg('Network problem. Please try again.',1)}finally{g.disabled=false;g.textContent='Login'}};
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('go').click()});
+$('sp').onchange=()=>{$('pw').type=$('sp').checked?'text':'password'};
+$('lo').onclick=async()=>{localStorage.removeItem('adm_ok');await sb.auth.signOut();location.reload()};
 $('tabs').onclick=e=>{const b=e.target.closest('button');if(b)pick(SECTIONS.find(s=>s.t===b.dataset.t))};
-async function pick(s){cur=s;edit=null;[...$('tabs').children].forEach(b=>b.classList.toggle('on',b.dataset.t===s.t));form();
+async function pick(s){cur=s;edit=null;localStorage.setItem('ah_tab',s.t);[...$('tabs').children].forEach(b=>b.classList.toggle('on',b.dataset.t===s.t));form();
  const{data,error}=await sb.from(s.t).select('*').order('sort_order').order('created_at');if(error)return msg(error.message,1);rows=data;list()}
 function form(){const r=edit||{};$('fm').innerHTML=`<h2>${edit?'Edit':'Add'} · ${cur.label}</h2>`+cur.f.map(([k,l,ty,x])=>{const v=r[k]??'',id='f_'+k;
  if(ty==='check')return `<label><input type="checkbox" id="${id}" ${r[k]?'checked':''}> ${l}</label>`;
@@ -46,5 +63,5 @@ $('ls').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const 
  if(b.dataset.a==='e'){edit=r;form();scrollTo(0,0)}
  else if(b.dataset.a==='h'){const{error}=await sb.from(cur.t).update({active:!r.active}).eq('id',r.id);error?msg(error.message,1):pick(cur)}
  else if(confirm('Delete "'+r[cur.title]+'"?')){const{error}=await sb.from(cur.t).delete().eq('id',r.id);error?msg(error.message,1):pick(cur)}};
-sb.auth.getSession().then(({data})=>{if(data.session)enter()});
+boot();
 </script></body></html>
