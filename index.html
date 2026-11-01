@@ -46,6 +46,7 @@
 <section id="adsec" hidden><h2>Ads · விளம்பரம்</h2><div class="ads" id="ads"><div class="trk" id="trk"></div></div></section>
 </main>
 <dialog id="dlg"></dialog>
+<div class="wrap" style="text-align:center;margin:18px auto 6px"><button type="button" id="fbBtn">💬 Feedback · கருத்து</button></div>
 <div class="wrap"><a class="adv" href="https://wa.me/919585298480?text=Hi%2C%20I%20want%20to%20advertise%20on%20the%20Bus%20Timings%20page." target="_blank" rel="noopener"><svg class="wa" viewBox="0 0 24 24" aria-hidden="true"><path fill="#25D366" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg><span><b>உங்கள் விளம்பரம் இங்கே! · Advertise here</b><small>WhatsApp: +91 95852 98480</small></span></a></div>
 <footer class="by"><a href="https://adpc.shop" target="_blank" rel="noopener"><img src="logo.png" alt="Murugan Trader logo" width="64" height="64" loading="lazy"><span>by <b>Dhineshkumar Adpc - Murugan Trader</b> <span class="pk">🦚</span>📊</span></a><small>Timings can change. Please confirm at the bus stand.</small></footer>
 <script>
@@ -122,20 +123,39 @@ const dlg=$('dlg');
 async function who(){if(!hasAuth()){user=null;$('who').innerHTML='';return}
 const sb=await getSB();const{data}=await sb.auth.getSession();user=data.session?.user||null;
 $('who').innerHTML=user?`${esc(user.user_metadata?.full_name||user.email)} <button class="lk" id="lo">Log out</button>`:'';
-if(user&&sessionStorage.getItem('rep')){const id=sessionStorage.getItem('rep');sessionStorage.removeItem('rep');openRep(id)}}
+const af=sessionStorage.getItem('after');if(user&&af){sessionStorage.removeItem('after');if(af==='fb')openFb();else if(af.startsWith('rep:'))openRep(af.slice(4))}}
 document.addEventListener('click',async e=>{if(e.target.id==='lo'){const sb=await getSB();await sb.auth.signOut();who()}});
+$('fbBtn').addEventListener('click',openFb);
 $('list').addEventListener('click',e=>{const b=e.target.closest('.rep');if(b)openRep(b.dataset.id)});
-function openRep(id){cur=buses.find(b=>b.id===id);if(!cur)return;getSB().catch(()=>{});
-if(!user){dlg.innerHTML=`<h3>${esc(cur.name)}</h3><p>Sign in with Google to report a wrong timing. Only the admin can see your name.</p><div class="row"><button id="gg">Continue with Google</button><button class="ghost" id="r_x">Cancel</button></div>`;
-dlg.showModal();$('r_x').onclick=()=>dlg.close();
-$('gg').onclick=async()=>{sessionStorage.setItem('rep',id);
+function loginDlg(title,note,key){getSB().catch(()=>{});
+dlg.innerHTML=`<h3>${esc(title)}</h3><p>${esc(note)}</p><div class="row"><button id="gg">Continue with Google</button><button class="ghost" id="r_x">Cancel</button></div>`;
+if(!dlg.open)dlg.showModal();$('r_x').onclick=()=>dlg.close();
+$('gg').onclick=async()=>{sessionStorage.setItem('after',key);
 if(window.AndroidBridge){/* inside the Android app: use the phone's Google account, no redirect */
 window.onNativeGoogle=async(tok,nonce)=>{try{const c=await getSB();const{error}=await c.auth.signInWithIdToken({provider:'google',token:tok,nonce});
-if(error){sessionStorage.removeItem('rep');return alert('Login failed: '+error.message)}
+if(error){sessionStorage.removeItem('after');return alert('Login failed: '+error.message)}
 dlg.close();await who()}catch(e){alert('Login failed')}};
-window.onNativeGoogleError=m=>{sessionStorage.removeItem('rep');alert('Google sign-in was cancelled or failed'+(m?' ('+m+')':''))};
+window.onNativeGoogleError=m=>{sessionStorage.removeItem('after');alert('Google sign-in was cancelled or failed'+(m?' ('+m+')':''))};
 AndroidBridge.googleSignIn();return}
-const sb=await getSB();sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}})};return}
+const sb=await getSB();sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}})}}
+async function openFb(){await who();
+if(!user){loginDlg('💬 Feedback · கருத்து','Sign in with Google to send feedback. Only the admin can see your name.','fb');return}
+let rate=0;
+dlg.innerHTML=`<h3>💬 Feedback · கருத்து</h3><p class="muted">Tell us what to improve. உங்கள் கருத்தைச் சொல்லுங்கள்.</p>
+<div id="stars" role="radiogroup" aria-label="Rating" style="font-size:2rem;letter-spacing:6px;cursor:pointer;user-select:none">${[1,2,3,4,5].map(i=>`<span data-s="${i}" role="radio" aria-checked="false" aria-label="${i} star">☆</span>`).join('')}</div>
+<label for="fb_msg">Your feedback · உங்கள் கருத்து</label><textarea id="fb_msg" rows="4" maxlength="1000"></textarea>
+<div class="row" style="margin-top:12px"><button id="fb_send">Send · அனுப்பு</button><button class="ghost" id="r_x">Cancel</button></div>`;
+if(!dlg.open)dlg.showModal();$('r_x').onclick=()=>dlg.close();
+$('stars').onclick=e=>{const n=+(e.target.dataset&&e.target.dataset.s);if(!n)return;rate=n;
+[...$('stars').children].forEach((x,i)=>{x.textContent=i<n?'★':'☆';x.setAttribute('aria-checked',i<n?'true':'false')})};
+$('fb_send').onclick=async()=>{const m=$('fb_msg').value.trim();if(!m)return alert('Please write your feedback.');
+$('fb_send').disabled=true;
+try{const sb=await getSB();const{error}=await sb.from('feedback').insert({rating:rate||null,message:m});
+if(error){$('fb_send').disabled=false;return alert('Could not send: '+error.message)}
+dlg.innerHTML='<h3>Thank you! நன்றி!</h3><p>Your feedback was sent to the admin.</p><button id="r_x">Close</button>';$('r_x').onclick=()=>dlg.close()}
+catch(e){$('fb_send').disabled=false;alert('Could not send. Check your internet.')}}}
+function openRep(id){cur=buses.find(b=>b.id===id);if(!cur)return;getSB().catch(()=>{});
+if(!user){loginDlg(cur.name,'Sign in with Google to report a wrong timing. Only the admin can see your name.','rep:'+id);return}
 const ts=[...(cur.timings||[])].sort((a,c)=>a.departure_time.localeCompare(c.departure_time));
 dlg.innerHTML=`<h3>${esc(cur.name)}</h3>
 <label for="r_type">What is wrong?</label><select id="r_type"><option value="wrong_time">A timing is wrong</option><option value="add_time">A timing is missing</option><option value="remove_time">A timing no longer runs</option><option value="other">Something else</option></select>
