@@ -64,6 +64,7 @@
 </div><p class="row"><button id="n_save">Save notice</button><button class="ghost" id="n_clr">Clear form</button></p></div></div>
 <div id="nrows"></div>
 <h2>Requests <span class="tag" id="rc">0</span></h2><div id="reqs"></div>
+<h2>Feedback · கருத்துகள் <span class="tag" id="fbc">0</span></h2><div id="fbs"></div>
 <h2>Buses</h2><div id="rows"></div>
 </section></main>
 <script src="/api/config"></script>
@@ -75,7 +76,7 @@ const fmt=s=>{let[h,m]=s.split(':').map(Number);return (h%12||12)+':'+String(m).
 const F=['name','no','type','from','to','via','img','fare','phone','notes','act'];
 let buses=[];
 function msg(t,bad){const m=$('msg');m.textContent=t;m.className=bad?'err':'ok';m.hidden=false;setTimeout(()=>m.hidden=true,4000)}
-function show(on){$('login').hidden=on;$('app').hidden=!on;if(on){refresh();loadReq();loadAds();loadNts();loadSt()}}
+function show(on){$('login').hidden=on;$('app').hidden=!on;if(on){refresh();loadReq();loadFb();loadAds();loadNts();loadSt()}}
 async function enter(){const{data:ok}=await sb.rpc('is_admin');if(!ok){show(false);return msg('This account is not an admin.',1)}show(true)}
 const LBL={wrong_time:'Timing wrong',add_time:'Add timing',remove_time:'Remove timing',other:'Other'};
 let reqs=[];
@@ -109,6 +110,16 @@ function fillForm(b){$('f_id').value=b?.id||'';F.forEach(k=>{const m={name:'name
 if(k==='act')$('f_act').value=b?(b.active?'1':'0'):'1';else $('f_'+k).value=b?(b[m]||''):(k==='type'?'Government':'')});window.scrollTo({top:0,behavior:'smooth'})}
 $('go').onclick=async()=>{const{error}=await sb.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});
 if(error)return msg('Wrong email or password.',1);$('pw').value='';enter()};
+let fbs=[];
+async function loadFb(){const{data,error}=await sb.from('feedback').select('*').order('created_at',{ascending:false}).limit(100);if(error)return msg(error.message,1);fbs=data;
+$('fbc').textContent=data.filter(f=>f.status==='new').length+' new';
+$('fbs').innerHTML=data.map(f=>`<article class="card" data-f="${f.id}"><div class="body"><div class="row"><strong>${esc(f.user_name||f.user_email||'User')}</strong><span class="tag">${f.rating?'★'.repeat(f.rating)+'☆'.repeat(5-f.rating):'No rating'}</span>${f.status==='new'?'<span class="tag">NEW</span>':''}</div>
+<p class="muted">${esc(f.user_email||'')} · ${new Date(f.created_at).toLocaleString('en-IN')}</p><p style="white-space:pre-line">${esc(f.message)}</p>
+<div class="row">${f.status==='new'?'<button data-a="done">Mark done</button>':''}<button data-a="del" class="danger">Delete</button></div></div></article>`).join('')||'<p class="empty">No feedback yet.</p>'}
+$('fbs').onclick=async e=>{const a=e.target.dataset.a;if(!a)return;const id=e.target.closest('.card').dataset.f;
+if(a==='del'&&!confirm('Delete this feedback?'))return;
+const{error}=a==='del'?await sb.from('feedback').delete().eq('id',id):await sb.from('feedback').update({status:'done'}).eq('id',id);
+if(error)return msg(error.message,1);loadFb()};
 $('out').onclick=async()=>{await sb.auth.signOut();show(false)};
 $('clr').onclick=()=>fillForm(null);
 $('save').onclick=async()=>{const row={name:$('f_name').value.trim(),bus_no:$('f_no').value.trim()||null,bus_type:$('f_type').value,from_place:$('f_from').value.trim(),to_place:$('f_to').value.trim(),via:$('f_via').value.trim()||null,image_url:$('f_img').value.trim()||null,fare:$('f_fare').value.trim()||null,phone:$('f_phone').value.trim()||null,notes:$('f_notes').value.trim()||null,active:$('f_act').value==='1'};
