@@ -1,7 +1,7 @@
 // To add a new tab later: add one object here + one table in SQL. Public page and admin page both read this.
 // f: [column, label, type(text|tel|url|check|select|area), required|options]
 const SECTIONS=[
-{t:'helpers',label:'🛺 ஆட்டோ · கார்',title:'name',tag:'kind',phone:'phone',img:'image_url',
+{t:'helpers',label:'🛺 ஆட்டோ · கார்',title:'name',nowa:1,nomap:1,tag:'kind',phone:'phone',img:'image_url',
  show:['area','rate','night_extra','notes'],flag:['night_available','🌙 Night available · இரவு உண்டு','Day only · பகல் மட்டும்'],
  f:[['name','Name','text',1],['kind','Type','select',['Auto','Car','Van','Other']],['phone','Phone','tel'],['area','Area / Stand','text'],
     ['rate','Rate info (day)','text'],['night_available','Night available?','check'],['night_extra','Extra money for night trip','text'],['notes','Notes','area'],['map_url','Google Maps link','url'],['image_url','Picture link (https)','url']]},
