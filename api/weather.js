@@ -1,7 +1,7 @@
 // Cached weather + rain nowcast. Vercel CDN serves it for 5 min, so visitors do NOT hit Open-Meteo each time.
 // Optional Vercel env vars: WEATHER_LAT, WEATHER_LON (default is near Thanikkottagam).
 module.exports = async (req, res) => {
-  const lat = process.env.WEATHER_LAT || '10.45', lon = process.env.WEATHER_LON || '79.75';
+  const lat = process.env.WEATHER_LAT || '10.44', lon = process.env.WEATHER_LON || '79.68';
   try {
     const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,precipitation,is_day&minutely_15=precipitation&forecast_minutely_15=8&timezone=Asia%2FKolkata`;
     const r = await fetch(u, { signal: AbortSignal.timeout(8000) });
