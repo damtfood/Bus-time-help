@@ -98,7 +98,6 @@ catch(e){if(!loaded)$('next').innerHTML='<p class="empty">Could not load buses. 
 
 const url=u=>/^https?:\/\//i.test(u||'')?u:'';
 const WA='https://wa.me/919585298480?text='+encodeURIComponent('Hi, I want to advertise on the Bus Timings page.');
-const CTA=`<article class="card ad txt cta"><div class="body"><span class="tag" style="margin:0 0 6px">Ad</span><h3>உங்கள் விளம்பரம் இங்கே!</h3><p class="muted">Advertise here · Reach the whole village</p><div class="row"><a class="wb" href="${WA}" target="_blank" rel="noopener">WhatsApp</a></div></div></article>`;
 function loadAds(data){
 const td=new Date().toLocaleDateString('en-CA');
 const list=(data||[]).filter(a=>(!a.start_date||a.start_date<=td)&&(!a.end_date||a.end_date>=td));
@@ -106,7 +105,7 @@ $('adsec').hidden=!list.length;
 const set=list.map(a=>{const im=url(a.image_url),ln=url(a.link_url),ph=(a.phone||'').replace(/[^0-9+]/g,'');
 const wn=ph.replace(/\D/g,''),wd=wn.length===10?'91'+wn:wn;
 return `<article class="card ad${im?'':' txt'}">${im?`<img src="${esc(im)}" alt="${esc(a.title||'Ad')}">`:''}<div class="body"><span class="tag" style="margin:0 0 6px">Ad</span>${a.title?`<h3>${esc(a.title)}</h3>`:''}${a.body?`<p class="muted" style="white-space:pre-line">${esc(a.body)}</p>`:''}
-${ph||ln?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">Call</a><a class="wb" href="https://wa.me/${wd}" target="_blank" rel="noopener">WhatsApp</a>`:''}${ln?`<a href="${esc(ln)}" target="_blank" rel="noopener noreferrer sponsored">Open link</a>`:''}</div>`:''}</div></article>`}).join('')+CTA;
+${ph||ln?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">Call</a><a class="wb" href="https://wa.me/${wd}" target="_blank" rel="noopener">WhatsApp</a>`:''}${ln?`<a href="${esc(ln)}" target="_blank" rel="noopener noreferrer sponsored">Open link</a>`:''}</div>`:''}</div></article>`}).join('');
 if(!list.length)return;const trk=$('trk');if(trk.dataset.s===set)return;trk.dataset.s=set;
 trk.innerHTML=set;const k=Math.max(1,Math.ceil(($('ads').clientWidth||360)/(trk.scrollWidth||1)));
 trk.dataset.k=k;const half=set.repeat(k);
