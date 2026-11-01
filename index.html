@@ -120,17 +120,20 @@ if(n.getMinutes()!==lastMin){lastMin=n.getMinutes();render()}}
 
 let user=null,cur=null;
 const dlg=$('dlg');
-async function who(){if(!hasAuth()){user=null;$('who').innerHTML='';return}
-const sb=await getSB();const{data}=await sb.auth.getSession();user=data.session?.user||null;
-$('who').innerHTML=user?`${esc(user.user_metadata?.full_name||user.email)} <button class="lk" id="lo">Log out</button>`:'';
+const paintWho=n=>{$('who').innerHTML=n?`${esc(n)} <button class="lk" id="lo">Log out</button>`:''};
+async function who(){if(!hasAuth()){user=null;paintWho('');return}
+if(!user){try{const n=localStorage.getItem('bt_who');if(n)paintWho(n)}catch(e){}}
+let session;try{const sb=await getSB();session=(await sb.auth.getSession()).data.session}catch(e){return}   // network problem: keep the saved login, try again later
+user=session?.user||null;const nm=user?(user.user_metadata?.full_name||user.email):'';
+try{nm?localStorage.setItem('bt_who',nm):localStorage.removeItem('bt_who')}catch(e){}paintWho(nm);
 const af=sessionStorage.getItem('after');if(user&&af){sessionStorage.removeItem('after');if(af==='fb')openFb();else if(af.startsWith('rep:'))openRep(af.slice(4))}}
-document.addEventListener('click',async e=>{if(e.target.id==='lo'){const sb=await getSB();await sb.auth.signOut();who()}});
+document.addEventListener('click',async e=>{if(e.target.id==='lo'){const sb=await getSB();await sb.auth.signOut();try{localStorage.removeItem('bt_who')}catch(_){}user=null;paintWho('');who()}});
 $('fbBtn').addEventListener('click',openFb);
 $('list').addEventListener('click',e=>{const b=e.target.closest('.rep');if(b)openRep(b.dataset.id)});
 function loginDlg(title,note,key){getSB().catch(()=>{});
 dlg.innerHTML=`<h3>${esc(title)}</h3><p>${esc(note)}</p><div class="row"><button id="gg">Continue with Google</button><button class="ghost" id="r_x">Cancel</button></div>`;
 if(!dlg.open)dlg.showModal();$('r_x').onclick=()=>dlg.close();
-$('gg').onclick=async()=>{sessionStorage.setItem('after',key);
+$('gg').onclick=async()=>{sessionStorage.setItem('after',key);sessionStorage.setItem('hash',location.hash);
 if(window.AndroidBridge){/* inside the Android app: use the phone's Google account, no redirect */
 window.onNativeGoogle=async(tok,nonce)=>{try{const c=await getSB();const{error}=await c.auth.signInWithIdToken({provider:'google',token:tok,nonce});
 if(error){sessionStorage.removeItem('after');return alert('Login failed: '+error.message)}
@@ -226,9 +229,9 @@ let cur=SECTIONS[0];
 q('ht').innerHTML=SECTIONS.map(s=>`<button type="button" data-t="${s.t}">${s.label}</button>`).join('');
 function view(v){q('v_bus').hidden=v!=='bus';q('v_help').hidden=v!=='help';
  [...q('mt').children].forEach(b=>b.classList.toggle('on',b.dataset.v===v));
- history.replaceState(null,'',v==='help'?'#help':location.pathname+location.search);if(v==='help')load()}
+ history.replaceState(null,'',v==='help'?'#help-'+cur.t:location.pathname+location.search);if(v==='help')load()}
 q('mt').onclick=e=>{const b=e.target.closest('button');if(b)view(b.dataset.v)};
-q('ht').onclick=e=>{const b=e.target.closest('button');if(b){cur=SECTIONS.find(s=>s.t===b.dataset.t);load()}};
+q('ht').onclick=e=>{const b=e.target.closest('button');if(b){cur=SECTIONS.find(s=>s.t===b.dataset.t);history.replaceState(null,'','#help-'+cur.t);load()}};
 q('hq').oninput=draw;
 function load(){[...q('ht').children].forEach(b=>b.classList.toggle('on',b.dataset.t===cur.t));draw()}
 window.__hd=draw;
@@ -239,7 +242,8 @@ function draw(){const s=cur,k=q('hq').value.trim().toLowerCase(),lab=Object.from
   return `<article class="card">${im?`<img class="pic" src="${E(im)}" alt="${E(r[s.title])}" loading="lazy">`:''}<h3>${E(r[s.title])}</h3>${s.tag&&r[s.tag]?`<span class="hchip">${E(r[s.tag])}</span>`:''}${s.flag?`<span class="hchip">${r[s.flag[0]]?s.flag[1]:s.flag[2]}</span>`:''}
 ${s.show.filter(x=>r[x]).map(x=>`<p><b>${E(lab[x])}:</b> <span style="white-space:pre-line">${E(r[x])}</span></p>`).join('')}
 ${ph||lk?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">📞 ${E(r[s.phone])}</a><a class="wb" href="https://wa.me/${ph.replace(/^\+/,'').replace(/^(\d{10})$/,'91$1')}" target="_blank" rel="noopener">WhatsApp</a>`:''}${lk?`<a href="${E(lk)}" target="_blank" rel="noopener noreferrer">📍 Map · வரைபடம்</a>`:''}</div>`:''}</article>`}).join(''):'<p class="muted">இன்னும் எதுவும் இல்லை</p>'}
-if(location.hash==='#help')view('help');
+{let hh=location.hash;if(!/^#help/.test(hh)){const sh=sessionStorage.getItem('hash');if(sh){hh=sh;sessionStorage.removeItem('hash')}}
+const m=/^#help(?:-(\w+))?$/.exec(hh);if(m){const f=m[1]&&SECTIONS.find(s=>s.t===m[1]);if(f)cur=f;view('help')}}
 })();
 </script>
 </body></html>
