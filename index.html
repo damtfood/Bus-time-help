@@ -18,11 +18,11 @@
 @keyframes aSweep{50%,100%{transform:translateX(140%)}}
 @keyframes aWob{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg) scale(1.15)}}
 @keyframes aDown{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
-.wx{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:5px 14px 5px 8px;border-radius:99px;font-size:.88rem;font-weight:700;background:linear-gradient(135deg,#ffffff1f,#ffffff0a);border:1px solid #ffffff33;animation:wIn .6s cubic-bezier(.2,.8,.3,1) both}
+.wx{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:3px 11px 3px 6px;border-radius:99px;font-size:.76rem;max-width:100%;font-weight:700;background:linear-gradient(135deg,#ffffff1f,#ffffff0a);border:1px solid #ffffff33;animation:wIn .6s cubic-bezier(.2,.8,.3,1) both}
 .wx[hidden]{display:none}
-.wx .wn{font-size:.62rem;font-weight:400;opacity:.65;white-space:nowrap}
-.wx .we{font-size:1.5rem;line-height:1;display:inline-block;animation:wBob 2.4s ease-in-out infinite}
-.wx .wt{font-family:"Baloo Thambi 2",sans-serif;font-size:1rem;color:var(--gold)}
+.wx .wn{font-size:.55rem;font-weight:400;opacity:.65;white-space:nowrap}
+.wx .we{font-size:1.15rem;line-height:1;display:inline-block;animation:wBob 2.4s ease-in-out infinite}
+.wx .wt{font-family:"Baloo Thambi 2",sans-serif;font-size:.85rem;color:var(--gold)}
 .wx.wsun .we{animation:wSun 3s ease-in-out infinite;filter:drop-shadow(0 0 8px #FFD54A)}
 .wx.wcl .we{animation:wFloat 4s ease-in-out infinite}
 .wx.wrain{background:linear-gradient(135deg,#1f6fb2,#0b3d63);border-color:#7cc4ff;animation:wIn .6s both,wShake 3s ease-in-out 1s infinite}
@@ -37,6 +37,7 @@
 @keyframes wShake{0%,90%,100%{transform:translateX(0)}93%{transform:translateX(-3px)}96%{transform:translateX(3px)}}
 @keyframes wPing{70%{box-shadow:0 0 0 9px #7cc4ff00}100%{box-shadow:0 0 0 0 #7cc4ff00}}
 @keyframes wDrop{to{transform:translateY(46px);opacity:0}}
+@media(max-width:480px){.wx{gap:5px;padding:2px 9px 2px 5px;font-size:.7rem;margin-top:6px}.wx .we{font-size:1rem}.wx .wt{font-size:.78rem}.wx .wn{display:none}.wx i.dr{height:7px}}
 @media(prefers-reduced-motion:reduce){.alk *,.alk a,.wx,.wx *{animation:none!important}}
 .ad img,.card.ad>img{aspect-ratio:auto!important;height:auto!important;max-height:none!important;object-fit:contain!important;animation:none!important;transform:none!important}
 </style>
