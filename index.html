@@ -22,11 +22,11 @@
 .wx[hidden]{display:none}
 .wx .we{font-size:1.5rem;line-height:1;display:inline-block;animation:wBob 2.4s ease-in-out infinite}
 .wx .wt{font-family:"Baloo Thambi 2",sans-serif;font-size:1rem;color:var(--gold)}
-.wx.sun .we{animation:wSun 3s ease-in-out infinite;filter:drop-shadow(0 0 8px #FFD54A)}
-.wx.cloud .we{animation:wFloat 4s ease-in-out infinite}
-.wx.rain{background:linear-gradient(135deg,#1f6fb2,#0b3d63);border-color:#7cc4ff;animation:wIn .6s both,wShake 3s ease-in-out 1s infinite}
-.wx.rain .we{animation:wUmb 1.2s ease-in-out infinite;transform-origin:50% 90%}
-.wx.rain.soon{box-shadow:0 0 0 0 #7cc4ff88;animation:wIn .6s both,wShake 3s ease-in-out 1s infinite,wPing 1.8s infinite}
+.wx.wsun .we{animation:wSun 3s ease-in-out infinite;filter:drop-shadow(0 0 8px #FFD54A)}
+.wx.wcl .we{animation:wFloat 4s ease-in-out infinite}
+.wx.wrain{background:linear-gradient(135deg,#1f6fb2,#0b3d63);border-color:#7cc4ff;animation:wIn .6s both,wShake 3s ease-in-out 1s infinite}
+.wx.wrain .we{animation:wUmb 1.2s ease-in-out infinite;transform-origin:50% 90%}
+.wx.wrain.wsoon{box-shadow:0 0 0 0 #7cc4ff88;animation:wIn .6s both,wShake 3s ease-in-out 1s infinite,wPing 1.8s infinite}
 .wx i.dr{position:absolute;top:-8px;width:2px;height:9px;border-radius:2px;background:#bfe3ff;opacity:.8;animation:wDrop .9s linear infinite}
 @keyframes wIn{from{opacity:0;transform:translateY(-8px) scale(.9)}}
 @keyframes wBob{50%{transform:translateY(-3px)}}
@@ -291,16 +291,18 @@ function paint(){
  const now=Date.now(),c=W.code,t=Math.round(W.temp)+'°C';
  let cls='',em='',msg='',dr=false;
  const mins=W.rainAt!=null?Math.max(0,Math.ceil((W.rainAt-now)/60000)):null;
- if(W.rainNow||RAIN(c)){cls='rain';em='☔';msg='மழை பெய்யுது! குடை எங்கே? 😅';dr=true}
- else if(mins!=null&&mins<=15){cls='rain soon';em='☔';msg=(mins<=1?'இப்போவே':'~'+mins+' min ல')+' மழை வருது! குடை எடுத்துக்கோ 🏃';dr=true}
- else if(c===45||c===48){cls='cloud';em='🌫️';msg='பனி மூட்டம் - மெதுவா போங்க'}
- else if(c>=3){cls='cloud';em='⛅';msg='மேகமூட்டம் - மழை இல்லை போல'}
+ if(W.rainNow||RAIN(c)){cls='wrain';em='☔';msg='மழை பெய்யுது! குடை எங்கே? 😅';dr=true}
+ else if(mins!=null&&mins<=15){cls='wrain wsoon';em='☔';msg=(mins<=1?'இப்போவே':'~'+mins+' min ல')+' மழை வருது! குடை எடுத்துக்கோ 🏃';dr=true}
+ else if(c===45||c===48){cls='wcl';em='🌫️';msg='பனி மூட்டம் - மெதுவா போங்க'}
+ else if(c>=3){cls='wcl';em='⛅';msg='மேகமூட்டம் - மழை இல்லை போல'}
  else if(W.day===0){cls='';em='🌙';msg='இரவு அமைதி - நிம்மதியா போங்க'}
- else{cls='sun';em='😎';msg='வெயில் சுள்ளுனு இருக்கு!'}
+ else{cls='wsun';em='😎';msg='வெயில் சுள்ளுனு இருக்கு!'}
  el.className='wx '+cls;el.hidden=false;
  el.innerHTML=(dr?drops():'')+`<span class="we">${em}</span><span class="wt">${t}</span><span>${msg}</span>`;
 }
-async function get(){try{const r=await fetch('/api/weather');if(!r.ok)throw 0;W=await r.json();paint()}catch(e){if(!W)el.hidden=true}}
+const TQ=new URLSearchParams(location.search).get('wx'),T0=Date.now();
+const MOCK={rain:{temp:27,code:61,day:1,rainNow:true,rainAt:null},soon:{temp:29,code:3,day:1,rainNow:false,rainAt:T0+8*60000},sun:{temp:34,code:0,day:1,rainNow:false,rainAt:null},cloud:{temp:29,code:3,day:1,rainNow:false,rainAt:null},night:{temp:25,code:0,day:0,rainNow:false,rainAt:null},fog:{temp:24,code:45,day:1,rainNow:false,rainAt:null}};
+async function get(){if(TQ&&MOCK[TQ]){W=MOCK[TQ];paint();return}try{const r=await fetch('/api/weather');if(!r.ok)throw 0;W=await r.json();paint()}catch(e){if(!W)el.hidden=true}}
 get();setInterval(get,300000);setInterval(paint,30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)get()});
 })();
