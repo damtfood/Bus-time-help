@@ -194,9 +194,79 @@ dialog[open]{animation:dlg .25s ease-out}
 .stop b{color:var(--gold);letter-spacing:.04em}
 .stop .pin{font-style:normal;display:inline-block;animation:bounce 1.3s ease-in-out infinite}
 
-.filters #q{grid-column:1/-1}
-.rt{grid-column:1/-1;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
-.rt::-webkit-scrollbar{display:none}
-.rt button{flex:0 0 auto;white-space:nowrap;min-height:40px;padding:0 14px;border-radius:99px;background:transparent;color:inherit;border:1px solid var(--line);font-weight:600}
-.rt button small{opacity:.7;margin-left:4px}
-.rt button.on{background:var(--gold);color:#1b1300;border-color:var(--gold);font-weight:800}
+/* Ads: show the full picture (no crop, no zoom) */
+.ad img{aspect-ratio:auto;height:auto;max-height:none;object-fit:contain;animation:none;transform:none}
+
+/* ===== Premium look + animations (public pages only) ===== */
+body:not(.adm){background:radial-gradient(900px 420px at 85% -80px,#E3A92B1f,transparent 60%),radial-gradient(700px 400px at -10% 30%,#35C2C814,transparent 60%),var(--bg);background-attachment:fixed}
+body:not(.adm) h1{background:linear-gradient(100deg,#E3A92B 20%,#fff3c4 45%,#E3A92B 70%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:pShine 5s linear infinite}
+@keyframes pShine{to{background-position:-220% 0}}
+body:not(.adm) main>div>h2,body:not(.adm) main>section>h2{position:relative;padding-bottom:6px}
+body:not(.adm) main>div>h2::after,body:not(.adm) main>section>h2::after{content:"";position:absolute;left:0;bottom:0;width:54px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--teal));animation:pBar 3s ease-in-out infinite alternate}
+@keyframes pBar{to{width:110px}}
+/* view + tab switch */
+#v_bus:not([hidden]),#v_help:not([hidden]){animation:pView .45s cubic-bezier(.2,.8,.3,1) both}
+@keyframes pView{from{opacity:0;transform:translateY(12px)}}
+/* tabs */
+body .mt button{border:1px solid #ffffff2e;background:linear-gradient(180deg,#ffffff14,#ffffff05);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 2px 10px #0003;opacity:.85;transition:transform .2s,box-shadow .2s,background .25s,opacity .2s}
+body .mt button:hover{transform:translateY(-2px);opacity:1;box-shadow:0 6px 16px #0004}
+body .mt button:active{transform:scale(.95)}
+body .mt button.on{opacity:1;color:#1a1200;border-color:#E3A92B;background:linear-gradient(135deg,#F6D06F,#E3A92B 55%,#C98A12);box-shadow:0 6px 18px #E3A92B66;animation:pTab .5s cubic-bezier(.2,.8,.3,1)}
+@keyframes pTab{from{transform:scale(.9)}60%{transform:scale(1.06)}}
+/* cards */
+body:not(.adm) .card:not(.ad),body:not(.adm) .n{position:relative;border:1px solid #ffffff1c;border-radius:16px;box-shadow:0 8px 24px #0000002e,inset 0 1px 0 #ffffff12;background:linear-gradient(160deg,var(--card),color-mix(in srgb,var(--card) 88%,#000));transition:transform .25s,box-shadow .25s,border-color .25s}
+body:not(.adm) .card:not(.ad):hover,body:not(.adm) .n:hover{transform:translateY(-4px);border-color:#E3A92B88;box-shadow:0 14px 30px #0000004a,0 0 0 1px #E3A92B33}
+body:not(.adm) .card:not(.ad)::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--gold),var(--teal));z-index:1}
+body:not(.adm) .card:not(.ad)::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 42%,#ffffff1c 50%,transparent 58%);transform:translateX(-140%);animation:pSweep 7s ease-in-out infinite}
+#hl .card:nth-child(2n)::after,#list .card:nth-child(2n)::after{animation-delay:2.2s}
+@keyframes pSweep{55%,100%{transform:translateX(140%)}}
+#hl .card{animation:pIn .5s cubic-bezier(.2,.8,.3,1) both}
+#hl .card:nth-child(1){animation-delay:.02s}#hl .card:nth-child(2){animation-delay:.1s}#hl .card:nth-child(3){animation-delay:.18s}#hl .card:nth-child(4){animation-delay:.26s}#hl .card:nth-child(n+5){animation-delay:.32s}
+@keyframes pIn{from{opacity:0;transform:translateY(22px) scale(.97)}}
+#hl .card h3,#list .card h3{font-size:1.2rem;letter-spacing:.2px}
+#hl .card>h3{padding-left:6px}#hl .card>p,#hl .card>.hchip,#hl .card>.row{margin-left:6px}
+#hl .card{padding:14px 14px 14px 12px}
+#hl .card img.pic{border-radius:12px;margin-left:0;transition:transform .5s}#hl .card:hover img.pic{transform:scale(1.03)}
+.hchip{background:linear-gradient(135deg,#E3A92B26,#35C2C826);border:1px solid #E3A92B77;font-weight:700;padding:3px 12px}
+/* action buttons in help cards */
+#hl .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+#hl .row a{flex:1 1 auto;text-align:center;text-decoration:none;font-weight:700;border-radius:99px;padding:10px 16px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--teal);color:var(--teal);transition:transform .2s,box-shadow .2s}
+#hl .row a.fill{color:#fff;border-color:transparent;background:linear-gradient(135deg,#0F9AA1,#0F7C82 60%,#0B5D62);box-shadow:0 6px 16px #0F7C8266;animation:pRing 2.6s ease-in-out infinite}
+#hl .row a.wb{background:linear-gradient(135deg,#2EE57A,#25D366 60%,#128C7E);color:#06351b;border-color:transparent;box-shadow:0 6px 16px #25D36655}
+#hl .row a:hover{transform:translateY(-2px)}#hl .row a:active{transform:scale(.95)}
+@keyframes pRing{50%{box-shadow:0 6px 16px #0F7C8266,0 0 0 6px #35C2C822}}
+/* next-bus tickets */
+.n .t{background:linear-gradient(160deg,#16313a,#050C0F);text-shadow:0 0 12px #E3A92B88}
+.n.soon{border-color:#B4233C99}
+/* bus cards */
+.card.bus .chip{border-radius:99px;transition:transform .2s}
+.card.bus .chip:hover{transform:scale(1.08)}
+.chip.nx{background:linear-gradient(135deg,#F6D06F,#E3A92B);color:#1a1200;border-color:transparent;font-weight:700;animation:pGlow 2s ease-in-out infinite}
+@keyframes pGlow{50%{box-shadow:0 0 0 4px #E3A92B44,0 0 16px #E3A92B88}}
+.tag{background:#ffffff0d}
+/* search + filters */
+.filters input,.filters select{border-radius:12px;border:1px solid #ffffff22;transition:box-shadow .25s,border-color .25s}
+.filters input:focus,.filters select:focus{outline:0;border-color:var(--gold);box-shadow:0 0 0 3px #E3A92B44}
+/* footer buttons */
+#fbBtn{border-radius:99px;padding:10px 22px;border:0;font-weight:700;color:#1a1200;background:linear-gradient(135deg,#F6D06F,#E3A92B 60%,#C98A12);box-shadow:0 6px 18px #E3A92B55;transition:transform .2s,box-shadow .2s}
+#fbBtn:hover{transform:translateY(-2px)}
+.alk a{transition:transform .2s,background .2s}.alk a:hover{transform:translateY(-2px);background:#E3A92B22}
+@media(prefers-reduced-motion:reduce){body:not(.adm) *,body:not(.adm) *::before,body:not(.adm) *::after{animation:none!important;transition:none!important}}
+
+/* ===== v11: favourites, share, first/last bus, special buses ===== */
+.fav{position:absolute;top:8px;right:8px;z-index:3;min-height:0!important;width:38px;height:38px;padding:0!important;border-radius:50%;border:1px solid #ffffff44!important;background:#050C0Fb3!important;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);font-size:1.15rem;line-height:1;display:grid;place-items:center;transition:transform .2s}
+.fav:hover{transform:scale(1.12)}.fav.on{animation:favPop .5s cubic-bezier(.2,.8,.3,1)}
+@keyframes favPop{40%{transform:scale(1.45)}}
+.card.bus h3{padding-right:44px}
+.card.bus.isfav{border-color:#ff5d7a88!important}
+button.shr{margin-left:8px;color:#25D366;border-color:#25D366}
+p.fl{margin:2px 0 10px;display:flex;flex-wrap:wrap;gap:4px}
+.fl2{margin:8px 0 2px;font-size:.88rem;opacity:.92}
+.lastb{color:#ff9a3d;animation:lastBl 1.4s ease-in-out infinite}.done{opacity:.7}
+@keyframes lastBl{50%{opacity:.45}}
+.chip.last{border-color:#ff9a3d;box-shadow:0 0 0 1px #ff9a3d55}.chip.last small{font-size:.65rem;color:#ff9a3d;margin-left:2px}
+section#spec h2{margin-top:8px}
+.card.sp{border-color:#E3A92B99!important;background:linear-gradient(135deg,#E3A92B22,var(--card) 60%)!important}
+.card.sp h3{font-size:1.15rem}.card.sp p{margin:4px 0}
+.card.sp .row{display:flex;gap:8px;margin-top:8px}
+.card.sp .row a{flex:1;text-align:center;text-decoration:none;font-weight:700;border-radius:99px;padding:10px 16px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#0F9AA1,#0B5D62)}
