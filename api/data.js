@@ -2,6 +2,7 @@
 // Admin changes show on the public page within ~30 seconds.
 const Q = [
   ['buses',     'select=*,timings(*)&active=eq.true&order=name'],
+  ['places',    'select=*&active=eq.true&order=is_home.desc,sort_order,name'],
   ['ads',       'select=*&active=eq.true&order=sort_order'],
   ['notices',   'select=*&active=eq.true&order=sort_order'],
   ['settings',  'select=*&key=eq.ad_scroll_min'],
