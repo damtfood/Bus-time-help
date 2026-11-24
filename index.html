@@ -39,6 +39,15 @@
 @keyframes wDrop{to{transform:translateY(46px);opacity:0}}
 @media(max-width:480px){.wx{gap:5px;padding:2px 9px 2px 5px;font-size:.7rem;margin-top:6px}.wx .we{font-size:1rem}.wx .wt{font-size:.78rem}.wx .wn{display:none}.wx i.dr{height:7px}}
 @media(prefers-reduced-motion:reduce){.alk *,.alk a,.wx,.wx *{animation:none!important}}
+.plc{margin:4px 0 6px;padding:12px;border-radius:16px;border:1px solid #E3A92B55;background:linear-gradient(160deg,var(--card),color-mix(in srgb,var(--card) 90%,#000));box-shadow:0 6px 18px #0002}
+.plc .plch{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;margin-bottom:8px}.plc .plcl{font-size:.8rem;color:var(--muted)}.plc #pkc{font-family:"Baloo Thambi 2",sans-serif;font-size:1.15rem;color:var(--gold)}
+.plc .plcr{display:grid;grid-template-columns:1.2fr 1fr;gap:8px}.plc .plcs{position:relative}
+.plc ul{list-style:none;margin:4px 0 0;padding:4px;position:absolute;left:0;right:0;top:100%;z-index:30;max-height:280px;overflow:auto;background:var(--card);border:1px solid var(--gold);border-radius:12px;box-shadow:0 12px 28px #0006}
+.plc li{padding:10px 12px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center}.plc li small{color:var(--muted);white-space:nowrap}
+.plc li.on,.plc li:hover{background:color-mix(in srgb,var(--gold) 28%,transparent)}.plc li.no{cursor:default;color:var(--muted)}.plc li mark{background:none;color:var(--gold);font-weight:800}
+.plc .plcn{margin:8px 0 0;font-size:.85rem;color:var(--muted)}
+@media(max-width:520px){.plc .plcr{grid-template-columns:1fr}}
+.mt button[hidden]{display:none}
 .ad img,.card.ad>img{aspect-ratio:auto!important;height:auto!important;max-height:none!important;object-fit:contain!important;animation:none!important;transform:none!important}
 </style>
 </head><body>
@@ -46,7 +55,7 @@
 <i class="cloud" style="--y:12px;--d:52s;--s:-8s"></i><i class="cloud" style="--y:40px;--d:70s;--s:-40s;width:46px"></i><i class="cloud" style="--y:70px;--d:60s;--s:-22s;width:56px"></i><div class="wrap">
 <h1 id="title">Bus Timings</h1>
 <p class="sub">பேருந்து நேரம் · Free for everyone</p>
-<p class="stop"><i class="pin">📍</i><span><b>THANIKKOTTAGAM - தாணிக்கோட்டகம்</b> Bus Stop · பேருந்து நிறுத்தம்</span></p>
+<p class="stop"><i class="pin">📍</i><span id="stopt"><b>THANIKKOTTAGAM - தாணிக்கோட்டகம்</b> Bus Stop · பேருந்து நிறுத்தம்</span></p>
 <div class="clock"><b id="clk">--:--</b><span id="dt"></span><span class="live"><i></i>Live</span></div>
 <div class="wx" id="wx" hidden></div>
 <p id="who"></p>
@@ -58,6 +67,14 @@
 <main class="wrap">
 <nav class="mt" id="mt" role="tablist" aria-label="Sections"><button type="button" role="tab" data-v="bus" class="on">🚌 பேருந்து நேரம்</button><button type="button" role="tab" data-v="help">🛺 ஆட்டோ &amp; உதவி</button></nav>
 <div id="v_bus">
+<section class="plc" id="pk" hidden>
+<div class="pkh"><span class="pkl">📍 ஊர் / நகரம் · Village / City</span><b id="pkc"></b></div>
+<div class="pkr">
+<div class="pks"><input id="pq" type="search" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ஊர் தேடு · type 2 letters" aria-label="Search village or city" role="combobox" aria-expanded="false" aria-controls="pks" aria-autocomplete="list"><ul id="pks" role="listbox" hidden></ul></div>
+<select id="ps" aria-label="Choose village or city"></select>
+</div>
+<p class="pkn" id="pkn" hidden></p>
+</section>
 <section id="spec" hidden></section>
 <h2>Next buses · அடுத்த பேருந்துகள்</h2>
 <p class="fl" id="fl" hidden></p>
@@ -109,32 +126,43 @@ const seen=new Set();
 const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');seen.add(x.target.dataset.bid);io.unobserve(x.target)}}),{threshold:.1});
 function fill(id,vals,all){const s=$(id),v=s.value;s.innerHTML=`<option value="">${all}</option>`+[...new Set(vals.filter(Boolean))].sort().map(x=>`<option>${esc(x)}</option>`).join('');s.value=v}
 let RT='';
+/* ---- places (village / city) ---- */
+let places=[],PL=null,homeId=null,FB=false;
+const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9\u0B80-\u0BFF]/g,'');
+const ownAt=(t,id)=>(t.place_id||homeId)===id;
+const hasOwn=p=>!!p&&buses.some(b=>(b.timings||[]).some(t=>ownAt(t,p.id)));
+const tms=b=>PL?(b.timings||[]).filter(t=>ownAt(t,FB?homeId:PL.id)):(b.timings||[]);
+const toHit=b=>{const k=norm(PL&&PL.name);return !!k&&[b.to_place,b.via].some(x=>x&&norm(x).includes(k))};
+const inPlace=b=>!PL||(FB?toHit(b)&&tms(b).length>0:tms(b).length>0);
 const TTP=/t(h)?iru\s*thurai|திருத்துறை|\bttp\b/i,VED=/\bved|வேதா/i;
 function rkey(b){const f=String(b.from_place||''),t=String(b.to_place||'');return TTP.test(f)&&VED.test(t)?'tv':VED.test(f)&&TTP.test(t)?'vt':'ot'}
 function shown(){const q=$('q').value.trim().toLowerCase(),to=$('to').value,ty=$('ty').value;
-return buses.filter(b=>(!RT||rkey(b)===RT)&&(!to||b.to_place===to)&&(!ty||b.bus_type===ty)&&(!q||[b.name,b.bus_no,b.from_place,b.to_place,b.via].join(' ').toLowerCase().includes(q))).sort((a,c)=>isF(c.id)-isF(a.id))}
-function render(){if(!loaded)return;
+return buses.filter(b=>inPlace(b)&&(!RT||rkey(b)===RT)&&(!to||b.to_place===to)&&(!ty||b.bus_type===ty)&&(!q||[b.name,b.bus_no,b.from_place,b.to_place,b.via].join(' ').toLowerCase().includes(q))).sort((a,c)=>isF(c.id)-isF(a.id))}
+function tabs(){const base=buses.filter(inPlace),c={tv:0,vt:0,ot:0};base.forEach(b=>c[rkey(b)]++);
+[...$('rt').children].forEach(x=>{const r=x.dataset.r;x.hidden=!!r&&!c[r]});
+if(RT&&!c[RT]){RT='';[...$('rt').children].forEach(x=>x.classList.toggle('on',!x.dataset.r))}}
+function render(){if(!loaded)return;tabs();
 const list=shown(),up=[];
 const tdAll=[];
-list.forEach(b=>{const td=(b.timings||[]).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time)),ls=td[td.length-1];td.forEach(t=>{tdAll.push({b,t});const m=left(t);if(m>=0)up.push({b,t,m,last:t===ls&&td.length>1})})});
+list.forEach(b=>{const td=tms(b).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time)),ls=td[td.length-1];td.forEach(t=>{tdAll.push({b,t});const m=left(t);if(m>=0)up.push({b,t,m,last:t===ls&&td.length>1})})});
 tdAll.sort((x,y)=>x.t.departure_time.localeCompare(y.t.departure_time));
 const fe=$('fl');if(tdAll.length){const f0=tdAll[0],l0=tdAll[tdAll.length-1];fe.hidden=false;fe.innerHTML=`<span class="hchip" title="${esc(f0.b.name)}">🌅 முதல் பேருந்து · ${fmt(f0.t.departure_time)}</span><span class="hchip" title="${esc(l0.b.name)}">🌙 கடைசி பேருந்து · ${fmt(l0.t.departure_time)}</span>`}else fe.hidden=true;
 up.sort((a,c)=>a.m-c.m);
-$('next').innerHTML=up.slice(0,6).map(({b,t,m,last})=>`<div class="n${m<=5?' soon':''}${first?' pop':''}"><span class="t">${fmt(t.departure_time)}</span><span class="i">${esc(b.name)}<br><small class="muted">to ${esc(b.to_place)}${t.stop?' · '+esc(t.stop):''}${last?' · <b class="lastb">கடைசி பேருந்து!</b>':''}</small></span><span class="w">${wait(m)}</span></div>`).join('')||'<p class="empty">No more buses today for this filter.</p>';
+$('next').innerHTML=up.slice(0,6).map(({b,t,m,last})=>`<div class="n${m<=5?' soon':''}${first?' pop':''}"><span class="t">${fmt(t.departure_time)}</span><span class="i">${esc(b.name)}<br><small class="muted">to ${esc(b.to_place)}${t.stop?' · '+esc(t.stop):''}${last?' · <b class="lastb">கடைசி பேருந்து!</b>':''}</small></span><span class="w">${wait(m)}</span></div>`).join('')||'<p class="empty">No more buses today here. · இன்று இனி பேருந்து இல்லை</p>';
 $('list').innerHTML=list.map(b=>{
-const ts=(b.timings||[]).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time));
+const ts=tms(b).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time));
 const nx=ts.find(t=>left(t)>=0),firstT=ts[0],lastT=ts[ts.length-1],isLast=nx&&nx===lastT&&ts.length>1,done=ts.length&&!nx;
 const img=safeImg(b.image_url);
 return `<article class="card bus${seen.has(b.id)?'':' rv'}${isF(b.id)?' isfav':''}" data-bid="${b.id}"><button type="button" class="fav${isF(b.id)?' on':''}" data-id="${b.id}" aria-label="Favourite" aria-pressed="${isF(b.id)?'true':'false'}">${isF(b.id)?'❤️':'🤍'}</button>${img?`<img src="${esc(img)}" alt="${esc(b.name)}" loading="lazy">`:''}<div class="body">
-<h3>${esc(b.name)}${b.bus_no?`<span class="tag">${esc(b.bus_no)}</span>`:''}<span class="tag">${esc(b.bus_type||'')}</span></h3>
+<h3>${esc(b.name)}${b.bus_no?`<span class="tag">${esc(b.bus_no)}</span>`:''}<span class="tag">${esc(b.bus_type||'')}</span>${b.service_class?`<span class="tag">${esc(b.service_class)}</span>`:''}</h3>
 <p class="muted">${esc(b.from_place)} to ${esc(b.to_place)}${b.via?' via '+esc(b.via):''}${b.fare?' · Fare '+esc(b.fare):''}</p>
 <div class="chips">${ts.map(t=>`<span class="chip ${left(t)<0?'past':t===nx?'nx':''}${t===lastT&&ts.length>1?' last':''}">${fmt(t.departure_time)}${t===lastT&&ts.length>1?' <small>கடைசி</small>':''}</span>`).join('')||'<span class="muted">No service today</span>'}</div>
-${ts.length?`<p class="fl2">🌅 முதல் ${fmt(firstT.departure_time)} · 🌙 கடைசி ${fmt(lastT.departure_time)}${isLast?' <b class="lastb">⚠️ இன்றைய கடைசி பேருந்து!</b>':done?' <span class="done">இன்றைய சேவை முடிந்தது</span>':''}</p>`:''}${b.notes?`<p class="muted">${esc(b.notes)}</p>`:''}${(()=>{const ph=String(b.phone||'').replace(/[^\d+]/g,'');return ph?`<div class="row" style="margin:8px 0"><a class="fill" href="tel:${ph}">📞 Call · ${esc(b.phone)}</a></div>`:''})()}<button class="ghost rep" data-id="${b.id}">Timing wrong? Report it</button><button class="ghost shr" data-id="${b.id}">📤 Share</button></div></article>`}).join('')||'<p class="empty">No buses match. Clear the search or filters.</p>';document.querySelectorAll('.rv').forEach(e=>io.observe(e));first=false;
+${ts.length?`<p class="fl2">🌅 முதல் ${fmt(firstT.departure_time)} · 🌙 கடைசி ${fmt(lastT.departure_time)}${isLast?' <b class="lastb">⚠️ இன்றைய கடைசி பேருந்து!</b>':done?' <span class="done">இன்றைய சேவை முடிந்தது</span>':''}</p>`:''}${b.notes?`<p class="muted">${esc(b.notes)}</p>`:''}${(()=>{const ph=String(b.phone||'').replace(/[^\d+]/g,'');return ph?`<div class="row" style="margin:8px 0"><a class="fill" href="tel:${ph}">📞 Call · ${esc(b.phone)}</a></div>`:''})()}<button class="ghost rep" data-id="${b.id}">Timing wrong? Report it</button><button class="ghost shr" data-id="${b.id}">📤 Share</button></div></article>`}).join('')||'<p class="empty">No buses match. Clear the search or filters. · பேருந்து இல்லை</p>';document.querySelectorAll('.rv').forEach(e=>io.observe(e));first=false;
 }
-const CK='bt_cache_v2';
+const CK='bt_cache_v3';
 function apply(d){if(!d)return;window.__D=d;
 if(d.v){VN=d.v;$('title').textContent=d.v+' Bus Timings';document.title=d.v+' Bus Timings'}
-buses=d.buses||[];loaded=true;fill('to',buses.map(b=>b.to_place),'All destinations');fill('ty',buses.map(b=>b.bus_type),'All types');render();
+buses=d.buses||[];loaded=true;initPlaces(d);
 loadAds(d.ads);loadApps(d.app_links);loadSpecial(d.special_buses);loadNotices(d.notices);loadSettings(d.settings);if(window.__hd)window.__hd()}
 async function load(){
 try{const r=await fetch('/api/data');if(!r.ok)throw 0;const d=await r.json();if(!d||!d.buses)throw 0;
@@ -168,6 +196,53 @@ trk.innerHTML=set;const k=Math.max(1,Math.ceil(($('ads').clientWidth||360)/(trk.
 trk.dataset.k=k;const half=set.repeat(k);
 trk.innerHTML=half+half.replace(/<article class="card ad/g,'<article aria-hidden="true" class="card ad dup').replace(/<a /g,'<a tabindex="-1" ');
 trk.style.setProperty('--dur',Math.max(14,list.length*k*7)+'s')}
+
+/* ---- place picker: dropdown + quick search (2 letters) ---- */
+const pName=p=>p.name+(p.name_ta?' · '+p.name_ta:'');
+function fillPS(){const s=$('ps'),home=places.find(p=>p.id===homeId),rest=places.filter(p=>p.id!==homeId),
+ o=p=>`<option value="${esc(p.id)}">${esc(pName(p))}</option>`,
+ cs=rest.filter(p=>p.kind==='city'),vs=rest.filter(p=>p.kind!=='city');
+s.innerHTML=(home?`<option value="${esc(home.id)}">⭐ ${esc(pName(home))}</option>`:'')+(cs.length?`<optgroup label="🏙 நகரங்கள் · Cities">${cs.map(o).join('')}</optgroup>`:'')+(vs.length?`<optgroup label="🏡 கிராமங்கள் · Villages">${vs.map(o).join('')}</optgroup>`:'');
+if(PL)s.value=PL.id}
+function refreshFilters(){const l=buses.filter(inPlace);fill('to',l.map(b=>b.to_place),'All destinations');fill('ty',l.map(b=>b.bus_type),'All types')}
+function paintPlace(){const box=$('pk');if(!places.length){box.hidden=true;FB=false;refreshFilters();return}
+box.hidden=false;FB=!!PL&&PL.id!==homeId&&!hasOwn(PL);
+$('pkc').textContent=PL?pName(PL):'';$('ps').value=PL?PL.id:'';
+const st=$('stopt');if(st&&PL)st.innerHTML='<b>'+esc(PL.name.toUpperCase())+(PL.name_ta?' - '+esc(PL.name_ta):'')+'</b> Bus Stop · பேருந்து நிறுத்தம்';
+const h=places.find(p=>p.id===homeId),n=$('pkn');
+if(FB&&h){n.hidden=false;const got=buses.some(b=>inPlace(b));
+const alt=got?[]:places.filter(p=>p.id!==PL.id&&hasOwn(p)&&buses.some(b=>toHit(b)&&(b.timings||[]).some(t=>ownAt(t,p.id))));
+n.innerHTML=got?`ℹ️ ${esc(PL.name)}-க்கு தனி நேர அட்டவணை இன்னும் இல்லை. ${esc(h.name)}-லிருந்து ${esc(PL.name)} செல்லும் பேருந்துகள் காட்டப்படுகின்றன.<br>No own timetable yet - showing buses from ${esc(h.name)} going to ${esc(PL.name)}.`
+:`ℹ️ ${esc(h.name)}-லிருந்து ${esc(PL.name)} செல்லும் நேரடி பேருந்து தகவல் இல்லை.<br>No bus info from ${esc(h.name)} to ${esc(PL.name)}.`+(alt.length?`<br>இங்கிருந்து பார்க்கவும் · Check from: `+alt.map(p=>`<button type="button" class="ghost" data-pid="${esc(p.id)}" style="min-height:34px;padding:2px 12px;margin:4px 6px 0 0;border-radius:99px">${esc(p.name)}</button>`).join(''):'')}else n.hidden=true;
+refreshFilters()}
+function initPlaces(d){places=(d.places||[]).slice().sort((a,b)=>((b.is_home?1:0)-(a.is_home?1:0))||((a.sort_order??100)-(b.sort_order??100))||String(a.name).localeCompare(b.name));
+const h=places.find(p=>p.is_home)||places[0];homeId=h?h.id:null;
+let c=PL&&places.find(p=>p.id===PL.id);
+if(!c){const w=new URLSearchParams(location.search).get('place');c=(w&&places.find(p=>norm(p.name)===norm(w)))||h||null}
+PL=c;fillPS();paintPlace();render()}
+function setPlace(p,keepQ){if(!p)return;PL=p;RT='';[...$('rt').children].forEach(x=>x.classList.toggle('on',!x.dataset.r));
+$('q').value='';$('pq').value='';closeSug();$('ps').value=p.id;
+try{const u=new URLSearchParams(location.search);p.id===homeId?u.delete('place'):u.set('place',p.name);const qs=u.toString();history.replaceState(null,'',location.pathname+(qs?'?'+qs:'')+location.hash)}catch(e){}
+paintPlace();render();window.scrollTo({top:Math.max(0,$('pk').getBoundingClientRect().top+scrollY-8),behavior:'smooth'})}
+$('pkn').addEventListener('click',e=>{const b=e.target.closest('button[data-pid]');if(b)setPlace(places.find(p=>p.id===b.dataset.pid))});
+$('ps').addEventListener('change',()=>setPlace(places.find(p=>p.id===$('ps').value)));
+let sug=[],si=-1;
+function closeSug(){const u=$('pks');u.hidden=true;u.innerHTML='';sug=[];si=-1;$('pq').setAttribute('aria-expanded','false')}
+function hl(t,q){const i=t.toLowerCase().indexOf(q.toLowerCase());return i<0?esc(t):esc(t.slice(0,i))+'<mark>'+esc(t.slice(i,i+q.length))+'</mark>'+esc(t.slice(i+q.length))}
+function openSug(){const q=$('pq').value.trim();if(q.length<2){closeSug();return}
+const k=q.toLowerCase(),nk=norm(q);
+const sc=p=>{const a=String(p.name).toLowerCase(),b=String(p.name_ta||'').toLowerCase();return a.startsWith(k)||b.startsWith(k)?0:a.split(/\s+/).some(w=>w.startsWith(k))?1:(a.includes(k)||b.includes(k)||(nk&&norm(p.name).includes(nk)))?2:9};
+sug=places.map(p=>({p,s:sc(p)})).filter(x=>x.s<9).sort((a,b)=>a.s-b.s||String(a.p.name).localeCompare(b.p.name)).slice(0,8).map(x=>x.p);si=sug.length?0:-1;
+const u=$('pks');u.hidden=false;$('pq').setAttribute('aria-expanded','true');
+u.innerHTML=sug.length?sug.map((p,i)=>`<li role="option" data-i="${i}" class="${i===si?'on':''}"><span>📍 ${hl(p.name,q)}${p.name_ta?' · '+esc(p.name_ta):''}</span><small>${p.kind==='city'?'நகரம்':'கிராமம்'}</small></li>`).join(''):'<li class="no">ஊர் இல்லை · No match</li>'}
+function mark(){[...$('pks').children].forEach((x,i)=>x.classList.toggle('on',i===si));const e=$('pks').children[si];if(e&&e.scrollIntoView)e.scrollIntoView({block:'nearest'})}
+$('pq').addEventListener('input',openSug);
+$('pq').addEventListener('keydown',e=>{if(e.key==='ArrowDown'&&sug.length){e.preventDefault();si=(si+1)%sug.length;mark()}
+else if(e.key==='ArrowUp'&&sug.length){e.preventDefault();si=(si-1+sug.length)%sug.length;mark()}
+else if(e.key==='Enter'){if(si>=0&&sug[si]){e.preventDefault();setPlace(sug[si])}}
+else if(e.key==='Escape')closeSug()});
+$('pks').addEventListener('mousedown',e=>{const li=e.target.closest('li[data-i]');if(li){e.preventDefault();setPlace(sug[+li.dataset.i])}});
+$('pq').addEventListener('blur',()=>setTimeout(closeSug,120));
 let lastMin=-1;
 function tick(){const n=new Date();$('clk').textContent=n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 $('dt').textContent=n.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'});
@@ -190,8 +265,8 @@ $('list').addEventListener('click',e=>{const r=e.target.closest('.rep');if(r)ret
 const f=e.target.closest('.fav');if(f){const id=f.dataset.id;FV.has(id)?FV.delete(id):FV.add(id);try{localStorage.setItem('bt_fav',JSON.stringify([...FV]))}catch(_){}render();return}
 const sh=e.target.closest('.shr');if(sh)shareBus(sh.dataset.id)});
 function shareBus(id){const b=buses.find(x=>x.id===id);if(!b)return;
-const ts=(b.timings||[]).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time)).map(t=>fmt(t.departure_time)).join(', ')||'-';
-const txt=`🚌 ${b.name}${b.bus_no?' ('+b.bus_no+')':''}\n${b.from_place} ➜ ${b.to_place}${b.via?' via '+b.via:''}\n⏰ இன்றைய நேரம்: ${ts}\n\n${location.origin}`;
+const ts=tms(b).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time)).map(t=>fmt(t.departure_time)).join(', ')||'-';
+const txt=`🚌 ${b.name}${b.bus_no?' ('+b.bus_no+')':''}\n${b.from_place} ➜ ${b.to_place}${b.via?' via '+b.via:''}\n⏰ ${PL?PL.name+' · ':''}இன்றைய நேரம்: ${ts}\n\n${location.origin}`;
 window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener')}
 function loginDlg(title,note,key){getSB().catch(()=>{});
 dlg.innerHTML=`<h3>${esc(title)}</h3><p>${esc(note)}</p><div class="row"><button id="gg">Continue with Google</button><button class="ghost" id="r_x">Cancel</button></div>`;
@@ -222,7 +297,7 @@ dlg.innerHTML='<h3>Thank you! நன்றி!</h3><p>Your feedback was sent to 
 catch(e){$('fb_send').disabled=false;alert('Could not send. Check your internet.')}}}
 function openRep(id){cur=buses.find(b=>b.id===id);if(!cur)return;getSB().catch(()=>{});
 if(!user){loginDlg(cur.name,'Sign in with Google to report a wrong timing. Only the admin can see your name.','rep:'+id);return}
-const ts=[...(cur.timings||[])].sort((a,c)=>a.departure_time.localeCompare(c.departure_time));
+const ts=[...tms(cur)].sort((a,c)=>a.departure_time.localeCompare(c.departure_time));
 dlg.innerHTML=`<h3>${esc(cur.name)}</h3>
 <label for="r_type">What is wrong?</label><select id="r_type"><option value="wrong_time">A timing is wrong</option><option value="add_time">A timing is missing</option><option value="remove_time">A timing no longer runs</option><option value="other">Something else</option></select>
 <div id="w1"><label for="r_tid">Which timing?</label><select id="r_tid">${ts.map(t=>`<option value="${t.id}">${fmt(t.departure_time)} · ${esc(t.days)}</option>`).join('')}</select></div>
@@ -232,7 +307,7 @@ dlg.innerHTML=`<h3>${esc(cur.name)}</h3>
 const sync=()=>{const v=$('r_type').value;$('w1').hidden=!(v==='wrong_time'||v==='remove_time');$('w2').hidden=!(v==='wrong_time'||v==='add_time')};
 $('r_type').onchange=sync;sync();dlg.showModal();$('r_x').onclick=()=>dlg.close();
 $('r_send').onclick=async()=>{const v=$('r_type').value;
-const row={bus_id:cur.id,type:v,message:$('r_msg').value.trim()||null};
+const row={bus_id:cur.id,type:v,message:$('r_msg').value.trim()||null};if(PL&&!FB)row.place_id=PL.id;
 if(v==='wrong_time'||v==='remove_time'){row.timing_id=$('r_tid').value;if(!row.timing_id)return alert('This bus has no timing to select.')}
 if(v==='wrong_time'||v==='add_time'){row.proposed_time=$('r_time').value;row.proposed_days=$('r_days').value.trim()||'Daily';if(!row.proposed_time)return alert('Please enter the correct time.')}
 if(v==='other'&&!row.message)return alert('Please write a short message.');

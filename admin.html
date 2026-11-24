@@ -6,9 +6,10 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://vcbeqwwdpjbragccnyxh.supabase.co" crossorigin>
 <link rel="stylesheet" href="style.css">
+<style>.addt select{flex:1;min-width:120px}.bf{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0;position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0}.bf input{grid-column:1/-1}.pn{font-size:.75rem;border:1px solid var(--teal);color:var(--teal);border-radius:99px;padding:0 8px;margin-left:4px}@media(max-width:480px){.addt select{width:100%}}</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head><body class="adm">
-<header class="top"><i class="cloud" style="--y:12px;--d:52s;--s:-8s"></i><i class="cloud" style="--y:40px;--d:70s;--s:-40s;width:46px"></i><i class="cloud" style="--y:70px;--d:60s;--s:-22s;width:56px"></i><div class="wrap"><h1>Admin</h1><p class="sub">Manage buses, ads, app links and notices</p></div><div class="road" aria-hidden="true"></div>
+<header class="top"><i class="cloud" style="--y:12px;--d:52s;--s:-8s"></i><i class="cloud" style="--y:40px;--d:70s;--s:-40s;width:46px"></i><i class="cloud" style="--y:70px;--d:60s;--s:-22s;width:56px"></i><div class="wrap"><h1>Admin</h1><p class="sub">Manage buses, cities &amp; villages, ads, app links and notices</p></div><div class="road" aria-hidden="true"></div>
 <div class="busw" aria-hidden="true"><span class="tow"><b><img src="logo.png" alt="" width="20" height="20">Dhineshkumar Adpc - Murugan Trader 🦚📊</b><i class="rope"></i></span><i class="puff"></i><i class="puff p2"></i><svg class="bus" viewBox="0 0 64 30" width="58" height="27"><rect x="2" y="2" width="58" height="20" rx="5" fill="#E3A92B"/><rect x="8" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="20" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="32" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="46" y="6" width="11" height="12" rx="1.5" fill="#0B1B20"/><g class="wh" style="transform-origin:16px 23px"><circle cx="16" cy="23" r="5" fill="#0B1B20" stroke="#E3A92B" stroke-width="2"/><path d="M16 19v8M12 23h8" stroke="#E3A92B" stroke-width="1.3"/></g><g class="wh" style="transform-origin:48px 23px"><circle cx="48" cy="23" r="5" fill="#0B1B20" stroke="#E3A92B" stroke-width="2"/><path d="M48 19v8M44 23h8" stroke="#E3A92B" stroke-width="1.3"/></g></svg></div></header>
 <main class="wrap">
 <p><a href="admin-help.html">➡ Manage Auto / Shops / Emergency / Temples</a></p>
@@ -28,13 +29,26 @@
 <div><label for="f_from">From</label><input id="f_from"></div>
 <div><label for="f_to">To</label><input id="f_to"></div>
 <div class="full"><label for="f_via">Via (optional)</label><input id="f_via"></div>
+<div><label for="f_op">Operator (optional)</label><input id="f_op" placeholder="TNSTC Vedaranyam / Ganesa"></div>
+<div><label for="f_cls">Service class</label><select id="f_cls"><option value="">—</option><option>Ordinary</option><option>Express</option><option>SF Express</option><option>Town</option></select></div>
 <div class="full"><label for="f_img">Bus picture URL</label><input id="f_img" placeholder="https://..."></div>
 <div><label for="f_fare">Fare (optional)</label><input id="f_fare"></div>
 <div><label for="f_phone">Phone / call number (optional)</label><input id="f_phone" type="tel" placeholder="9XXXXXXXXX"></div>
 <div><label for="f_act">Show on public site</label><select id="f_act"><option value="1">Yes</option><option value="0">Hidden</option></select></div>
 <div class="full"><label for="f_notes">Notes (optional)</label><textarea id="f_notes" rows="2"></textarea></div>
 </div>
+<p class="muted" style="margin:0">Timings (and the place each time belongs to) are added in the bus list at the bottom of this page.</p>
 <p class="row"><button id="save">Save bus</button><button class="ghost" id="clr">Clear form</button></p></div></div>
+<h2 id="sec-places">Cities &amp; Villages · நகரம் / கிராமம்</h2>
+<div class="card"><div class="body"><input type="hidden" id="c_id"><div class="grid">
+<div><label for="c_name">Name (English)</label><input id="c_name" placeholder="Thanikkottagam"></div>
+<div><label for="c_ta">Name (தமிழ்)</label><input id="c_ta" placeholder="தாணிக்கோட்டகம்"></div>
+<div><label for="c_kind">Type</label><select id="c_kind"><option value="village">Village · கிராமம்</option><option value="city">City / Town · நகரம்</option></select></div>
+<div><label for="c_order">Order (1 shows first)</label><input id="c_order" type="number" value="10"></div>
+<div><label for="c_home">Default place on home page</label><select id="c_home"><option value="0">No</option><option value="1">Yes (shows first)</option></select></div>
+<div><label for="c_act">Status</label><select id="c_act"><option value="1">Showing</option><option value="0">Hidden</option></select></div>
+</div><p class="row"><button id="c_save">Save place</button><button class="ghost" id="c_clr">Clear form</button></p></div></div>
+<div id="crows"></div>
 <h2>Advertisements</h2>
 <div class="card"><div class="body"><label for="s_min">Ad scroll time · விளம்பரம் ஓடும் நேரம்</label>
 <select id="s_min"><option value="1">1 minute</option><option value="2">2 minutes</option><option value="5">5 minutes</option><option value="10">10 minutes</option></select>
@@ -88,7 +102,9 @@
 <div id="nrows"></div>
 <h2>Requests <span class="tag" id="rc">0</span></h2><div id="reqs"></div>
 <h2>Feedback · கருத்துகள் <span class="tag" id="fbc">0</span></h2><div id="fbs"></div>
-<h2>Buses</h2><div id="rows"></div>
+<h2>Buses <span class="tag" id="bc">0</span></h2>
+<div class="bf"><input id="rq" type="search" placeholder="Search bus name, number, place" aria-label="Search buses"><select id="rp" aria-label="Show place"><option value="">All places</option></select></div>
+<div id="rows"></div>
 </section></main>
 <script src="/api/config"></script>
 <script>
@@ -96,12 +112,12 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=s=>{let[h,m]=s.split(':').map(Number);return (h%12||12)+':'+String(m).padStart(2,'0')+(h>=12?' PM':' AM')};
-const F=['name','no','type','from','to','via','img','fare','phone','notes','act'];
+const F=['name','no','type','from','to','via','op','cls','img','fare','phone','notes','act'];
 let buses=[];
 function msg(t,bad){const m=$('msg');m.textContent=t;m.className=bad?'err':'ok';m.hidden=false;setTimeout(()=>m.hidden=true,4000)}
 let shown=false;
 function show(on){$('login').hidden=on;$('app').hidden=!on;if(on===shown)return;shown=on;
-if(on)Promise.allSettled([refresh(),loadReq(),loadFb(),loadAds(),loadNts(),loadSt(),loadApps(),loadSp()]).then(()=>{const y=+sessionStorage.getItem('adm_y')||0;if(y)window.scrollTo(0,y)})}
+if(on)Promise.allSettled([loadPlaces(),refresh(),loadReq(),loadFb(),loadAds(),loadNts(),loadSt(),loadApps(),loadSp()]).then(()=>{const y=+sessionStorage.getItem('adm_y')||0;if(y)window.scrollTo(0,y)})}
 let sT=0;addEventListener('scroll',()=>{clearTimeout(sT);sT=setTimeout(()=>{if(shown)sessionStorage.setItem('adm_y',String(scrollY))},150)},{passive:true});
 async function verify(){for(let i=0;i<3;i++){const{data,error}=await sb.rpc('is_admin');if(!error)return data?'yes':'no';await new Promise(r=>setTimeout(r,500*(i+1)))}return 'err'}
 async function notAdmin(){localStorage.removeItem('adm_ok');await sb.auth.signOut();show(false);msg('This account is not an admin.',1)}
@@ -114,12 +130,12 @@ if(localStorage.getItem('adm_ok')===session.user.email){show(true);verify().then
 sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'){localStorage.removeItem('adm_ok');show(false)}});
 const LBL={wrong_time:'Timing wrong',add_time:'Add timing',remove_time:'Remove timing',other:'Other'};
 let reqs=[];
-async function loadReq(){const{data,error}=await sb.from('requests').select('*, buses(name), timings(departure_time,days)').eq('status','pending').order('created_at');
+async function loadReq(){const{data,error}=await sb.from('requests').select('*, buses(name), timings(departure_time,days), places(name)').eq('status','pending').order('created_at');
 if(error)return msg(error.message,1);reqs=data;$('rc').textContent=data.length;
 $('reqs').innerHTML=data.map(r=>{const edit=r.type==='wrong_time'||r.type==='add_time';return `<article class="card" data-r="${r.id}"><div class="body">
 <div class="row"><strong>${esc(r.buses?.name)}</strong><span class="tag">${LBL[r.type]}</span></div>
 <p class="muted">From ${esc(r.user_name||'')} ${esc(r.user_email||'')}</p>
-${r.timings?`<p>Current: ${fmt(r.timings.departure_time)} · ${esc(r.timings.days)}</p>`:''}
+${r.places?`<p class=\"muted\">📍 ${esc(r.places.name)}</p>`:''}${r.timings?`<p>Current: ${fmt(r.timings.departure_time)} · ${esc(r.timings.days)}</p>`:''}
 ${r.message?`<p>"${esc(r.message)}"</p>`:''}
 ${edit?`<div class="row addt"><input type="time" class="rt" value="${(r.proposed_time||'').slice(0,5)}" aria-label="Time"><input class="rd" value="${esc(r.proposed_days||'Daily')}" aria-label="Days"></div>`:''}
 <input class="rn" placeholder="Admin note (optional)" style="margin-top:8px">
@@ -128,19 +144,57 @@ $('reqs').onclick=async e=>{const a=e.target.dataset.a;if(!a)return;const c=e.ta
 const note=c.querySelector('.rn').value.trim()||null;
 if(a==='ap'){const t=c.querySelector('.rt')?.value,d=c.querySelector('.rd')?.value.trim()||'Daily';let er;
 if(r.type==='wrong_time'){if(!r.timing_id)return msg('That timing no longer exists. Reject this request.',1);if(!t)return msg('Enter a time.',1);({error:er}=await sb.from('timings').update({departure_time:t,days:d}).eq('id',r.timing_id))}
-else if(r.type==='add_time'){if(!t)return msg('Enter a time.',1);({error:er}=await sb.from('timings').insert({bus_id:r.bus_id,departure_time:t,days:d}))}
+else if(r.type==='add_time'){if(!t)return msg('Enter a time.',1);({error:er}=await sb.from('timings').insert({bus_id:r.bus_id,departure_time:t,days:d,place_id:r.place_id||null}))}
 else if(r.type==='remove_time'){if(r.timing_id)({error:er}=await sb.from('timings').delete().eq('id',r.timing_id))}
 if(er)return msg(er.message,1)}
 const{error}=await sb.from('requests').update({status:a==='ap'?'approved':'rejected',admin_note:note,reviewed_at:new Date().toISOString()}).eq('id',r.id);
 if(error)return msg(error.message,1);msg(a==='ap'?'Approved and applied.':'Request rejected.');refresh();loadReq()};
 async function refresh(){const{data,error}=await sb.from('buses').select('*, timings(*)').order('name');
 if(error)return msg(error.message,1);buses=data;draw()}
-function draw(){$('rows').innerHTML=buses.map(b=>`<article class="card" data-id="${b.id}"><div class="body">
-<div class="row"><strong>${esc(b.name)}</strong>${b.bus_no?`<span class="tag">${esc(b.bus_no)}</span>`:''}${b.active?'':'<span class="tag off">Hidden</span>'}<span class="sp"></span><button data-a="edit" class="ghost">Edit</button><button data-a="del" class="danger">Delete</button></div>
-<p class="muted">${esc(b.from_place)} to ${esc(b.to_place)}${b.via?' via '+esc(b.via):''}</p>
-<div class="chips">${[...(b.timings||[])].sort((x,y)=>x.departure_time.localeCompare(y.departure_time)).map(t=>`<span class="chip">${fmt(t.departure_time)} · ${esc(t.days)}${t.stop?' · '+esc(t.stop):''}<button data-a="dt" data-t="${t.id}" aria-label="Remove time">×</button></span>`).join('')||'<span class="muted">No timings yet. Add one below.</span>'}</div>
-<div class="row addt"><input type="time" class="tt" aria-label="Time"><input class="td" value="Daily" aria-label="Days" placeholder="Daily or Mon,Wed"><input class="ts" aria-label="Stop" placeholder="Stop (optional)"><button data-a="at">Add time</button></div></div></article>`).join('')||'<p class="empty">No buses yet. Add your first bus above.</p>'}
-function fillForm(b){$('f_id').value=b?.id||'';F.forEach(k=>{const m={name:'name',no:'bus_no',type:'bus_type',from:'from_place',to:'to_place',via:'via',img:'image_url',fare:'fare',phone:'phone',notes:'notes'}[k];
+let places=[];
+const pname=id=>(places.find(p=>p.id===id)||{}).name||'';
+const homeP=()=>places.find(p=>p.is_home)||places[0]||null;
+const popt=sel=>places.map(p=>`<option value="${esc(p.id)}"${p.id===sel?' selected':''}>${esc(p.name)}${p.is_home?' ⭐':''}</option>`).join('');
+function drawRows(){const pf=$('rp').value,q=$('rq').value.trim().toLowerCase(),hid=(homeP()||{}).id;
+const tp=t=>t.place_id||hid;
+const list=buses.filter(b=>(!pf||(b.timings||[]).some(t=>tp(t)===pf))&&(!q||[b.name,b.bus_no,b.operator,b.from_place,b.to_place,b.via].join(' ').toLowerCase().includes(q)));
+$('bc').textContent=list.length+' / '+buses.length;
+const defSel=pf||hid;
+$('rows').innerHTML=list.map(b=>{const ts=[...(b.timings||[])].filter(t=>!pf||tp(t)===pf).sort((x,y)=>x.departure_time.localeCompare(y.departure_time));return `<article class="card" data-id="${b.id}"><div class="body">
+<div class="row"><strong>${esc(b.name)}</strong>${b.bus_no?`<span class="tag">${esc(b.bus_no)}</span>`:''}${b.bus_type?`<span class="tag">${esc(b.bus_type)}</span>`:''}${b.service_class?`<span class="tag">${esc(b.service_class)}</span>`:''}${b.active?'':'<span class="tag off">Hidden</span>'}<span class="sp"></span><button data-a="edit" class="ghost">Edit</button><button data-a="del" class="danger">Delete</button></div>
+<p class="muted">${esc(b.from_place)} to ${esc(b.to_place)}${b.via?' via '+esc(b.via):''}${b.operator?' · '+esc(b.operator):''}</p>
+<div class="chips">${ts.map(t=>`<span class="chip">${fmt(t.departure_time)} · ${esc(t.days)}${t.stop?' · '+esc(t.stop):''}${pf?'':`<span class="pn">${esc(pname(tp(t)))}</span>`}<button data-a="dt" data-t="${t.id}" aria-label="Remove time">×</button></span>`).join('')||'<span class="muted">No timings yet. Add one below.</span>'}</div>
+<div class="row addt"><input type="time" class="tt" aria-label="Time"><select class="tp" aria-label="Place">${popt(defSel)}</select><input class="td" value="Daily" aria-label="Days" placeholder="Daily or Mon,Wed"><input class="ts" aria-label="Stop" placeholder="Stop (optional)"><button data-a="at">Add time</button></div></div></article>`}).join('')||'<p class="empty">No buses found.</p>'}
+function fillPlaceSel(){const rp=$('rp'),v=rp.value;rp.innerHTML='<option value="">All places</option>'+places.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}${p.is_home?' ⭐':''}</option>`).join('');rp.value=places.some(p=>p.id===v)?v:''}
+$('rp').onchange=drawRows;$('rq').oninput=drawRows;
+const PK={name:'name',ta:'name_ta'};
+function plForm(x){$('c_id').value=x?.id||'';$('c_name').value=x?.name||'';$('c_ta').value=x?.name_ta||'';$('c_kind').value=x?.kind||'village';$('c_order').value=x?(x.sort_order??10):10;$('c_home').value=x&&x.is_home?'1':'0';$('c_act').value=x?(x.active?'1':'0'):'1';if(x)window.scrollTo({top:$('sec-places').offsetTop-10,behavior:'smooth'})}
+async function loadPlaces(){const{data,error}=await sb.from('places').select('*').order('is_home',{ascending:false}).order('sort_order').order('name');
+if(error){$('crows').innerHTML='<p class="empty">Places table not found. Run schema_v12_places.sql in Supabase.</p>';return}
+places=data;fillPlaceSel();drawPlaces();drawRows()}
+function drawPlaces(){const cnt={},hid=(homeP()||{}).id;buses.forEach(b=>(b.timings||[]).forEach(t=>{const k=t.place_id||hid;cnt[k]=(cnt[k]||0)+1}));
+$('crows').innerHTML=places.map(p=>`<article class="card" data-id="${p.id}"><div class="body"><div class="row"><strong>${esc(p.name)}</strong>${p.name_ta?`<span class="muted" style="margin:0">${esc(p.name_ta)}</span>`:''}<span class="tag">${p.kind==='city'?'City':'Village'}</span>${p.is_home?'<span class="tag">⭐ Default</span>':''}${p.active?'':'<span class="tag off">Hidden</span>'}<span class="tag">${cnt[p.id]||0} timings</span><span class="sp"></span>${p.is_home?'':'<button class="ghost" data-a="home">Make default</button>'}<button class="ghost" data-a="ed">Edit</button><button class="danger" data-a="dl">Delete</button></div></div></article>`).join('')||'<p class="empty">No places yet. Add one above.</p>'}
+$('c_clr').onclick=()=>plForm(null);
+$('c_save').onclick=async()=>{const row={name:$('c_name').value.trim(),name_ta:$('c_ta').value.trim()||null,kind:$('c_kind').value,sort_order:parseInt($('c_order').value)||10,active:$('c_act').value==='1'};
+if(!row.name)return msg('Enter the place name.',1);
+const id=$('c_id').value,wantHome=$('c_home').value==='1';
+const cur=id&&places.find(p=>p.id===id);if(cur&&cur.is_home&&!wantHome)return msg('Pick another place as default instead.',1);
+if(wantHome&&!row.active)return msg('The default place cannot be hidden.',1);
+let rid=id,er;
+if(id){({error:er}=await sb.from('places').update(row).eq('id',id))}
+else{const r=await sb.from('places').insert(row).select('id').single();er=r.error;rid=r.data&&r.data.id}
+if(er)return msg(er.code==='23505'?'This place name already exists.':er.message,1);
+if(wantHome&&rid&&!(cur&&cur.is_home)){const{error}=await sb.rpc('set_home_place',{p_id:rid});if(error)return msg(error.message+' (run schema_v12_places.sql)',1)}
+msg('Place saved.');plForm(null);await loadPlaces()};
+$('crows').onclick=async e=>{const a=e.target.dataset.a;if(!a)return;const id=e.target.closest('.card').dataset.id,p=places.find(x=>x.id===id);if(!p)return;
+if(a==='ed')plForm(p);
+if(a==='home'){const{error}=await sb.rpc('set_home_place',{p_id:id});error?msg(error.message,1):(msg(p.name+' is now the default place.'),loadPlaces())}
+if(a==='dl'){if(p.is_home)return msg('Make another place the default first, then delete this one.',1);
+const n=buses.reduce((k,b)=>k+(b.timings||[]).filter(t=>t.place_id===id).length,0);
+if(!confirm(`Delete "${p.name}"?`+(n?`\n\nIts ${n} timings will also be deleted.`:'')))return;
+const{error}=await sb.from('places').delete().eq('id',id);error?msg(error.message,1):(msg('Place deleted.'),await loadPlaces(),refresh())}};
+function draw(){drawRows();drawPlaces()}
+function fillForm(b){$('f_id').value=b?.id||'';F.forEach(k=>{const m={name:'name',no:'bus_no',type:'bus_type',from:'from_place',to:'to_place',via:'via',op:'operator',cls:'service_class',img:'image_url',fare:'fare',phone:'phone',notes:'notes'}[k];
 if(k==='act')$('f_act').value=b?(b.active?'1':'0'):'1';else $('f_'+k).value=b?(b[m]||''):(k==='type'?'Government':'')});window.scrollTo({top:0,behavior:'smooth'})}
 $('go').onclick=async()=>{const g=$('go');if(g.disabled)return;g.disabled=true;g.textContent='Logging in…';
 try{const{error}=await sb.auth.signInWithPassword({email:$('em').value.trim().toLowerCase(),password:$('pw').value});
@@ -160,7 +214,7 @@ const{error}=a==='del'?await sb.from('feedback').delete().eq('id',id):await sb.f
 if(error)return msg(error.message,1);loadFb()};
 $('out').onclick=async()=>{await sb.auth.signOut();show(false)};
 $('clr').onclick=()=>fillForm(null);
-$('save').onclick=async()=>{const row={name:$('f_name').value.trim(),bus_no:$('f_no').value.trim()||null,bus_type:$('f_type').value,from_place:$('f_from').value.trim(),to_place:$('f_to').value.trim(),via:$('f_via').value.trim()||null,image_url:$('f_img').value.trim()||null,fare:$('f_fare').value.trim()||null,phone:$('f_phone').value.trim()||null,notes:$('f_notes').value.trim()||null,active:$('f_act').value==='1'};
+$('save').onclick=async()=>{const row={name:$('f_name').value.trim(),bus_no:$('f_no').value.trim()||null,bus_type:$('f_type').value,from_place:$('f_from').value.trim(),to_place:$('f_to').value.trim(),via:$('f_via').value.trim()||null,operator:$('f_op').value.trim()||null,service_class:$('f_cls').value||null,image_url:$('f_img').value.trim()||null,fare:$('f_fare').value.trim()||null,phone:$('f_phone').value.trim()||null,notes:$('f_notes').value.trim()||null,active:$('f_act').value==='1'};
 if(!row.name||!row.from_place||!row.to_place)return msg('Bus name, From and To are required.',1);
 const id=$('f_id').value;const{error}=id?await sb.from('buses').update(row).eq('id',id):await sb.from('buses').insert(row);
 if(error)return msg(error.message,1);msg('Bus saved.');fillForm(null);refresh()};
@@ -169,7 +223,7 @@ if(a==='edit')fillForm(buses.find(b=>b.id===id));
 if(a==='del'&&confirm('Delete this bus and all its timings?')){const{error}=await sb.from('buses').delete().eq('id',id);error?msg(error.message,1):(msg('Bus deleted.'),refresh())}
 if(a==='dt'){const{error}=await sb.from('timings').delete().eq('id',e.target.dataset.t);error?msg(error.message,1):refresh()}
 if(a==='at'){const t=c.querySelector('.tt').value;if(!t)return msg('Pick a time first.',1);
-const{error}=await sb.from('timings').insert({bus_id:id,departure_time:t,days:c.querySelector('.td').value.trim()||'Daily',stop:c.querySelector('.ts').value.trim()||null});
+const{error}=await sb.from('timings').insert({bus_id:id,place_id:c.querySelector('.tp').value||null,departure_time:t,days:c.querySelector('.td').value.trim()||'Daily',stop:c.querySelector('.ts').value.trim()||null});
 error?msg(error.message,1):(msg('Time added.'),refresh())}};
 
 let ads=[];

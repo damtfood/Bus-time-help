@@ -27,3 +27,10 @@ Static site (HTML + Supabase). No server needed.
 - Pages now load `/api/config` (api/config.js) instead of config.js.
 - The anon key is public by design (browser needs it). Real protection = RLS + `admins` table.
 - Never put the `service_role` key anywhere in this project.
+
+## v12 + v13: Cities & Villages, place-wise timings, government bus import
+1. Supabase > SQL Editor: run `schema_v12_places.sql` (places table, place_id on timings, operator / class on buses).
+2. Then run `schema_v13_govt_buses.sql` (all buses from the Excel + timetable pictures). Safe to run twice.
+3. Deploy the new `index.html`, `admin.html`, `api/data.js`.
+4. Public page: default = Thanikkottagam. Pick another place from the dropdown or type 2 letters in the search box.
+5. Admin > "Cities & Villages": add / edit / delete places, "Make default". In the bus list, every timing is added with its place.
