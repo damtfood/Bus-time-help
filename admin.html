@@ -8,11 +8,10 @@
 <link rel="stylesheet" href="style.css">
 <style>.addt select{flex:1;min-width:120px}.bf{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0;position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0}.bf input{grid-column:1/-1}.pn{font-size:.75rem;border:1px solid var(--teal);color:var(--teal);border-radius:99px;padding:0 8px;margin-left:4px}@media(max-width:480px){.addt select{width:100%}}</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<link rel="stylesheet" href="admin-premium.css?v=1">
 </head><body class="adm">
-<header class="top"><i class="cloud" style="--y:12px;--d:52s;--s:-8s"></i><i class="cloud" style="--y:40px;--d:70s;--s:-40s;width:46px"></i><i class="cloud" style="--y:70px;--d:60s;--s:-22s;width:56px"></i><div class="wrap"><h1>Admin</h1><p class="sub">Manage buses, cities &amp; villages, ads, app links and notices</p></div><div class="road" aria-hidden="true"></div>
-<div class="busw" aria-hidden="true"><span class="tow"><b><img src="logo.png" alt="" width="20" height="20">Dhineshkumar Adpc - Murugan Trader 🦚📊</b><i class="rope"></i></span><i class="puff"></i><i class="puff p2"></i><svg class="bus" viewBox="0 0 64 30" width="58" height="27"><rect x="2" y="2" width="58" height="20" rx="5" fill="#E3A92B"/><rect x="8" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="20" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="32" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="46" y="6" width="11" height="12" rx="1.5" fill="#0B1B20"/><g class="wh" style="transform-origin:16px 23px"><circle cx="16" cy="23" r="5" fill="#0B1B20" stroke="#E3A92B" stroke-width="2"/><path d="M16 19v8M12 23h8" stroke="#E3A92B" stroke-width="1.3"/></g><g class="wh" style="transform-origin:48px 23px"><circle cx="48" cy="23" r="5" fill="#0B1B20" stroke="#E3A92B" stroke-width="2"/><path d="M48 19v8M44 23h8" stroke="#E3A92B" stroke-width="1.3"/></g></svg></div></header>
+<header class="ahead"><div class="wrap"><img src="logo.png" alt="" width="44" height="44"><div class="ht"><h1>Admin Console</h1><p class="sub">Dhineshkumar Adpc · Murugan Trader</p></div><a class="vp" href="/">View site</a><button class="ghost" id="out" hidden>Log out</button></div></header>
 <main class="wrap">
-<p><a href="admin-help.html">➡ Manage Auto / Shops / Emergency / Temples</a></p>
 <div id="msg" hidden></div>
 <section id="login" class="card"><div class="body">
 <h2>Admin login</h2>
@@ -20,7 +19,24 @@
 <div class="full"><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password"><label style="display:flex;gap:6px;align-items:center;margin-top:6px"><input type="checkbox" id="sp" style="width:auto"> Show password</label></div></div>
 <p><button id="go">Log in</button></p></div></section>
 <section id="app" hidden>
-<div class="row"><h2 class="sp">Add or edit bus</h2><button class="ghost" id="out">Log out</button></div>
+<nav class="atabs" id="atabs" role="tablist" aria-label="Admin sections">
+<button type="button" class="tb on" data-p="inbox">📥 Inbox <b id="bd" hidden>0</b></button>
+<button type="button" class="tb" data-p="buses">🚌 Buses</button>
+<button type="button" class="tb" data-p="places">📍 Places</button>
+<button type="button" class="tb" data-p="ads">📢 Ads</button>
+<button type="button" class="tb" data-p="notices">🔔 Notices</button>
+<button type="button" class="tb" data-p="special">🎉 Special</button>
+<button type="button" class="tb" data-p="apps">📱 Apps</button>
+<a class="tb" href="admin-help.html">🛺 Auto · Car · Shops ➜</a>
+</nav>
+<div class="tp" id="tp-inbox">
+<h2>🚌🛺 Customer submissions · வாடிக்கையாளர் கோரிக்கை <span class="tag" id="sc">0</span></h2>
+<div class="row" style="margin-bottom:6px"><select id="sst" aria-label="Status filter" style="max-width:220px"><option value="pending">Waiting</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select><button type="button" class="ghost" id="sre">↻ Refresh</button></div>
+<div id="subs"></div>
+<h2>🕒 Time corrections <span class="tag" id="rc">0</span></h2><div id="reqs"></div>
+<h2>Feedback · கருத்துகள் <span class="tag" id="fbc">0</span></h2><div id="fbs"></div>
+</div>
+<div class="tp" id="tp-buses" hidden><h2>Add or edit bus</h2>
 <div class="card"><div class="body"><input type="hidden" id="f_id">
 <div class="grid">
 <div class="full"><label for="f_name">Bus name</label><input id="f_name"></div>
@@ -39,6 +55,11 @@
 </div>
 <p class="muted" style="margin:0">Timings (and the place each time belongs to) are added in the bus list at the bottom of this page.</p>
 <p class="row"><button id="save">Save bus</button><button class="ghost" id="clr">Clear form</button></p></div></div>
+<h2>Buses <span class="tag" id="bc">0</span></h2>
+<div class="bf"><input id="rq" type="search" placeholder="Search bus name, number, place" aria-label="Search buses"><select id="rp" aria-label="Show place"><option value="">All places</option></select></div>
+<div id="rows"></div>
+</div>
+<div class="tp" id="tp-places" hidden>
 <h2 id="sec-places">Cities &amp; Villages · நகரம் / கிராமம்</h2>
 <div class="card"><div class="body"><input type="hidden" id="c_id"><div class="grid">
 <div><label for="c_name">Name (English)</label><input id="c_name" placeholder="Thanikkottagam"></div>
@@ -49,6 +70,8 @@
 <div><label for="c_act">Status</label><select id="c_act"><option value="1">Showing</option><option value="0">Hidden</option></select></div>
 </div><p class="row"><button id="c_save">Save place</button><button class="ghost" id="c_clr">Clear form</button></p></div></div>
 <div id="crows"></div>
+</div>
+<div class="tp" id="tp-ads" hidden>
 <h2>Advertisements</h2>
 <div class="card"><div class="body"><label for="s_min">Ad scroll time · விளம்பரம் ஓடும் நேரம்</label>
 <select id="s_min"><option value="1">1 minute</option><option value="2">2 minutes</option><option value="5">5 minutes</option><option value="10">10 minutes</option></select>
@@ -65,27 +88,8 @@
 <div><label for="a_act">Status</label><select id="a_act"><option value="1">Showing</option><option value="0">Hidden</option></select></div>
 </div><p class="row"><button id="a_save">Save ad</button><button class="ghost" id="a_clr">Clear form</button></p></div></div>
 <div id="adrows"></div>
-<h2>App download links · செயலி லிங்க்</h2>
-<div class="card"><div class="body"><input type="hidden" id="p_id"><div class="grid">
-<div class="full"><label for="p_label">Button text</label><input id="p_label" placeholder="App Download · Android"></div>
-<div class="full"><label for="p_url">Download link</label><input id="p_url" placeholder="https://..."></div>
-<div><label for="p_plat">Type</label><select id="p_plat"><option value="android">Android 🤖</option><option value="windows">Windows 🪟</option><option value="ios">iPhone 🍎</option><option value="other">Other 📥</option></select></div>
-<div><label for="p_order">Order (1 shows first)</label><input id="p_order" type="number" value="1"></div>
-<div><label for="p_act">Status</label><select id="p_act"><option value="1">Showing</option><option value="0">Hidden</option></select></div>
-</div><p class="row"><button id="p_save">Save link</button><button class="ghost" id="p_clr">Clear form</button></p></div></div>
-<div id="prows"></div>
-<h2>Special buses · சிறப்பு பேருந்து (festival)</h2>
-<div class="card"><div class="body"><input type="hidden" id="x_id"><div class="grid">
-<div class="full"><label for="x_title">Heading</label><input id="x_title" placeholder="தீபாவளி சிறப்பு பேருந்து"></div>
-<div class="full"><label for="x_route">Route</label><input id="x_route" placeholder="Thanikkottagam → Chennai"></div>
-<div><label for="x_date">Date (hides after this day)</label><input id="x_date" type="date"></div>
-<div><label for="x_time">Time</label><input id="x_time" placeholder="9:30 PM"></div>
-<div><label for="x_phone">Phone (optional)</label><input id="x_phone" type="tel"></div>
-<div><label for="x_order">Order (1 shows first)</label><input id="x_order" type="number" value="1"></div>
-<div class="full"><label for="x_notes">Notes (optional)</label><textarea id="x_notes" rows="2"></textarea></div>
-<div><label for="x_act">Status</label><select id="x_act"><option value="1">Showing</option><option value="0">Hidden</option></select></div>
-</div><p class="row"><button id="x_save">Save special bus</button><button class="ghost" id="x_clr">Clear form</button></p></div></div>
-<div id="xrows"></div>
+</div>
+<div class="tp" id="tp-notices" hidden>
 <h2>Top notices · செய்தி / வாழ்த்து</h2>
 <div class="card"><div class="body"><input type="hidden" id="n_id">
 <p class="muted" style="margin:0">Quick fill (tap, then edit if needed):</p><div class="qks" id="n_q"></div>
@@ -100,11 +104,32 @@
 <div><label for="n_act">Status</label><select id="n_act"><option value="1">Showing</option><option value="0">Hidden</option></select></div>
 </div><p class="row"><button id="n_save">Save notice</button><button class="ghost" id="n_clr">Clear form</button></p></div></div>
 <div id="nrows"></div>
-<h2>Requests <span class="tag" id="rc">0</span></h2><div id="reqs"></div>
-<h2>Feedback · கருத்துகள் <span class="tag" id="fbc">0</span></h2><div id="fbs"></div>
-<h2>Buses <span class="tag" id="bc">0</span></h2>
-<div class="bf"><input id="rq" type="search" placeholder="Search bus name, number, place" aria-label="Search buses"><select id="rp" aria-label="Show place"><option value="">All places</option></select></div>
-<div id="rows"></div>
+</div>
+<div class="tp" id="tp-special" hidden>
+<h2>Special buses · சிறப்பு பேருந்து (festival)</h2>
+<div class="card"><div class="body"><input type="hidden" id="x_id"><div class="grid">
+<div class="full"><label for="x_title">Heading</label><input id="x_title" placeholder="தீபாவளி சிறப்பு பேருந்து"></div>
+<div class="full"><label for="x_route">Route</label><input id="x_route" placeholder="Thanikkottagam → Chennai"></div>
+<div><label for="x_date">Date (hides after this day)</label><input id="x_date" type="date"></div>
+<div><label for="x_time">Time</label><input id="x_time" placeholder="9:30 PM"></div>
+<div><label for="x_phone">Phone (optional)</label><input id="x_phone" type="tel"></div>
+<div><label for="x_order">Order (1 shows first)</label><input id="x_order" type="number" value="1"></div>
+<div class="full"><label for="x_notes">Notes (optional)</label><textarea id="x_notes" rows="2"></textarea></div>
+<div><label for="x_act">Status</label><select id="x_act"><option value="1">Showing</option><option value="0">Hidden</option></select></div>
+</div><p class="row"><button id="x_save">Save special bus</button><button class="ghost" id="x_clr">Clear form</button></p></div></div>
+<div id="xrows"></div>
+</div>
+<div class="tp" id="tp-apps" hidden>
+<h2>App download links · செயலி லிங்க்</h2>
+<div class="card"><div class="body"><input type="hidden" id="p_id"><div class="grid">
+<div class="full"><label for="p_label">Button text</label><input id="p_label" placeholder="App Download · Android"></div>
+<div class="full"><label for="p_url">Download link</label><input id="p_url" placeholder="https://..."></div>
+<div><label for="p_plat">Type</label><select id="p_plat"><option value="android">Android 🤖</option><option value="windows">Windows 🪟</option><option value="ios">iPhone 🍎</option><option value="other">Other 📥</option></select></div>
+<div><label for="p_order">Order (1 shows first)</label><input id="p_order" type="number" value="1"></div>
+<div><label for="p_act">Status</label><select id="p_act"><option value="1">Showing</option><option value="0">Hidden</option></select></div>
+</div><p class="row"><button id="p_save">Save link</button><button class="ghost" id="p_clr">Clear form</button></p></div></div>
+<div id="prows"></div>
+</div>
 </section></main>
 <script src="/api/config"></script>
 <script>
@@ -116,9 +141,8 @@ const F=['name','no','type','from','to','via','op','cls','img','fare','phone','n
 let buses=[];
 function msg(t,bad){const m=$('msg');m.textContent=t;m.className=bad?'err':'ok';m.hidden=false;setTimeout(()=>m.hidden=true,4000)}
 let shown=false;
-function show(on){$('login').hidden=on;$('app').hidden=!on;if(on===shown)return;shown=on;
-if(on)Promise.allSettled([loadPlaces(),refresh(),loadReq(),loadFb(),loadAds(),loadNts(),loadSt(),loadApps(),loadSp()]).then(()=>{const y=+sessionStorage.getItem('adm_y')||0;if(y)window.scrollTo(0,y)})}
-let sT=0;addEventListener('scroll',()=>{clearTimeout(sT);sT=setTimeout(()=>{if(shown)sessionStorage.setItem('adm_y',String(scrollY))},150)},{passive:true});
+function show(on){$('login').hidden=on;$('app').hidden=!on;$('out').hidden=!on;if(on===shown)return;shown=on;
+if(on)Promise.allSettled([loadPlaces(),refresh(),loadReq(),loadFb(),loadAds(),loadNts(),loadSt(),loadApps(),loadSp(),loadSubs()]).then(()=>badges())}
 async function verify(){for(let i=0;i<3;i++){const{data,error}=await sb.rpc('is_admin');if(!error)return data?'yes':'no';await new Promise(r=>setTimeout(r,500*(i+1)))}return 'err'}
 async function notAdmin(){localStorage.removeItem('adm_ok');await sb.auth.signOut();show(false);msg('This account is not an admin.',1)}
 async function enter(){const{data:{session}}=await sb.auth.getSession();if(!session)return;const em=session.user.email;const r=await verify();
@@ -131,7 +155,7 @@ sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'){localStorage.removeItem('ad
 const LBL={wrong_time:'Timing wrong',add_time:'Add timing',remove_time:'Remove timing',other:'Other'};
 let reqs=[];
 async function loadReq(){const{data,error}=await sb.from('requests').select('*, buses(name), timings(departure_time,days), places(name)').eq('status','pending').order('created_at');
-if(error)return msg(error.message,1);reqs=data;$('rc').textContent=data.length;
+if(error)return msg(error.message,1);reqs=data;$('rc').textContent=data.length;badges();
 $('reqs').innerHTML=data.map(r=>{const edit=r.type==='wrong_time'||r.type==='add_time';return `<article class="card" data-r="${r.id}"><div class="body">
 <div class="row"><strong>${esc(r.buses?.name)}</strong><span class="tag">${LBL[r.type]}</span></div>
 <p class="muted">From ${esc(r.user_name||'')} ${esc(r.user_email||'')}</p>
@@ -204,7 +228,7 @@ $('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('go').click()});
 $('sp').onchange=()=>{$('pw').type=$('sp').checked?'text':'password'};
 let fbs=[];
 async function loadFb(){const{data,error}=await sb.from('feedback').select('*').order('created_at',{ascending:false}).limit(100);if(error)return msg(error.message,1);fbs=data;
-$('fbc').textContent=data.filter(f=>f.status==='new').length+' new';
+$('fbc').textContent=data.filter(f=>f.status==='new').length+' new';badges();
 $('fbs').innerHTML=data.map(f=>`<article class="card" data-f="${f.id}"><div class="body"><div class="row"><strong>${esc(f.user_name||f.user_email||'User')}</strong><span class="tag">${f.rating?'★'.repeat(f.rating)+'☆'.repeat(5-f.rating):'No rating'}</span>${f.status==='new'?'<span class="tag">NEW</span>':''}</div>
 <p class="muted">${esc(f.user_email||'')} · ${new Date(f.created_at).toLocaleString('en-IN')}</p><p style="white-space:pre-line">${esc(f.message)}</p>
 <div class="row">${f.status==='new'?'<button data-a="done">Mark done</button>':''}<button data-a="del" class="danger">Delete</button></div></div></article>`).join('')||'<p class="empty">No feedback yet.</p>'}
@@ -297,5 +321,48 @@ if(error)return msg(error.message,1);msg('Special bus saved.');spForm(null);load
 $('xrows').onclick=async e=>{const t=e.target.dataset.a;if(!t)return;const id=e.target.closest('.card').dataset.id;
 if(t==='ed')spForm(sps.find(x=>x.id===id));
 if(t==='dl'&&confirm('Delete this special bus?')){const{error}=await sb.from('special_buses').delete().eq('id',id);error?msg(error.message,1):(msg('Deleted.'),loadSp())}};
+/* ===== tabs ===== */
+const PGS=['inbox','buses','places','ads','notices','special','apps'];
+function goTab(p){if(!PGS.includes(p))p='inbox';PGS.forEach(x=>{$('tp-'+x).hidden=x!==p});
+ [...$('atabs').querySelectorAll('.tb[data-p]')].forEach(b=>{const on=b.dataset.p===p;b.classList.toggle('on',on);if(on)b.scrollIntoView({inline:'center',block:'nearest'})});
+ try{sessionStorage.setItem('adm_tab',p);history.replaceState(null,'','#'+p)}catch(e){}scrollTo({top:0})}
+$('atabs').onclick=e=>{const b=e.target.closest('.tb[data-p]');if(b)goTab(b.dataset.p)};
+let subPending=0;
+function badges(){const n=(subPending||0)+(typeof reqs!=='undefined'?reqs.length:0)+(typeof fbs!=='undefined'?fbs.filter(f=>f.status==='new').length:0);const b=$('bd');b.textContent=n>99?'99+':n;b.hidden=!n}
+/* ===== customer submissions (from add.html) ===== */
+let subs=[],subBusy=false;
+const httpsOnly=u=>/^https:\/\//i.test(u||'')?u:'';
+async function loadSubs(){const st=$('sst').value;
+ const [{data,error},{count}]=await Promise.all([sb.from('submissions').select('*').eq('status',st).order('created_at',{ascending:st!=='pending'}).limit(100),sb.from('submissions').select('id',{count:'exact',head:true}).eq('status','pending')]);
+ if(error){$('subs').innerHTML='<p class="empty">'+(/does not exist|schema cache|42P01|PGRST205/i.test((error.code||'')+' '+error.message)?'Submissions table not found. Run schema_v14_submissions.sql in Supabase.':esc(error.message))+'</p>';return}
+ subs=data;subPending=count||0;$('sc').textContent=subPending;badges();
+ $('subs').innerHTML=data.map(r=>{const d=r.data||{},img=httpsOnly(d.image_url);
+  const body=r.kind==='bus'?`<div class="row"><strong>🚌 ${esc(d.name)}</strong>${d.bus_no?`<span class="tag">${esc(d.bus_no)}</span>`:''}<span class="sk ${r.status}">${r.status.toUpperCase()}</span></div>
+<p><b>${esc(d.from_place)}</b> → <b>${esc(d.to_place)}</b>${d.via?' via '+esc(d.via):''}</p><p>${[d.bus_type,d.operator,d.fare].filter(Boolean).map(esc).join(' · ')}</p>
+<p>⏰ ${(d.timings||[]).map(t=>esc(`${t.time} ${t.days||''}${t.place?' @'+t.place:''}`)).join(' · ')}</p>`
+  :`<div class="row"><strong>🛺 ${esc(d.name)}</strong><span class="tag">${esc(d.kind)}</span><span class="sk ${r.status}">${r.status.toUpperCase()}</span></div>
+<p>📞 ${esc(d.phone)}${d.place?' · 🏙 '+esc(d.place):''}${d.area?' · 📍 '+esc(d.area):''}</p><p>${[d.rate,d.night_available?'🌙 Night'+(d.night_extra?' ('+d.night_extra+')':''):''].filter(Boolean).map(esc).join(' · ')}</p>${img?`<p><a href="${esc(img)}" target="_blank" rel="noopener" style="color:var(--teal)">🖼 Picture</a></p>`:''}`;
+  return `<article class="card" data-s="${r.id}"><div class="body subd">${body}${d.notes?`<p>📝 ${esc(d.notes)}</p>`:''}<p>👤 ${esc(r.user_name||'')} · ${esc(r.user_email||'')} · ${new Date(r.created_at).toLocaleString('en-IN')}</p>${r.admin_note?`<p><b>Note:</b> ${esc(r.admin_note)}</p>`:''}
+<div class="row" style="margin-top:8px">${r.status!=='approved'?'<button data-a="sap" class="okb">✔ Approve</button>':''}${r.status==='pending'?'<button data-a="srj" class="danger">✕ Reject</button>':''}<button data-a="sdl" class="ghost">Delete</button></div></div></article>`}).join('')||'<p class="empty">Nothing here. 🎉</p>'}
+$('sst').onchange=loadSubs;$('sre').onclick=()=>{loadSubs();loadReq();loadFb()};
+async function subStatus(r,s,note){const{error}=await sb.from('submissions').update({status:s,admin_note:note,reviewed_at:new Date().toISOString()}).eq('id',r.id);if(error)throw error}
+async function subApprove(r){const d=r.data||{},n=v=>(v===''||v==null)?null:v;
+ if(r.kind==='vehicle'){
+  const{error}=await sb.from('helpers').insert({name:d.name,kind:d.kind||'Other',phone:n(d.phone),area:n(d.area),place_id:/^[0-9a-f-]{36}$/i.test(d.place_id||'')?d.place_id:null,rate:n(d.rate),night_available:!!d.night_available,night_extra:n(d.night_extra),notes:n(d.notes),image_url:httpsOnly(d.image_url)||null,active:true,sort_order:1});
+  if(error)throw error}
+ else{
+  const pm=Object.fromEntries((places||[]).map(p=>[String(p.name).toLowerCase(),p.id]));
+  const{data:bus,error}=await sb.from('buses').insert({name:d.name,bus_no:n(d.bus_no),bus_type:d.bus_type||'Government',from_place:d.from_place,to_place:d.to_place,via:n(d.via),operator:n(d.operator),fare:n(d.fare),notes:n(d.notes),active:true}).select('id').single();
+  if(error)throw error;
+  const t=(d.timings||[]).filter(x=>/^\d{2}:\d{2}/.test(x.time||'')).map(x=>({bus_id:bus.id,departure_time:x.time,days:x.days||'Daily',stop:null,place_id:pm[String(x.place||'').toLowerCase()]||null}));
+  if(t.length){const{error:e2}=await sb.from('timings').insert(t);if(e2){await sb.from('buses').delete().eq('id',bus.id);throw e2}}
+  refresh()}
+ await subStatus(r,'approved',null)}
+$('subs').onclick=async e=>{const b=e.target.closest('button[data-a]');if(!b||subBusy)return;const r=subs.find(x=>x.id===b.closest('.card').dataset.s);if(!r)return;subBusy=true;b.disabled=true;
+ try{if(b.dataset.a==='sap'){await subApprove(r);msg('Approved and published ✔')}
+  else if(b.dataset.a==='srj'){const n=prompt('Reason for rejecting (customer can see this):','');if(n===null)return;await subStatus(r,'rejected',n.trim()||null);msg('Rejected.')}
+  else if(b.dataset.a==='sdl'&&confirm('Delete this request?')){const{error}=await sb.from('submissions').delete().eq('id',r.id);if(error)throw error;msg('Deleted.')}
+  loadSubs()}catch(er){msg(er.message||'Failed',1)}finally{subBusy=false;b.disabled=false}};
+goTab((location.hash||'').slice(1)||sessionStorage.getItem('adm_tab')||'inbox');
 boot();
 </script></body></html>
