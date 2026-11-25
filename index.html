@@ -49,6 +49,8 @@
 @media(max-width:520px){.plc .plcr{grid-template-columns:1fr}}
 .mt button[hidden]{display:none}
 .ad img,.card.ad>img{aspect-ratio:auto!important;height:auto!important;max-height:none!important;object-fit:contain!important;animation:none!important;transform:none!important}
+.addcta{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0 10px;padding:11px 16px;border-radius:16px;text-decoration:none;font-weight:800;color:#1a1200;background:linear-gradient(135deg,#F6D06F,#E3A92B 60%,#C98A12);box-shadow:0 6px 18px #E3A92B44}
+.addcta:active{transform:scale(.98)}#hk button b{opacity:.7;margin-left:4px;font-size:.8em}
 </style>
 </head><body>
 <header class="top">
@@ -66,6 +68,7 @@
 <section id="ntc" hidden aria-live="polite"></section>
 <main class="wrap">
 <nav class="mt" id="mt" role="tablist" aria-label="Sections"><button type="button" role="tab" data-v="bus" class="on">🚌 பேருந்து நேரம்</button><button type="button" role="tab" data-v="help">🛺 ஆட்டோ &amp; உதவி</button></nav>
+<a class="addcta" href="add.html">➕ உங்கள் பேருந்து / வாகனம் சேர்க்க · Add your bus / vehicle</a>
 <div id="v_bus">
 <section class="plc" id="pk" hidden>
 <div class="pkh"><span class="pkl">📍 ஊர் / நகரம் · Village / City</span><b id="pkc"></b></div>
@@ -91,6 +94,7 @@
 <div id="v_help" hidden>
 <h2>ஆட்டோ · கடை · அவசர உதவி · கோயில் · செய்தி</h2>
 <div class="mt" id="ht" role="tablist"></div>
+<div class="mt" id="hk" role="tablist" aria-label="Vehicle type" hidden></div>
 <div class="filters"><input id="hq" type="search" placeholder="தேடு · Search" aria-label="Search help"></div>
 <div id="hl"></div>
 <small class="muted">தகவல் மாறலாம். போனில் உறுதி செய்யவும்.</small>
@@ -359,7 +363,7 @@ box.addEventListener('click',e=>{if(amoved){e.preventDefault();e.stopPropagation
 })();
 try{const c=localStorage.getItem(CK);if(c)apply(JSON.parse(c))}catch(e){}
 setInterval(tick,1000);setInterval(load,120000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});tick();load();
-</script><script src="sections.js?v=2"></script>
+</script><script src="sections.js?v=3"></script>
 <script>
 (function(){
 const q=id=>document.getElementById(id),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),U=u=>/^https?:\/\//i.test(u||'')?u:'',P=p=>String(p||'').replace(/[^\d+]/g,'');
@@ -371,11 +375,17 @@ function view(v){q('v_bus').hidden=v!=='bus';q('v_help').hidden=v!=='help';
 q('mt').onclick=e=>{const b=e.target.closest('button');if(b)view(b.dataset.v)};
 q('ht').onclick=e=>{const b=e.target.closest('button');if(b){cur=SECTIONS.find(s=>s.t===b.dataset.t);history.replaceState(null,'','#help-'+cur.t);load()}};
 q('hq').oninput=draw;
-function load(){[...q('ht').children].forEach(b=>b.classList.toggle('on',b.dataset.t===cur.t));draw()}
+const KG=[['','🔎 All · எல்லாம்'],['Auto','🛺 Auto'],['Car','🚗 Car'],['Tractor','🚜 Tractor'],['Other','🚐 Other']];let kg='';
+const kindOf=r=>{const k=String(r.kind||'').trim().toLowerCase();return k==='auto'?'Auto':k==='car'?'Car':k==='tractor'?'Tractor':'Other'};
+q('hk').onclick=e=>{const b=e.target.closest('button');if(b){kg=b.dataset.k;draw()}};
+function load(){[...q('ht').children].forEach(b=>b.classList.toggle('on',b.dataset.t===cur.t));q('hk').hidden=cur.t!=='helpers';draw()}
 window.__hd=draw;
 function draw(){const s=cur,k=q('hq').value.trim().toLowerCase(),lab=Object.fromEntries(s.f.map(x=>[x[0],x[1]]));
  if(!window.__D){q('hl').innerHTML='<p class="muted">ஏற்றுகிறது…</p>';return}
- const L=((window.__D[s.t])||[]).filter(r=>!k||JSON.stringify(Object.values(r)).toLowerCase().includes(k));
+ const all=(window.__D[s.t])||[];
+ if(s.t==='helpers'){const n={};all.forEach(r=>{const g=kindOf(r);n[g]=(n[g]||0)+1});
+  q('hk').innerHTML=KG.map(([v,l])=>`<button type="button" data-k="${v}" class="${v===kg?'on':''}">${l}<b>${v?(n[v]||0):all.length}</b></button>`).join('')}
+ const L=all.filter(r=>(s.t!=='helpers'||!kg||kindOf(r)===kg)&&(!k||JSON.stringify(Object.values(r)).toLowerCase().includes(k)));
  q('hl').innerHTML=L.length?L.map(r=>{const im=U(r[s.img]),ph=P(r[s.phone]),lk=s.t==='helpers'?'':U(r.map_url)||((r.address||r.area||s.t==='temples')?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([r[s.title],r.address||r.area,VN].filter(Boolean).join(' ')):'');
   return `<article class="card">${im?`<img class="pic" src="${E(im)}" alt="${E(r[s.title])}" loading="lazy">`:''}<h3>${E(r[s.title])}</h3>${s.tag&&r[s.tag]?`<span class="hchip">${E(r[s.tag])}</span>`:''}${s.flag?`<span class="hchip">${r[s.flag[0]]?s.flag[1]:s.flag[2]}</span>`:''}
 ${s.show.filter(x=>r[x]).map(x=>`<p><b>${E(lab[x])}:</b> <span style="white-space:pre-line">${E(r[x])}</span></p>`).join('')}

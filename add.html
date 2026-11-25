@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Add your Bus / Vehicle</title><meta name="theme-color" content="#050C0F">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2:wght@500;700;800&family=Noto+Sans+Tamil:wght@400;700&display=swap">
+<link rel="stylesheet" href="premium.css?v=1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+</head><body>
+<div class="aurora"></div>
+<header class="hero">
+<img class="logo" src="logo.png" alt="Logo" width="74" height="74">
+<h1>Add Your Bus / Vehicle</h1>
+<p>உங்கள் பேருந்து / வாகன விவரங்களைச் சேர்க்கவும்</p>
+<div class="badges"><span>✔ Free · இலவசம்</span><span>🔐 Google login</span><span>🛡 Admin verified</span></div>
+<p style="margin-top:14px"><a href="/" style="color:var(--gold2)">← Back to Bus Timings</a></p>
+</header>
+<main class="shell">
+
+<section id="gate" class="glass center">
+<div style="font-size:2.6rem">🔐</div>
+<h2>Login required · உள்நுழைவு அவசியம்</h2>
+<p style="color:var(--mut)">Sign in with Google to send your bus or vehicle details. The admin will check and publish it.</p>
+<button id="gg" class="pulse" style="margin-top:12px">Continue with Google</button>
+<p class="msg" id="gm" role="status"></p>
+</section>
+
+<section id="app" hidden>
+<div class="userbar"><span>Signed in · <b id="un"></b></span><button class="ghost sm" id="lo">Log out</button></div>
+<div class="seg" role="tablist"><button type="button" data-k="bus" class="on">🚌 Bus · பேருந்து</button><button type="button" data-k="vehicle">🛺 Vehicle · வாகனம்</button></div>
+
+<form id="fb" class="glass" autocomplete="off">
+<h2>🚌 Bus details</h2>
+<label>Bus name <i>*</i></label><input id="b_name" maxlength="80" placeholder="e.g. TNSTC Express">
+<div class="g2"><div><label>Bus number</label><input id="b_no" maxlength="30" placeholder="TN 51 N 1234"></div>
+<div><label>Type</label><select id="b_type"><option>Government</option><option>Private</option><option>Mini Bus</option><option>Other</option></select></div></div>
+<div class="g2"><div><label>From <i>*</i></label><input id="b_from" list="pl" maxlength="60"></div><div><label>To <i>*</i></label><input id="b_to" list="pl" maxlength="60"></div></div>
+<label>Via (stops)</label><input id="b_via" maxlength="150" placeholder="Voimedu, Thalainayar">
+<div class="g2"><div><label>Operator</label><input id="b_op" maxlength="60"></div><div><label>Fare</label><input id="b_fare" maxlength="40" placeholder="₹ 25"></div></div>
+<label>Timings <i>*</i> · நேரங்கள்</label><div id="tms"></div>
+<button type="button" class="ghost sm" id="addt">+ Add another time</button>
+<label>Notes</label><textarea id="b_notes" rows="2" maxlength="300"></textarea>
+<button type="submit" class="full">Send to Admin · அனுப்பு</button>
+</form>
+
+<form id="fv" class="glass" autocomplete="off" hidden>
+<h2>🛺 Vehicle details</h2>
+<div class="g2"><div><label>Vehicle type <i>*</i></label><select id="v_kind"><option>Auto</option><option>Car</option><option>Tractor</option><option>Van</option><option>Other</option></select></div>
+<div><label>Your name <i>*</i></label><input id="v_name" maxlength="80"></div></div>
+<div class="g2"><div><label>Phone <i>*</i></label><input id="v_phone" type="tel" maxlength="16" placeholder="98xxxxxxxx"></div><div><label>Area / Stand</label><input id="v_area" maxlength="80"></div></div>
+<label>Rate info (day)</label><input id="v_rate" maxlength="120" placeholder="₹ 300 per hour / per km ₹ 15">
+<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="v_night"> 🌙 Night available · இரவு உண்டு</label>
+<label>Extra money for night trip</label><input id="v_nx" maxlength="80">
+<label>Picture link (https, optional)</label><input id="v_img" type="url" maxlength="300">
+<label>Notes</label><textarea id="v_notes" rows="2" maxlength="300"></textarea>
+<button type="submit" class="full">Send to Admin · அனுப்பு</button>
+</form>
+<datalist id="pl"></datalist>
+<p class="msg" id="ms" role="status"></p>
+
+<section id="done" class="glass center" hidden>
+<div style="font-size:2.6rem">✅</div><h2>Thank you! நன்றி!</h2>
+<p style="color:var(--mut)">Your request was sent to the admin. It appears on the website after approval.</p>
+<button id="more">Add another</button>
+</section>
+
+<h2 style="color:var(--gold2);margin:26px 4px 4px">My requests · என் கோரிக்கைகள்</h2>
+<div id="mine"></div>
+</section>
+</main>
+<script src="/api/config"></script>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);let uid=null,mode='bus';
+const msg=(t,c)=>{$('ms').textContent=t||'';$('ms').className='msg '+(c||'')};
+const DAYS=['Daily','Mon-Sat','Sunday only','Mon,Wed,Fri','Tue,Thu,Sat'];
+function addRow(){if($('tms').children.length>=20)return;const d=document.createElement('div');d.className='tm';
+d.innerHTML=`<input type="time" class="t_time" aria-label="Time"><select class="t_days" aria-label="Days">${DAYS.map(x=>`<option>${x}</option>`).join('')}</select><input class="t_place" list="pl" maxlength="60" placeholder="Stop / place (optional)" aria-label="Place"><button type="button" class="ghost sm" aria-label="Remove">✕</button>`;
+d.querySelector('button').onclick=()=>{if($('tms').children.length>1)d.remove()};$('tms').appendChild(d)}
+function reset(){$('fb').reset();$('fv').reset();$('tms').innerHTML='';addRow()}
+async function setSession(s){const u=s&&s.user;$('gate').hidden=!!u;$('app').hidden=!u;
+ if(!u){uid=null;return}$('un').textContent=u.user_metadata?.full_name||u.email;if(uid===u.id)return;uid=u.id;loadMine();loadPlaces()}
+async function loadPlaces(){const{data}=await sb.from('places').select('name').eq('active',true).order('name');$('pl').innerHTML=(data||[]).map(p=>`<option value="${esc(p.name)}">`).join('')}
+async function loadMine(){const{data,error}=await sb.from('submissions').select('id,kind,data,status,admin_note,created_at').order('created_at',{ascending:false}).limit(20);
+ if(error)return;$('mine').innerHTML=(data||[]).map(r=>`<div class="item"><div class="row" style="margin:0;justify-content:space-between"><h3>${r.kind==='bus'?'🚌':'🛺'} ${esc(r.data.name||'')}</h3><span class="chip ${r.status}">${r.status.toUpperCase()}</span></div>
+<p>${r.kind==='bus'?esc((r.data.from_place||'')+' → '+(r.data.to_place||'')):esc((r.data.kind||'')+' · '+(r.data.phone||''))} · ${new Date(r.created_at).toLocaleDateString('en-IN')}</p>${r.admin_note?`<p><b>Admin:</b> ${esc(r.admin_note)}</p>`:''}</div>`).join('')||'<p class="empty">No requests yet.</p>'}
+async function send(kind,data,btn){btn.disabled=true;msg('Sending…');
+ try{const{data:row,error}=await sb.from('submissions').insert({kind,data}).select('id').single();
+  if(error){msg(error.message,'bad');return}
+  const{data:{session}}=await sb.auth.getSession();
+  fetch('/api/notify',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({id:row.id})}).catch(()=>{});
+  msg('');reset();$('fb').hidden=$('fv').hidden=true;$('done').hidden=false;loadMine();scrollTo({top:0,behavior:'smooth'})}
+ catch(e){msg('Network problem. Please try again.','bad')}finally{btn.disabled=false}}
+$('fb').onsubmit=e=>{e.preventDefault();const v=id=>$(id).value.trim();
+ const timings=[...$('tms').children].map(r=>({time:r.querySelector('.t_time').value,days:r.querySelector('.t_days').value,place:r.querySelector('.t_place').value.trim()})).filter(t=>t.time);
+ if(!v('b_name')||!v('b_from')||!v('b_to'))return msg('Bus name, From and To are required.','bad');
+ if(!timings.length)return msg('Please add at least one timing.','bad');
+ send('bus',{name:v('b_name'),bus_no:v('b_no'),bus_type:v('b_type'),from_place:v('b_from'),to_place:v('b_to'),via:v('b_via'),operator:v('b_op'),fare:v('b_fare'),notes:v('b_notes'),timings},e.submitter||$('fb').querySelector('.full'))};
+$('fv').onsubmit=e=>{e.preventDefault();const v=id=>$(id).value.trim();
+ if(!v('v_name'))return msg('Name is required.','bad');if(!/^\+?[\d\s-]{8,15}$/.test(v('v_phone')))return msg('Enter a valid phone number.','bad');
+ if(v('v_img')&&!/^https:\/\//i.test(v('v_img')))return msg('Picture link must start with https://','bad');
+ send('vehicle',{kind:v('v_kind'),name:v('v_name'),phone:v('v_phone'),area:v('v_area'),rate:v('v_rate'),night_available:$('v_night').checked,night_extra:v('v_nx'),image_url:v('v_img'),notes:v('v_notes')},e.submitter||$('fv').querySelector('.full'))};
+document.querySelector('.seg').onclick=e=>{const b=e.target.closest('button');if(!b)return;mode=b.dataset.k;
+ [...document.querySelector('.seg').children].forEach(x=>x.classList.toggle('on',x===b));$('fb').hidden=mode!=='bus';$('fv').hidden=mode!=='vehicle';$('done').hidden=true;msg('')};
+$('more').onclick=()=>{$('done').hidden=true;$('fb').hidden=mode!=='bus';$('fv').hidden=mode!=='vehicle'};
+$('addt').onclick=addRow;
+$('gg').onclick=()=>sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}}).then(({error})=>{if(error)$('gm').textContent=error.message,$('gm').className='msg bad'});
+$('lo').onclick=async()=>{await sb.auth.signOut();uid=null;location.reload()};
+const q=new URLSearchParams(location.search).get('t');if(q==='vehicle')document.querySelector('.seg button[data-k=vehicle]').click();
+addRow();sb.auth.getSession().then(({data})=>setSession(data.session));sb.auth.onAuthStateChange((_e,s)=>setTimeout(()=>setSession(s),0));
+</script></body></html>

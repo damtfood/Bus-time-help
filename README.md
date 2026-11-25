@@ -34,3 +34,22 @@ Static site (HTML + Supabase). No server needed.
 3. Deploy the new `index.html`, `admin.html`, `api/data.js`.
 4. Public page: default = Thanikkottagam. Pick another place from the dropdown or type 2 letters in the search box.
 5. Admin > "Cities & Villages": add / edit / delete places, "Make default". In the bus list, every timing is added with its place.
+
+## v14: Customer "Add bus / vehicle", Control center, Control APK
+**1. Database:** Supabase > SQL Editor > run `schema_v14_submissions.sql`.
+
+**2. Auto tab:** `index.html` now shows All / Auto / Car / Tractor / Other chips inside the Auto tab (uses the `Type` field of each entry; "Van" and "Other" show under Other).
+
+**3. Customer page `/add`:** Google login is mandatory. Customers send a bus (with timings) or a vehicle. Nothing is published until the admin approves. Max 5 waiting requests per customer.
+
+**4. Control center `/control`:** admin email + password login (same admin as before). Approve = auto-publish to buses/timings or to the Auto tab. Reject can carry a reason the customer sees.
+
+**5. Mail to admin when a request arrives** (Vercel > Settings > Environment Variables, then redeploy):
+- `RESEND_API_KEY` (free key from resend.com)  - `ADMIN_EMAIL` (your mail)
+- optional `MAIL_FROM` (needs a domain verified in Resend; default `onboarding@resend.dev` can only mail the Resend account owner's email) and `SITE_URL`.
+If these are missing the request still saves; only the mail is skipped.
+
+**6. Control APK (admin only):** folder `android-control/`.
+- Easiest: push to GitHub > Settings > Secrets and variables > Actions > Variables > add `SITE_URL` = `https://your-site.vercel.app` > Actions tab > "Build Control APK" > Run workflow > download `BusControl-apk`.
+- Or Android Studio: open `android-control`, set `SITE_URL` in `app/build.gradle` (or `-PSITE_URL=...`), Build > Build APK.
+- It is a debug-signed APK (fine for installing on your own phone). For Play Store you need a release keystore.

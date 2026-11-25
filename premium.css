@@ -1,0 +1,55 @@
+/* Premium look for add.html + control.html (dark ink + temple gold) */
+:root{--ink:#050C0F;--ink2:#0B1B20;--gold:#E3A92B;--gold2:#F6D06F;--teal:#35C2C8;--txt:#EAF2F1;--mut:#8FA7AA;--bad:#FF6B81;--ok:#3DDC84;--glass:rgba(255,255,255,.06);--line:rgba(255,255,255,.12)}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;color-scheme:dark}
+body{margin:0;min-height:100vh;color:var(--txt);background:var(--ink);font:16px/1.55 "Noto Sans Tamil","Segoe UI",system-ui,sans-serif;overflow-x:hidden;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+h1,h2,h3,.f{font-family:"Baloo Thambi 2","Noto Sans Tamil",system-ui,sans-serif}
+.aurora{position:fixed;inset:0;z-index:-1;background:radial-gradient(60% 40% at 15% 0%,#E3A92B33,transparent 70%),radial-gradient(50% 40% at 95% 20%,#35C2C833,transparent 70%),radial-gradient(70% 50% at 50% 110%,#0F7C8244,transparent 70%),linear-gradient(180deg,#0B1B20,#050C0F)}
+.aurora::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 46px,#ffffff05 46px 47px)}
+.hero{text-align:center;padding:34px 16px 10px}
+.logo{width:74px;height:74px;border-radius:22px;border:2px solid var(--gold);box-shadow:0 10px 40px #E3A92B55;object-fit:cover;background:#fff}
+.hero h1{margin:14px 0 2px;font-size:2rem;line-height:1.15;background:linear-gradient(90deg,var(--gold2),var(--gold) 50%,#fff3c4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:0;color:var(--mut)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.badges span{font-size:.78rem;padding:4px 12px;border-radius:99px;border:1px solid var(--line);background:var(--glass);color:var(--gold2)}
+.shell{max-width:680px;margin:0 auto;padding:14px 14px 50px}
+.glass{background:linear-gradient(160deg,#ffffff12,#ffffff05);border:1px solid var(--line);border-radius:22px;padding:20px;margin:14px 0;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px #0007,inset 0 1px 0 #ffffff14}
+.center{text-align:center}
+.glass h2{margin:0 0 4px;font-size:1.25rem;color:var(--gold2)}
+label{display:block;margin:14px 0 5px;font-size:.84rem;font-weight:700;color:var(--mut);letter-spacing:.2px}
+label i{color:var(--gold);font-style:normal}
+input,select,textarea{width:100%;font:inherit;color:var(--txt);background:#0008;border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:none;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 4px #E3A92B26}
+select option{background:#0B1B20}
+input[type=checkbox]{width:auto;accent-color:var(--gold)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.g2{grid-template-columns:1fr}.hero h1{font-size:1.65rem}}
+button,.btn{font:inherit;font-weight:800;cursor:pointer;border:0;border-radius:99px;padding:12px 24px;color:#1a1200;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--gold2),var(--gold) 60%,#C98A12);box-shadow:0 8px 24px #E3A92B44;transition:transform .15s,box-shadow .2s;position:relative;overflow:hidden}
+button:hover,.btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px #E3A92B66}button:active{transform:scale(.97)}
+button:disabled{opacity:.55;cursor:wait;transform:none}
+button.ghost{background:var(--glass);color:var(--txt);border:1px solid var(--line);box-shadow:none}
+button.bad{background:linear-gradient(135deg,#ff8da0,#d6334f);color:#fff;box-shadow:0 8px 24px #d6334f44}
+button.ok{background:linear-gradient(135deg,#7df0b0,#1fae62);color:#04210f;box-shadow:0 8px 24px #1fae6244}
+button.sm{padding:6px 14px;font-size:.82rem}
+button.full{width:100%;margin-top:20px;padding:15px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px;background:#0007;border:1px solid var(--line);border-radius:99px}
+.seg button{background:transparent;color:var(--mut);box-shadow:none;padding:11px}
+.seg button.on{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1200;box-shadow:0 6px 18px #E3A92B44}
+.userbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:.88rem;color:var(--mut);margin-bottom:10px}.userbar b{color:var(--txt)}
+.tm{display:grid;grid-template-columns:110px 1fr 1fr auto;gap:8px;margin-bottom:8px}
+@media(max-width:520px){.tm{grid-template-columns:1fr 1fr}.tm button{grid-column:span 2}}
+.chip{display:inline-block;padding:2px 12px;border-radius:99px;font-size:.74rem;font-weight:800;border:1px solid currentColor}
+.chip.pending{color:var(--gold2)}.chip.approved{color:var(--ok)}.chip.rejected{color:var(--bad)}
+.item{border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:10px 0;background:#ffffff08}
+.item h3{margin:0;font-size:1.1rem}.item p{margin:3px 0;color:var(--mut);font-size:.9rem}.item p b{color:var(--txt)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.msg{min-height:1.4em;text-align:center;font-weight:700;margin:6px 0}.msg.bad{color:var(--bad)}.msg.ok{color:var(--ok)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{text-align:center;padding:16px 8px;border-radius:20px;border:1px solid var(--line);background:linear-gradient(160deg,#ffffff12,#ffffff05)}
+.stat b{display:block;font:800 2rem/1 "Baloo Thambi 2",sans-serif;color:var(--gold2)}.stat span{font-size:.78rem;color:var(--mut)}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tiles a{display:block;text-decoration:none;color:var(--txt);padding:14px;border-radius:18px;border:1px solid var(--line);background:#ffffff08;text-align:center;font-weight:700;transition:transform .15s,border-color .2s}
+.tiles a:hover{transform:translateY(-2px);border-color:var(--gold)}
+.pulse{animation:pl 2s infinite}@keyframes pl{70%{box-shadow:0 0 0 12px #E3A92B00}100%{box-shadow:0 0 0 0 #E3A92B00}}
+[hidden]{display:none!important}
+.empty{text-align:center;color:var(--mut);padding:24px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

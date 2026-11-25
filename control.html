@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Control · Admin</title><meta name="robots" content="noindex"><meta name="theme-color" content="#050C0F">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2:wght@500;700;800&family=Noto+Sans+Tamil:wght@400;700&display=swap">
+<link rel="stylesheet" href="premium.css?v=1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+</head><body>
+<div class="aurora"></div>
+<header class="hero" style="padding-bottom:0">
+<img class="logo" src="logo.png" alt="Logo" width="74" height="74">
+<h1>Control Center</h1><p>Admin only · நிர்வாகம்</p>
+</header>
+<main class="shell">
+
+<section id="lg" class="glass">
+<h2>🔐 Admin login</h2>
+<label for="em">Email</label><input id="em" type="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+<label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password">
+<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sp"> Show password</label>
+<button class="full" id="go">Login</button>
+</section>
+
+<section id="ap" hidden>
+<div class="userbar"><span>Admin · <b id="who"></b></span><button class="ghost sm" id="lo">Log out</button></div>
+<div class="stats"><div class="stat"><b id="c_pending">0</b><span>Waiting</span></div><div class="stat"><b id="c_approved">0</b><span>Approved</span></div><div class="stat"><b id="c_rejected">0</b><span>Rejected</span></div></div>
+<div class="glass"><h2>⚡ Quick links</h2><div class="tiles">
+<a href="admin.html">🚌 Bus admin</a><a href="admin-help.html">🛺 Auto · Car · Tractor admin</a><a href="/">🌐 Public site</a><a href="add.html">➕ Customer add page</a></div></div>
+<div class="seg" style="grid-template-columns:repeat(3,1fr);margin-top:14px" id="st">
+<button data-s="pending" class="on">Waiting</button><button data-s="approved">Approved</button><button data-s="rejected">Rejected</button></div>
+<p class="msg" id="ms" role="status"></p>
+<div id="ls"></div>
+</section>
+</main>
+<script src="/api/config"></script>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);let st='pending',rows=[],busy=false,timer=null;
+const msg=(t,c)=>{$('ms').textContent=t||'';$('ms').className='msg '+(c||'')};
+const safe=u=>/^https:\/\//i.test(u||'')?u:'';
+async function isAdmin(){for(let i=0;i<3;i++){const{data,error}=await sb.rpc('is_admin');if(!error)return !!data;await new Promise(r=>setTimeout(r,500*(i+1)))}return null}
+async function enter(){const{data:{session}}=await sb.auth.getSession();if(!session)return show(false);
+ const a=await isAdmin();if(a===false){await sb.auth.signOut();show(false);$('lg').querySelector('h2').textContent='🔐 Admin login';return alert('This account is not an admin.')}
+ if(a===null)alert('Could not verify admin. Check internet.');$('who').textContent=session.user.email;show(true);refresh();clearInterval(timer);timer=setInterval(()=>{if(!document.hidden)refresh(true)},60000)}
+function show(on){$('lg').hidden=on;$('ap').hidden=!on}
+$('go').onclick=async()=>{const g=$('go');if(g.disabled)return;g.disabled=true;g.textContent='Logging in…';
+ try{const{error}=await sb.auth.signInWithPassword({email:$('em').value.trim().toLowerCase(),password:$('pw').value});
+  if(error)return alert(/invalid login/i.test(error.message)?'Wrong email or password.':error.message);$('pw').value='';await enter()}
+ catch(e){alert('Network problem. Please try again.')}finally{g.disabled=false;g.textContent='Login'}};
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('go').click()});
+$('sp').onchange=()=>{$('pw').type=$('sp').checked?'text':'password'};
+$('lo').onclick=async()=>{clearInterval(timer);await sb.auth.signOut();show(false)};
+$('st').onclick=e=>{const b=e.target.closest('button');if(!b)return;st=b.dataset.s;[...$('st').children].forEach(x=>x.classList.toggle('on',x===b));loadList()};
+async function counts(){for(const s of['pending','approved','rejected']){const{count}=await sb.from('submissions').select('id',{count:'exact',head:true}).eq('status',s);$('c_'+s).textContent=count??0;if(s==='pending')document.title=(count?`(${count}) `:'')+'Control · Admin'}}
+async function loadList(){const{data,error}=await sb.from('submissions').select('*').eq('status',st).order('created_at',{ascending:st!=='pending'}).limit(100);
+ if(error)return msg(error.message,'bad');rows=data;draw()}
+function refresh(){counts();loadList()}
+function draw(){$('ls').innerHTML=rows.map(r=>{const d=r.data||{},img=safe(d.image_url);
+ const body=r.kind==='bus'?`<h3>🚌 ${esc(d.name)} ${d.bus_no?`<small style="color:var(--mut)">${esc(d.bus_no)}</small>`:''}</h3>
+<p><b>${esc(d.from_place)}</b> → <b>${esc(d.to_place)}</b>${d.via?' via '+esc(d.via):''}</p>
+<p>${[d.bus_type,d.operator,d.fare].filter(Boolean).map(esc).join(' · ')}</p>
+<p>⏰ ${(d.timings||[]).map(t=>esc(`${t.time} ${t.days||''}${t.place?' @'+t.place:''}`)).join(' · ')}</p>`
+ :`<h3>🛺 ${esc(d.name)} <span class="chip pending">${esc(d.kind)}</span></h3>
+<p>📞 <a style="color:var(--gold2)" href="tel:${esc(String(d.phone||'').replace(/[^\d+]/g,''))}">${esc(d.phone)}</a>${d.area?' · 📍 '+esc(d.area):''}</p>
+<p>${[d.rate,d.night_available?'🌙 Night available'+(d.night_extra?' ('+d.night_extra+')':''):''].filter(Boolean).map(esc).join(' · ')}</p>${img?`<p><a style="color:var(--teal)" href="${esc(img)}" target="_blank" rel="noopener">🖼 Picture</a></p>`:''}`;
+ return `<article class="item" data-id="${r.id}">${body}${d.notes?`<p>📝 ${esc(d.notes)}</p>`:''}
+<p>👤 ${esc(r.user_name||'')} · ${esc(r.user_email||'')} · ${new Date(r.created_at).toLocaleString('en-IN')}</p>${r.admin_note?`<p><b>Note:</b> ${esc(r.admin_note)}</p>`:''}
+<div class="row">${r.status==='pending'?'<button class="ok sm" data-a="ap">✔ Approve</button><button class="bad sm" data-a="rj">✕ Reject</button>':r.status==='rejected'?'<button class="ok sm" data-a="ap">Approve now</button>':''}<button class="ghost sm" data-a="del">Delete</button></div></article>`}).join('')||'<p class="empty">Nothing here. 🎉</p>'}
+$('ls').onclick=async e=>{const b=e.target.closest('button');if(!b||busy)return;const r=rows.find(x=>x.id===b.closest('.item').dataset.id);if(!r)return;
+ busy=true;b.disabled=true;try{
+  if(b.dataset.a==='ap')await approve(r);
+  else if(b.dataset.a==='rj'){const n=prompt('Reason for rejecting (customer can see this):','');if(n===null)return;await setStatus(r,'rejected',n.trim()||null)}
+  else if(b.dataset.a==='del'&&confirm('Delete this request?')){const{error}=await sb.from('submissions').delete().eq('id',r.id);if(error)throw error;msg('Deleted.','ok')}
+  refresh()}catch(er){msg(er.message||'Failed','bad')}finally{busy=false;b.disabled=false}};
+async function setStatus(r,s,note){const{error}=await sb.from('submissions').update({status:s,admin_note:note,reviewed_at:new Date().toISOString()}).eq('id',r.id);if(error)throw error;msg(s==='approved'?'Approved & published ✔':'Rejected.','ok')}
+async function approve(r){const d=r.data||{},n=v=>(v===''||v==null)?null:v;
+ if(r.kind==='vehicle'){
+  const{error}=await sb.from('helpers').insert({name:d.name,kind:d.kind||'Other',phone:n(d.phone),area:n(d.area),rate:n(d.rate),night_available:!!d.night_available,night_extra:n(d.night_extra),notes:n(d.notes),image_url:safe(d.image_url)||null,active:true,sort_order:1});
+  if(error)throw error}
+ else{
+  const{data:pl}=await sb.from('places').select('id,name');const pm=Object.fromEntries((pl||[]).map(p=>[p.name.toLowerCase(),p.id]));
+  const{data:bus,error}=await sb.from('buses').insert({name:d.name,bus_no:n(d.bus_no),bus_type:d.bus_type||'Government',from_place:d.from_place,to_place:d.to_place,via:n(d.via),operator:n(d.operator),fare:n(d.fare),notes:n(d.notes),active:true}).select('id').single();
+  if(error)throw error;
+  const t=(d.timings||[]).filter(x=>/^\d{2}:\d{2}/.test(x.time||'')).map(x=>({bus_id:bus.id,departure_time:x.time,days:x.days||'Daily',stop:null,place_id:pm[String(x.place||'').toLowerCase()]||null}));
+  if(t.length){const{error:e2}=await sb.from('timings').insert(t);if(e2){await sb.from('buses').delete().eq('id',bus.id);throw e2}}}
+ await setStatus(r,'approved',null)}
+sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT')show(false)});
+enter();
+</script></body></html>
