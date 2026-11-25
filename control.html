@@ -62,7 +62,7 @@ function draw(){$('ls').innerHTML=rows.map(r=>{const d=r.data||{},img=safe(d.ima
 <p>${[d.bus_type,d.operator,d.fare].filter(Boolean).map(esc).join(' · ')}</p>
 <p>⏰ ${(d.timings||[]).map(t=>esc(`${t.time} ${t.days||''}${t.place?' @'+t.place:''}`)).join(' · ')}</p>`
  :`<h3>🛺 ${esc(d.name)} <span class="chip pending">${esc(d.kind)}</span></h3>
-<p>📞 <a style="color:var(--gold2)" href="tel:${esc(String(d.phone||'').replace(/[^\d+]/g,''))}">${esc(d.phone)}</a>${d.area?' · 📍 '+esc(d.area):''}</p>
+<p>📞 <a style="color:var(--gold2)" href="tel:${esc(String(d.phone||'').replace(/[^\d+]/g,''))}">${esc(d.phone)}</a>${d.place?' · 🏙 '+esc(d.place):''}${d.area?' · 📍 '+esc(d.area):''}</p>
 <p>${[d.rate,d.night_available?'🌙 Night available'+(d.night_extra?' ('+d.night_extra+')':''):''].filter(Boolean).map(esc).join(' · ')}</p>${img?`<p><a style="color:var(--teal)" href="${esc(img)}" target="_blank" rel="noopener">🖼 Picture</a></p>`:''}`;
  return `<article class="item" data-id="${r.id}">${body}${d.notes?`<p>📝 ${esc(d.notes)}</p>`:''}
 <p>👤 ${esc(r.user_name||'')} · ${esc(r.user_email||'')} · ${new Date(r.created_at).toLocaleString('en-IN')}</p>${r.admin_note?`<p><b>Note:</b> ${esc(r.admin_note)}</p>`:''}
@@ -76,7 +76,7 @@ $('ls').onclick=async e=>{const b=e.target.closest('button');if(!b||busy)return;
 async function setStatus(r,s,note){const{error}=await sb.from('submissions').update({status:s,admin_note:note,reviewed_at:new Date().toISOString()}).eq('id',r.id);if(error)throw error;msg(s==='approved'?'Approved & published ✔':'Rejected.','ok')}
 async function approve(r){const d=r.data||{},n=v=>(v===''||v==null)?null:v;
  if(r.kind==='vehicle'){
-  const{error}=await sb.from('helpers').insert({name:d.name,kind:d.kind||'Other',phone:n(d.phone),area:n(d.area),rate:n(d.rate),night_available:!!d.night_available,night_extra:n(d.night_extra),notes:n(d.notes),image_url:safe(d.image_url)||null,active:true,sort_order:1});
+  const{error}=await sb.from('helpers').insert({name:d.name,kind:d.kind||'Other',phone:n(d.phone),area:n(d.area),place_id:/^[0-9a-f-]{36}$/i.test(d.place_id||'')?d.place_id:null,rate:n(d.rate),night_available:!!d.night_available,night_extra:n(d.night_extra),notes:n(d.notes),image_url:safe(d.image_url)||null,active:true,sort_order:1});
   if(error)throw error}
  else{
   const{data:pl}=await sb.from('places').select('id,name');const pm=Object.fromEntries((pl||[]).map(p=>[p.name.toLowerCase(),p.id]));

@@ -50,6 +50,7 @@
 .mt button[hidden]{display:none}
 .ad img,.card.ad>img{aspect-ratio:auto!important;height:auto!important;max-height:none!important;object-fit:contain!important;animation:none!important;transform:none!important}
 .addcta{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0 10px;padding:11px 16px;border-radius:16px;text-decoration:none;font-weight:800;color:#1a1200;background:linear-gradient(135deg,#F6D06F,#E3A92B 60%,#C98A12);box-shadow:0 6px 18px #E3A92B44}
+#hpw{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 2px}#hpw select,#hpw input{width:100%;min-width:0;border-radius:12px}
 .addcta:active{transform:scale(.98)}#hk button b{opacity:.7;margin-left:4px;font-size:.8em}
 </style>
 </head><body>
@@ -94,6 +95,7 @@
 <div id="v_help" hidden>
 <h2>ஆட்டோ · கடை · அவசர உதவி · கோயில் · செய்தி</h2>
 <div class="mt" id="ht" role="tablist"></div>
+<div id="hpw" hidden><select id="hps" aria-label="Choose city or village"></select><input id="hpq" type="search" list="hpl" autocomplete="off" placeholder="ஊர் தேடு · Search city" aria-label="Search city or village"><datalist id="hpl"></datalist></div>
 <div class="mt" id="hk" role="tablist" aria-label="Vehicle type" hidden></div>
 <div class="filters"><input id="hq" type="search" placeholder="தேடு · Search" aria-label="Search help"></div>
 <div id="hl"></div>
@@ -378,18 +380,36 @@ q('hq').oninput=draw;
 const KG=[['','🔎 All · எல்லாம்'],['Auto','🛺 Auto'],['Car','🚗 Car'],['Tractor','🚜 Tractor'],['Other','🚐 Other']];let kg='';
 const kindOf=r=>{const k=String(r.kind||'').trim().toLowerCase();return k==='auto'?'Auto':k==='car'?'Car':k==='tractor'?'Tractor':'Other'};
 q('hk').onclick=e=>{const b=e.target.closest('button');if(b){kg=b.dataset.k;draw()}};
-function load(){[...q('ht').children].forEach(b=>b.classList.toggle('on',b.dataset.t===cur.t));q('hk').hidden=cur.t!=='helpers';draw()}
+/* city / village picker for vehicles (default = home place, Thanikkottagam) */
+const PLS=()=>(window.__D&&window.__D.places)||[],homeP=()=>{const p=PLS();return (p.find(x=>x.is_home)||p[0]||{}).id};
+const nz=s=>String(s||'').toLowerCase().replace(/[^a-z0-9\u0B80-\u0BFF]/g,'');
+const hpn=p=>p.name_ta?p.name+' · '+p.name_ta:p.name;let hp=null;
+{const w=new URLSearchParams(location.search).get('place');if(w)hp='?'+w}
+const inHP=r=>(r.place_id||homeP())===hp;
+function fillHP(all){const P=PLS();if(!P.length){q('hpw').hidden=true;return false}
+ if(hp&&hp[0]==='?'){const f=P.find(p=>nz(p.name)===nz(hp.slice(1))||nz(p.name_ta)===nz(hp.slice(1)));hp=f?f.id:null}
+ if(!hp||!P.some(p=>p.id===hp))hp=homeP();
+ const n={};all.forEach(r=>{const id=r.place_id||homeP();n[id]=(n[id]||0)+1});
+ const o=p=>`<option value="${E(p.id)}"${p.id===hp?' selected':''}>${p.id===homeP()?'⭐ ':''}${E(hpn(p))}${n[p.id]?' ('+n[p.id]+')':''}</option>`,h=P.filter(p=>p.id===homeP()),cs=P.filter(p=>p.id!==homeP()&&p.kind==='city'),vs=P.filter(p=>p.id!==homeP()&&p.kind!=='city');
+ q('hps').innerHTML=h.map(o).join('')+(cs.length?`<optgroup label="🏙 நகரங்கள் · Cities">${cs.map(o).join('')}</optgroup>`:'')+(vs.length?`<optgroup label="🏡 கிராமங்கள் · Villages">${vs.map(o).join('')}</optgroup>`:'');
+ if(!q('hpl').children.length)q('hpl').innerHTML=P.map(p=>`<option value="${E(p.name)}">${p.name_ta?E(p.name_ta):''}</option>`).join('');
+ q('hpw').hidden=false;return true}
+q('hps').onchange=()=>{hp=q('hps').value;q('hpq').value='';kg='';draw()};
+q('hpq').oninput=()=>{const v=nz(q('hpq').value);if(!v)return;const p=PLS().find(x=>nz(x.name)===v||nz(x.name_ta)===v);if(p){hp=p.id;kg='';draw()}};
+q('hpq').onchange=()=>{const v=nz(q('hpq').value);if(!v)return;const P=PLS(),p=P.find(x=>nz(x.name)===v||nz(x.name_ta)===v)||P.find(x=>nz(x.name).startsWith(v)||nz(x.name_ta).startsWith(v));if(p){hp=p.id;kg='';draw()}};
+function load(){[...q('ht').children].forEach(b=>b.classList.toggle('on',b.dataset.t===cur.t));q('hk').hidden=cur.t!=='helpers';q('hpw').hidden=cur.t!=='helpers';draw()}
 window.__hd=draw;
 function draw(){const s=cur,k=q('hq').value.trim().toLowerCase(),lab=Object.fromEntries(s.f.map(x=>[x[0],x[1]]));
  if(!window.__D){q('hl').innerHTML='<p class="muted">ஏற்றுகிறது…</p>';return}
  const all=(window.__D[s.t])||[];
- if(s.t==='helpers'){const n={};all.forEach(r=>{const g=kindOf(r);n[g]=(n[g]||0)+1});
-  q('hk').innerHTML=KG.map(([v,l])=>`<button type="button" data-k="${v}" class="${v===kg?'on':''}">${l}<b>${v?(n[v]||0):all.length}</b></button>`).join('')}
- const L=all.filter(r=>(s.t!=='helpers'||!kg||kindOf(r)===kg)&&(!k||JSON.stringify(Object.values(r)).toLowerCase().includes(k)));
+ let inCity=all;
+ if(s.t==='helpers'){const hasP=fillHP(all);if(hasP)inCity=all.filter(inHP);const n={};inCity.forEach(r=>{const g=kindOf(r);n[g]=(n[g]||0)+1});
+  q('hk').innerHTML=KG.map(([v,l])=>`<button type="button" data-k="${v}" class="${v===kg?'on':''}">${l}<b>${v?(n[v]||0):inCity.length}</b></button>`).join('')}
+ const L=inCity.filter(r=>(s.t!=='helpers'||!kg||kindOf(r)===kg)&&(!k||JSON.stringify(Object.values(r)).toLowerCase().includes(k)));
  q('hl').innerHTML=L.length?L.map(r=>{const im=U(r[s.img]),ph=P(r[s.phone]),lk=s.t==='helpers'?'':U(r.map_url)||((r.address||r.area||s.t==='temples')?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([r[s.title],r.address||r.area,VN].filter(Boolean).join(' ')):'');
   return `<article class="card">${im?`<img class="pic" src="${E(im)}" alt="${E(r[s.title])}" loading="lazy">`:''}<h3>${E(r[s.title])}</h3>${s.tag&&r[s.tag]?`<span class="hchip">${E(r[s.tag])}</span>`:''}${s.flag?`<span class="hchip">${r[s.flag[0]]?s.flag[1]:s.flag[2]}</span>`:''}
 ${s.show.filter(x=>r[x]).map(x=>`<p><b>${E(lab[x])}:</b> <span style="white-space:pre-line">${E(r[x])}</span></p>`).join('')}
-${ph||lk?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">📞 ${E(r[s.phone])}</a>${s.t==='helpers'?'':`<a class="wb" href="https://wa.me/${ph.replace(/^\+/,'').replace(/^(\d{10})$/,'91$1')}" target="_blank" rel="noopener">WhatsApp</a>`}`:''}${lk?`<a href="${E(lk)}" target="_blank" rel="noopener noreferrer">📍 Map · வரைபடம்</a>`:''}</div>`:''}</article>`}).join(''):'<p class="muted">இன்னும் எதுவும் இல்லை</p>'}
+${ph||lk?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">📞 ${E(r[s.phone])}</a>${s.t==='helpers'?'':`<a class="wb" href="https://wa.me/${ph.replace(/^\+/,'').replace(/^(\d{10})$/,'91$1')}" target="_blank" rel="noopener">WhatsApp</a>`}`:''}${lk?`<a href="${E(lk)}" target="_blank" rel="noopener noreferrer">📍 Map · வரைபடம்</a>`:''}</div>`:''}</article>`}).join(''):(s.t==='helpers'?(()=>{const p=PLS().find(x=>x.id===hp);return `<p class="muted">இந்த ஊரில் இன்னும் வாகனங்கள் இல்லை · No ${kg?kg.toLowerCase()+' ':''}vehicles yet${p?' in '+E(p.name):''}.</p><a class="addcta" href="add.html?t=vehicle${p?'&place='+encodeURIComponent(p.name):''}">➕ இந்த ஊருக்கு வாகனம் சேர்க்க · Add a vehicle here</a>`})():'<p class="muted">இன்னும் எதுவும் இல்லை</p>')}
 {let hh=location.hash;if(!/^#help/.test(hh)){const sh=sessionStorage.getItem('hash');if(sh){hh=sh;sessionStorage.removeItem('hash')}}
 const m=/^#help(?:-(\w+))?$/.exec(hh);if(m){const f=m[1]&&SECTIONS.find(s=>s.t===m[1]);if(f)cur=f;view('help')}}
 })();

@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
     const d = s.data || {};
     const site = process.env.SITE_URL || `https://${req.headers.host}`;
     const title = s.kind === 'bus' ? `🚌 ${d.name || ''} (${d.from_place || ''} → ${d.to_place || ''})` : `🛺 ${d.kind || ''} · ${d.name || ''}`;
-    const lines = Object.entries(d).filter(([k, v]) => k !== 'timings' && v !== '' && v != null && v !== false)
+    const lines = Object.entries(d).filter(([k, v]) => k !== 'timings' && k !== 'place_id' && v !== '' && v != null && v !== false)
       .map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#6b7c80">${esc(k)}</td><td><b>${esc(v === true ? 'Yes' : v)}</b></td></tr>`).join('');
     const tm = Array.isArray(d.timings) && d.timings.length ? `<p><b>Timings:</b> ${d.timings.map(t => esc(`${t.time} ${t.days || ''} ${t.place ? '@ ' + t.place : ''}`)).join(' · ')}</p>` : '';
     const html = `<div style="font-family:Segoe UI,Arial,sans-serif;max-width:520px;margin:auto;border:1px solid #e3a92b;border-radius:14px;overflow:hidden">

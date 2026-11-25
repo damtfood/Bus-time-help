@@ -20,7 +20,9 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const safeUrl=u=>/^https?:\/\//i.test(u||'')?u:'';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),$=id=>document.getElementById(id);
 const msg=(t,bad)=>{$('ms').textContent=t;$('ms').style.color=bad?'#c0392b':'inherit'};
-let cur=SECTIONS[0],rows=[],edit=null;
+let cur=SECTIONS[0],rows=[],edit=null,PLS=[];
+async function loadPlaces(){const{data}=await sb.from('places').select('id,name,name_ta,kind,is_home,sort_order').eq('active',true).order('is_home',{ascending:false}).order('sort_order').order('name');PLS=data||[]}
+const plName=id=>{const p=PLS.find(x=>x.id===id);return p?p.name:''};
 function openApp(){$('lg').hidden=true;$('ap').hidden=false;if($('tabs').children.length)return;
 $('tabs').innerHTML=SECTIONS.map(s=>`<button type="button" data-t="${s.t}">${s.label}</button>`).join('');
 pick(SECTIONS.find(s=>s.t===localStorage.getItem('ah_tab'))||SECTIONS[0])}
@@ -41,11 +43,14 @@ $('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('go').click()});
 $('sp').onchange=()=>{$('pw').type=$('sp').checked?'text':'password'};
 $('lo').onclick=async()=>{localStorage.removeItem('adm_ok');await sb.auth.signOut();location.reload()};
 $('tabs').onclick=e=>{const b=e.target.closest('button');if(b)pick(SECTIONS.find(s=>s.t===b.dataset.t))};
-async function pick(s){cur=s;edit=null;localStorage.setItem('ah_tab',s.t);[...$('tabs').children].forEach(b=>b.classList.toggle('on',b.dataset.t===s.t));form();
+async function pick(s){cur=s;edit=null;if(!PLS.length)await loadPlaces();localStorage.setItem('ah_tab',s.t);[...$('tabs').children].forEach(b=>b.classList.toggle('on',b.dataset.t===s.t));form();
  const{data,error}=await sb.from(s.t).select('*').order('sort_order').order('created_at');if(error)return msg(error.message,1);rows=data;list()}
 function form(){const r=edit||{};$('fm').innerHTML=`<h2>${edit?'Edit':'Add'} · ${cur.label}</h2>`+cur.f.map(([k,l,ty,x])=>{const v=r[k]??'',id='f_'+k;
  if(ty==='check')return `<label><input type="checkbox" id="${id}" ${r[k]?'checked':''}> ${l}</label>`;
  const lb=`<label for="${id}">${l}${x===1?' *':''}</label>`;
+ if(ty==='place'){const o=p=>`<option value="${p.id}" ${p.id===(r[k]||(PLS.find(x=>x.is_home)||{}).id)?'selected':''}>${p.is_home?'⭐ ':''}${esc(p.name)}${p.name_ta?' · '+esc(p.name_ta):''}</option>`;
+  const cs=PLS.filter(p=>!p.is_home&&p.kind==='city'),vs=PLS.filter(p=>!p.is_home&&p.kind!=='city'),h=PLS.filter(p=>p.is_home);
+  return lb+`<select id="${id}">${h.map(o).join('')}<optgroup label="🏙 Cities">${cs.map(o).join('')}</optgroup><optgroup label="🏡 Villages">${vs.map(o).join('')}</optgroup></select>`}
  if(ty==='select')return lb+`<select id="${id}">${x.map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select>`;
  if(ty==='area')return lb+`<textarea id="${id}" rows="2" maxlength="300">${esc(v)}</textarea>`;
  return lb+`<input id="${id}" type="${ty==='tel'?'tel':ty==='url'?'url':'text'}" maxlength="200" value="${esc(v)}">`}).join('')
@@ -57,7 +62,7 @@ async function save(){const o={sort_order:parseInt($('f_sort_order').value)||1};
   if(x===1&&!v)return msg('Please fill: '+k,1);if(ty==='url'&&v&&!safeUrl(v))return msg('Link must start with https://',1);o[k]=ty==='check'?v:(v||null)}
  const q=edit?sb.from(cur.t).update(o).eq('id',edit.id):sb.from(cur.t).insert(o);const{error}=await q;
  if(error)return msg(error.message,1);msg('Saved ✔');pick(cur)}
-function list(){$('ls').innerHTML=rows.map(r=>`<div class="it"><span>${r.active?'':'🙈 '}${esc(r[cur.title])}<br><small>${esc(r[cur.phone]||'')}</small></span>
+function list(){$('ls').innerHTML=rows.map(r=>`<div class="it"><span>${r.active?'':'🙈 '}${esc(r[cur.title])}<br><small>${esc(r[cur.phone]||'')}${r.place_id&&plName(r.place_id)?' · 📍 '+esc(plName(r.place_id)):''}</small></span>
 <span><button type="button" data-a="e" data-id="${r.id}">Edit</button> <button type="button" class="ghost" data-a="h" data-id="${r.id}">${r.active?'Hide':'Show'}</button> <button type="button" class="ghost" data-a="d" data-id="${r.id}">Delete</button></span></div>`).join('')||'<p class="muted">Nothing yet</p>'}
 $('ls').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const r=rows.find(x=>x.id===b.dataset.id);
  if(b.dataset.a==='e'){edit=r;form();scrollTo(0,0)}

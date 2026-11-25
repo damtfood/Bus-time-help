@@ -53,3 +53,9 @@ If these are missing the request still saves; only the mail is skipped.
 - Easiest: push to GitHub > Settings > Secrets and variables > Actions > Variables > add `SITE_URL` = `https://your-site.vercel.app` > Actions tab > "Build Control APK" > Run workflow > download `BusControl-apk`.
 - Or Android Studio: open `android-control`, set `SITE_URL` in `app/build.gradle` (or `-PSITE_URL=...`), Build > Build APK.
 - It is a debug-signed APK (fine for installing on your own phone). For Play Store you need a release keystore.
+
+## v15: City / village for vehicles
+Run `schema_v15_helpers_city.sql` once in Supabase (after v14). Every auto / car / tractor / other vehicle now has a city or village (default Thanikkottagam).
+- Index > Auto tab: city dropdown + search, then All / Auto / Car / Tractor / Other chips for that city.
+- `add.html` and `admin-help.html`: choose the city when adding. Control approve copies the city to the public list.
+- Cities come from the same `places` list used by buses (admin > Cities & Villages).

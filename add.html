@@ -45,6 +45,7 @@
 
 <form id="fv" class="glass" autocomplete="off" hidden>
 <h2>🛺 Vehicle details</h2>
+<label>City / Village · ஊர் <i>*</i></label><div class="g2"><select id="v_place" aria-label="City or village"></select><input id="v_placeq" type="search" list="pl" autocomplete="off" placeholder="Type to search city" aria-label="Search city"></div>
 <div class="g2"><div><label>Vehicle type <i>*</i></label><select id="v_kind"><option>Auto</option><option>Car</option><option>Tractor</option><option>Van</option><option>Other</option></select></div>
 <div><label>Your name <i>*</i></label><input id="v_name" maxlength="80"></div></div>
 <div class="g2"><div><label>Phone <i>*</i></label><input id="v_phone" type="tel" maxlength="16" placeholder="98xxxxxxxx"></div><div><label>Area / Stand</label><input id="v_area" maxlength="80"></div></div>
@@ -71,7 +72,7 @@
 <script src="/api/config"></script>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);let uid=null,mode='bus';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);let uid=null,mode='bus',PLS=[];
 const msg=(t,c)=>{$('ms').textContent=t||'';$('ms').className='msg '+(c||'')};
 const DAYS=['Daily','Mon-Sat','Sunday only','Mon,Wed,Fri','Tue,Thu,Sat'];
 function addRow(){if($('tms').children.length>=20)return;const d=document.createElement('div');d.className='tm';
@@ -80,10 +81,16 @@ d.querySelector('button').onclick=()=>{if($('tms').children.length>1)d.remove()}
 function reset(){$('fb').reset();$('fv').reset();$('tms').innerHTML='';addRow()}
 async function setSession(s){const u=s&&s.user;$('gate').hidden=!!u;$('app').hidden=!u;
  if(!u){uid=null;return}$('un').textContent=u.user_metadata?.full_name||u.email;if(uid===u.id)return;uid=u.id;loadMine();loadPlaces()}
-async function loadPlaces(){const{data}=await sb.from('places').select('name').eq('active',true).order('name');$('pl').innerHTML=(data||[]).map(p=>`<option value="${esc(p.name)}">`).join('')}
+const nz=s=>String(s||'').toLowerCase().replace(/[^a-z0-9\u0B80-\u0BFF]/g,'');
+async function loadPlaces(){const{data}=await sb.from('places').select('id,name,name_ta,kind,is_home').eq('active',true).order('is_home',{ascending:false}).order('sort_order').order('name');PLS=data||[];
+ $('pl').innerHTML=PLS.map(p=>`<option value="${esc(p.name)}">`).join('');
+ const o=p=>`<option value="${p.id}">${p.is_home?'⭐ ':''}${esc(p.name)}${p.name_ta?' · '+esc(p.name_ta):''}</option>`;
+ $('v_place').innerHTML=PLS.filter(p=>p.is_home).map(o).join('')+`<optgroup label="🏙 Cities">${PLS.filter(p=>!p.is_home&&p.kind==='city').map(o).join('')}</optgroup><optgroup label="🏡 Villages">${PLS.filter(p=>!p.is_home&&p.kind!=='city').map(o).join('')}</optgroup>`;
+ const w=new URLSearchParams(location.search).get('place'),f=w&&PLS.find(p=>nz(p.name)===nz(w));if(f)$('v_place').value=f.id}
+$('v_placeq').oninput=()=>{const v=nz($('v_placeq').value),p=v&&PLS.find(x=>nz(x.name)===v||nz(x.name_ta)===v);if(p)$('v_place').value=p.id};
 async function loadMine(){const{data,error}=await sb.from('submissions').select('id,kind,data,status,admin_note,created_at').order('created_at',{ascending:false}).limit(20);
  if(error)return;$('mine').innerHTML=(data||[]).map(r=>`<div class="item"><div class="row" style="margin:0;justify-content:space-between"><h3>${r.kind==='bus'?'🚌':'🛺'} ${esc(r.data.name||'')}</h3><span class="chip ${r.status}">${r.status.toUpperCase()}</span></div>
-<p>${r.kind==='bus'?esc((r.data.from_place||'')+' → '+(r.data.to_place||'')):esc((r.data.kind||'')+' · '+(r.data.phone||''))} · ${new Date(r.created_at).toLocaleDateString('en-IN')}</p>${r.admin_note?`<p><b>Admin:</b> ${esc(r.admin_note)}</p>`:''}</div>`).join('')||'<p class="empty">No requests yet.</p>'}
+<p>${r.kind==='bus'?esc((r.data.from_place||'')+' → '+(r.data.to_place||'')):esc((r.data.kind||'')+' · '+(r.data.place||'')+' · '+(r.data.phone||''))} · ${new Date(r.created_at).toLocaleDateString('en-IN')}</p>${r.admin_note?`<p><b>Admin:</b> ${esc(r.admin_note)}</p>`:''}</div>`).join('')||'<p class="empty">No requests yet.</p>'}
 async function send(kind,data,btn){btn.disabled=true;msg('Sending…');
  try{const{data:row,error}=await sb.from('submissions').insert({kind,data}).select('id').single();
   if(error){msg(error.message,'bad');return}
@@ -97,14 +104,18 @@ $('fb').onsubmit=e=>{e.preventDefault();const v=id=>$(id).value.trim();
  if(!timings.length)return msg('Please add at least one timing.','bad');
  send('bus',{name:v('b_name'),bus_no:v('b_no'),bus_type:v('b_type'),from_place:v('b_from'),to_place:v('b_to'),via:v('b_via'),operator:v('b_op'),fare:v('b_fare'),notes:v('b_notes'),timings},e.submitter||$('fb').querySelector('.full'))};
 $('fv').onsubmit=e=>{e.preventDefault();const v=id=>$(id).value.trim();
- if(!v('v_name'))return msg('Name is required.','bad');if(!/^\+?[\d\s-]{8,15}$/.test(v('v_phone')))return msg('Enter a valid phone number.','bad');
+ if(!v('v_name'))return msg('Name is required.','bad');if(!/^[0-9a-f-]{36}$/i.test(v('v_place')))return msg('Please choose your city / village.','bad');if(!/^\+?[\d\s-]{8,15}$/.test(v('v_phone')))return msg('Enter a valid phone number.','bad');
  if(v('v_img')&&!/^https:\/\//i.test(v('v_img')))return msg('Picture link must start with https://','bad');
- send('vehicle',{kind:v('v_kind'),name:v('v_name'),phone:v('v_phone'),area:v('v_area'),rate:v('v_rate'),night_available:$('v_night').checked,night_extra:v('v_nx'),image_url:v('v_img'),notes:v('v_notes')},e.submitter||$('fv').querySelector('.full'))};
+ send('vehicle',{place_id:v('v_place'),place:(PLS.find(p=>p.id===v('v_place'))||{}).name||'',kind:v('v_kind'),name:v('v_name'),phone:v('v_phone'),area:v('v_area'),rate:v('v_rate'),night_available:$('v_night').checked,night_extra:v('v_nx'),image_url:v('v_img'),notes:v('v_notes')},e.submitter||$('fv').querySelector('.full'))};
 document.querySelector('.seg').onclick=e=>{const b=e.target.closest('button');if(!b)return;mode=b.dataset.k;
  [...document.querySelector('.seg').children].forEach(x=>x.classList.toggle('on',x===b));$('fb').hidden=mode!=='bus';$('fv').hidden=mode!=='vehicle';$('done').hidden=true;msg('')};
 $('more').onclick=()=>{$('done').hidden=true;$('fb').hidden=mode!=='bus';$('fv').hidden=mode!=='vehicle'};
 $('addt').onclick=addRow;
-$('gg').onclick=()=>sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}}).then(({error})=>{if(error)$('gm').textContent=error.message,$('gm').className='msg bad'});
+$('gg').onclick=()=>{if(window.AndroidBridge){/* inside the Android app: native Google account picker */
+ window.onNativeGoogle=async(tok,nonce)=>{const{error}=await sb.auth.signInWithIdToken({provider:'google',token:tok,nonce});if(error){$('gm').textContent='Login failed: '+error.message;$('gm').className='msg bad'}};
+ window.onNativeGoogleError=m=>{$('gm').textContent='Google sign-in cancelled or failed'+(m?' ('+m+')':'');$('gm').className='msg bad'};
+ return AndroidBridge.googleSignIn()}
+ sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}}).then(({error})=>{if(error)$('gm').textContent=error.message,$('gm').className='msg bad'})};
 $('lo').onclick=async()=>{await sb.auth.signOut();uid=null;location.reload()};
 const q=new URLSearchParams(location.search).get('t');if(q==='vehicle')document.querySelector('.seg button[data-k=vehicle]').click();
 addRow();sb.auth.getSession().then(({data})=>setSession(data.session));sb.auth.onAuthStateChange((_e,s)=>setTimeout(()=>setSession(s),0));
