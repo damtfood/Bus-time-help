@@ -186,3 +186,9 @@ header.top .clock{margin-top:12px}
 .plc .plcn{margin:8px 0 0;font-size:.85rem;color:var(--muted)}
 @media(max-width:520px){.plc .plcr{grid-template-columns:1fr}}
 .plc{margin:0 0 10px}
+
+/* ===== fix: search suggestions were hidden behind the Next/All tabs ===== */
+.plc{position:relative;z-index:39;isolation:isolate}
+.plc ul{z-index:60;background:#0E1F26;border-color:#E3A92B}
+.plc li.on,.plc li:hover{background:#2a2410}
+.plc li{color:#EAF2F1}
