@@ -12,8 +12,7 @@
 </head><body>
 <header class="top"><i class="orb o1"></i><i class="orb o2"></i>
 <i class="cloud" style="--y:12px;--d:52s;--s:-8s"></i><i class="cloud" style="--y:40px;--d:70s;--s:-40s;width:46px"></i><i class="cloud" style="--y:70px;--d:60s;--s:-22s;width:56px"></i><div class="wrap">
-<div class="brand"><img src="logo.png" alt="" width="46" height="46"><div><h1 id="title">Bus Timings</h1><p class="sub">பேருந்து நேரம் · Free for everyone</p></div></div>
-<p class="stop"><i class="pin">📍</i><span><b>THANIKKOTTAGAM - தாணிக்கோட்டகம்</b> Bus Stop · பேருந்து நிறுத்தம்</span></p>
+<div class="brand"><img src="logo.png" alt="" width="46" height="46"><div><h1 id="title">Bus Timings</h1><div class="tl" aria-hidden="true"><i>🚌</i></div><p class="sub">பேருந்து நேரம் · Free for everyone</p></div></div>
 <div class="clock"><b id="clk">--:--</b><span id="dt"></span><span class="live"><i></i>Live</span></div>
 <div class="wx" id="wx" hidden></div>
 <p id="who"></p>
@@ -87,7 +86,6 @@ document.querySelectorAll('.rv').forEach(e=>io.observe(e));first=false}
 function refreshFilters(){const l=buses.filter(inPlace);fill('to',l.map(b=>b.to_place),'All destinations');fill('ty',l.map(b=>b.bus_type),'All types')}
 const CK='bt_cache_v4';
 function apply(d){if(!d)return;
-if(d.v){$('title').textContent=d.v+' Bus Timings';document.title=d.v+' Bus Timings'}
 buses=d.buses||[];const P=d.places||[];
 const h=P.find(p=>/thanik+k?ott?a?g?am|தாணிக்கோட்ட/i.test((p.name||'')+' '+(p.name_ta||'')))||P.find(p=>p.is_home)||P[0];
 homeId=h?h.id:null;PL=h||null;loaded=true;refreshFilters();render();loadApps(d.app_links);checkUpdate(d)}

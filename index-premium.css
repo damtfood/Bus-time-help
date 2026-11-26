@@ -166,3 +166,12 @@ header.top{padding:16px 0 50px}
 header.top .wx{margin-top:8px}
 header.top .wrap{position:relative;z-index:2}
 .busw{z-index:1}
+
+/* ===== animated "Bus Timings" title ===== */
+header.top h1{font-size:1.7rem;letter-spacing:.3px;animation:pShine 4s linear infinite,hIn .7s cubic-bezier(.2,.8,.3,1) both;text-shadow:none;filter:drop-shadow(0 4px 14px #E3A92B55)}
+@keyframes hIn{from{opacity:0;transform:translateY(-10px) scale(.94)}}
+.tl{position:relative;overflow:hidden;height:16px;margin:1px 0 2px;max-width:230px;border-bottom:2px dashed #E3A92B99}
+.tl i{position:absolute;bottom:-1px;left:-1.4em;font-style:normal;font-size:.95rem;line-height:1;animation:tlDrive 4.5s linear infinite}
+@keyframes tlDrive{to{left:100%}}
+header.top .clock{margin-top:12px}
+@media(prefers-reduced-motion:reduce){.tl i{animation:none;left:0}}
