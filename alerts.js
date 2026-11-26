@@ -99,7 +99,25 @@
     } catch (e) { tableMissing = /does not exist|schema cache|42P01|PGRST205/i.test((e.code || '') + ' ' + (e.message || '')); ALERTS = [] }
     syncNative(); badge();
   }
-  function badge() { const b = document.getElementById('alBtn'); if (b) b.textContent = '🔔 My alerts · என் நினைவூட்டல்' + (ALERTS.length ? ' (' + ALERTS.length + ')' : '') }
+  function badge() { const b = document.getElementById('alBtn'); if (b) b.textContent = '🔔 My alerts · என் நினைவூட்டல்' + (ALERTS.length ? ' (' + ALERTS.length + ')' : ''); paintAlr() }
+  /* Notify button on each bus card: ON -> tap = switch OFF straight away; OFF -> tap = ask settings (dialog) */
+  function paintAlr() {
+    document.querySelectorAll('button.alr').forEach(b => {
+      const on = ALERTS.some(a => a.bus_id === b.dataset.id && a.enabled);
+      b.classList.toggle('on', on);
+      b.textContent = on ? '🔔 Alert ON · tap to turn off' : '🔔 Notify me';
+      const n = b.nextElementSibling, has = n && n.classList.contains('alset');
+      if (on && !has) { const g = document.createElement('button'); g.type = 'button'; g.className = 'ghost alset'; g.dataset.id = b.dataset.id; g.title = 'Notification settings'; g.textContent = '⚙'; b.after(g) }
+      else if (!on && has) n.remove();
+    });
+  }
+  async function toggleAlr(btn) {
+    const id = btn.dataset.id, on = ALERTS.filter(x => x.bus_id === id && x.enabled);
+    if (!on.length) return window.openAlert(id);
+    btn.disabled = true;
+    try { const sb = await getSB(); const { error } = await sb.from('bus_alerts').update({ enabled: false, last_sent: null }).in('id', on.map(x => x.id)); if (error) alert(error.message) } catch (e) {}
+    await loadAlerts(); btn.disabled = false;
+  }
 
   /* ---------- name prompt ---------- */
   function askName() {
@@ -121,16 +139,24 @@
     const b = buses.find(x => x.id === id); if (!b) return;
     const ts = [...tms(b)].sort((x, y) => x.departure_time.localeCompare(y.departure_time));
     if (!ts.length) return alert('No timings for this bus.');
-    const nx = ts.find(t => left(t) >= 0 && today(t)) || ts[0];
+    const mine = ALERTS.filter(a => a.bus_id === b.id), ex0 = mine.find(a => a.enabled) || mine[0];
+    let sv = {}; try { sv = JSON.parse(localStorage.getItem('al_last') || '{}') } catch (e) {}
+    const pre = { m: ex0 ? ex0.minutes_before : (sv.m ?? 10), once: ex0 ? !!ex0.fire_on : sv.r === 0, tone: ex0 ? ex0.tone : (sv.tone || 'default') };
+    const nx = (ex0 && ts.find(t => hhmm(t.departure_time) === hhmm(ex0.dep_time))) || ts.find(t => left(t) >= 0 && today(t)) || ts[0];
     const pn = (typeof PL !== 'undefined' && PL && PL.name) || '';
-    dlg.innerHTML = `<h3>🔔 Bus alert · நினைவூட்டல்</h3><p><b>${E(b.name)}</b><br><span class="muted">${E(b.from_place)} → ${E(b.to_place)}</span></p>
+    dlg.innerHTML = `<h3>🔔 Notification settings · அறிவிப்பு அமைப்பு</h3><p><b>${E(b.name)}</b><br><span class="muted">${E(b.from_place)} → ${E(b.to_place)}</span></p>
 <label for="al_t">Bus time · பேருந்து நேரம்</label><select id="al_t">${ts.map((t, i) => `<option value="${i}"${t === nx ? ' selected' : ''}>${fmt(t.departure_time)} · ${E(t.days || 'Daily')}</option>`).join('')}</select>
-<label for="al_m">Remind me · எவ்வளவு முன்</label><select id="al_m">${MINS.map(m => `<option value="${m}"${m === 10 ? ' selected' : ''}>${m ? m + ' min before · ' + m + ' நிமிடம் முன்' : 'At departure time'}</option>`).join('')}</select>
+<label for="al_m">Remind me · எவ்வளவு முன்</label><select id="al_m">${MINS.map(m => `<option value="${m}"${m === pre.m ? ' selected' : ''}>${m ? m + ' min before · ' + m + ' நிமிடம் முன்' : 'At departure time'}</option>`).join('')}</select>
 <label for="al_r">Repeat</label><select id="al_r"><option value="1">Every day this bus runs</option><option value="0">Only the next time</option></select>
 <label for="al_tone">Tone · ஒலி</label><div class="row" style="flex-wrap:nowrap"><select id="al_tone" style="flex:1"></select><button type="button" class="ghost" id="al_pv">▶</button></div>
 <p class="muted" id="al_note" style="font-size:.85rem"></p>
-<div class="row" style="margin-top:12px"><button id="al_s">🔔 Set alert</button><button class="ghost" id="r_x">Cancel</button></div>`;
-    fillTone(document.getElementById('al_tone'), 'default'); wireTone('al_tone', 'al_pv');
+<div class="row" style="margin-top:12px"><button id="al_s">💾 Save · சேமி</button><button class="ghost" id="r_x">Cancel</button></div>`;
+    const alM = document.getElementById('al_m'), alR = document.getElementById('al_r'), alTone = document.getElementById('al_tone');
+    alR.value = pre.once ? '0' : '1'; fillTone(alTone, pre.tone); wireTone('al_tone', 'al_pv');
+    document.getElementById('al_t').onchange = () => {   // switching bus time loads that time's saved settings
+      const t = ts[+document.getElementById('al_t').value], a = ALERTS.find(x => x.bus_id === b.id && hhmm(x.dep_time) === hhmm(t.departure_time));
+      if (a) { alM.value = a.minutes_before; alR.value = a.fire_on ? '0' : '1'; fillTone(alTone, a.tone) }
+    };
     document.getElementById('al_note').textContent = IN_APP() ? '' : 'Web: custom tones play while the site is open. When the browser is closed your phone plays its default notification sound. The Android app plays your chosen tone always.';
     if (OLD_APP()) document.getElementById('al_note').textContent = '⚠️ Please update the Android app to get alerts.';
     dlg.showModal(); document.getElementById('r_x').onclick = () => dlg.close();
@@ -138,14 +164,15 @@
       const btn = e.currentTarget, t = ts[+document.getElementById('al_t').value], mins = +document.getElementById('al_m').value, rep = document.getElementById('al_r').value === '1', tone = document.getElementById('al_tone').value;
       const row = { bus_id: b.id, bus_name: b.name, place_name: pn || null, dep_time: hhmm(t.departure_time), days: t.days || 'Daily', minutes_before: mins, tone };
       if (!rep) { const d = nextFireDate(row.dep_time, row.days, mins); if (!d) return alert('No upcoming trip found.'); row.fire_on = Y(d) }
-      if (ALERTS.some(a => a.bus_id === b.id && hhmm(a.dep_time) === row.dep_time && a.minutes_before === mins)) return alert('You already set this alert.');
+      const dup = ALERTS.find(a => a.bus_id === b.id && hhmm(a.dep_time) === row.dep_time);
       btn.disabled = true;
       let pr = 'ok'; if (IN_APP()) { try { AndroidBridge.requestNotifPermission() } catch (e) {} } else pr = await ensurePush(true);   // permission first (needs the tap)
-      const sb = await getSB(); const { error } = await sb.from('bus_alerts').insert(row);
+      const sb = await getSB(); const { error } = dup ? await sb.from('bus_alerts').update({ ...row, fire_on: row.fire_on || null, enabled: true, last_sent: null }).eq('id', dup.id) : await sb.from('bus_alerts').insert(row);
       btn.disabled = false;
       if (error) return alert(/does not exist|schema cache/i.test(error.message) ? 'Alerts are not set up yet (admin: run schema_v16_alerts.sql).' : error.message);
+      try { localStorage.setItem('al_last', JSON.stringify({ m: mins, r: rep ? 1 : 0, tone })) } catch (e) {}
       await loadAlerts();
-      dlg.innerHTML = `<h3>✅ Alert set!</h3><p><b>${E(b.name)}</b><br>${f12(row.dep_time)} · ${mins ? mins + ' min before' : 'at departure'} · ${rep ? E(row.days) : 'once'}</p><p class="muted">${E(statusMsg(pr))}</p><div class="row"><button id="al_my">🔔 My alerts</button><button class="ghost" id="r_x">Close</button></div>`;
+      dlg.innerHTML = `<h3>✅ ${dup ? 'Saved' : 'Alert set'}! · சேமிக்கப்பட்டது</h3><p><b>${E(b.name)}</b><br>${f12(row.dep_time)} · ${mins ? mins + ' min before' : 'at departure'} · ${rep ? E(row.days) : 'once'}</p><p class="muted">${E(statusMsg(pr))}</p><div class="row"><button id="al_my">🔔 My alerts</button><button class="ghost" id="r_x">Close</button></div>`;
       document.getElementById('r_x').onclick = () => dlg.close(); document.getElementById('al_my').onclick = window.openMyAlerts;
     };
   };
@@ -204,8 +231,10 @@
     if (!IN_APP() && 'Notification' in window && Notification.permission === 'granted') ensurePush(false);
   };
   if ('serviceWorker' in navigator && !IN_APP()) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'play-tone') playTone(e.data.tone) });
+  const lst = document.getElementById('list'); if (lst) new MutationObserver(paintAlr).observe(lst, { childList: true });
   document.addEventListener('click', e => {
-    const a = e.target.closest('.alr'); if (a) { window.openAlert(a.dataset.id); return }
+    const g = e.target.closest('.alset'); if (g) { window.openAlert(g.dataset.id); return }
+    const a = e.target.closest('.alr'); if (a) { toggleAlr(a); return }
     if (e.target.closest('#alBtn')) window.openMyAlerts();
   });
 })();
