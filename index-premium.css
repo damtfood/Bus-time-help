@@ -175,3 +175,6 @@ header.top h1{font-size:1.7rem;letter-spacing:.3px;animation:pShine 4s linear in
 @keyframes tlDrive{to{left:100%}}
 header.top .clock{margin-top:12px}
 @media(prefers-reduced-motion:reduce){.tl i{animation:none;left:0}}
+#upd .uv{display:inline-block;margin:2px 0 4px;padding:2px 12px;border-radius:99px;font-size:.78rem;font-weight:800;color:#F6D06F;border:1px solid #E3A92B88;background:#E3A92B14}
+#upd .un{text-align:left;margin:8px 0 2px;padding-left:20px;font-size:.88rem;color:#d6e6e7}
+#upd .uf{margin:12px 0 0;font-size:.82rem;font-weight:700;color:#ff9a9a}

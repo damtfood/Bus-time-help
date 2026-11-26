@@ -27,6 +27,7 @@
 <button type="button" class="tb" data-p="notices">🔔 Notices</button>
 <button type="button" class="tb" data-p="special">🎉 Special</button>
 <button type="button" class="tb" data-p="apps">📱 Apps</button>
+<button type="button" class="tb" data-p="appupd">🔄 App update</button>
 <button type="button" class="tb" data-p="settings">⚙️ Settings</button>
 <a class="tb" href="admin-help.html">🛺 Auto · Car · Shops ➜</a>
 </nav>
@@ -147,6 +148,25 @@
 <div><label for="p_act">Status</label><select id="p_act"><option value="1">Showing</option><option value="0">Hidden</option></select></div>
 </div><p class="row"><button id="p_save">Save link</button><button class="ghost" id="p_clr">Clear form</button></p></div></div>
 <div id="prows"></div>
+</div>
+<div class="tp" id="tp-appupd" hidden>
+<h2>🔄 App update control · செயலி அப்டேட்</h2>
+<div class="card"><div class="body"><p class="muted">Controls the "new app available" popup shown to Android app users. Changes reach users in about 30 seconds.</p><div class="grid">
+<div><label for="u_mode">Update mode</label><select id="u_mode"><option value="off">Off - never ask</option><option value="optional">Optional - user can tap Later</option><option value="force">Force - must update (no Later)</option></select></div>
+<div><label for="u_target">Who gets the popup</label><select id="u_target"><option value="both">Old apps + apps below minimum version</option><option value="old">Only old apps (no alert support)</option><option value="below">Only apps below minimum version</option><option value="all">All app users below latest version</option></select></div>
+<div><label for="u_min">Minimum version code</label><input id="u_min" type="number" min="0" placeholder="0 = ignore"></div>
+<div><label for="u_latest">Latest version code</label><input id="u_latest" type="number" min="0" placeholder="e.g. 3"></div>
+<div><label for="u_vname">Latest version name</label><input id="u_vname" maxlength="20" placeholder="e.g. 1.3"></div>
+<div><label for="u_size">APK size (optional)</label><input id="u_size" maxlength="20" placeholder="e.g. 12 MB"></div>
+<div class="full"><label for="u_url">APK download link (blank = first active Android link in Apps tab)</label><input id="u_url" placeholder="https://..."></div>
+<div class="full"><label for="u_title">Popup title</label><input id="u_title" maxlength="80" placeholder="புதிய App வந்துவிட்டது!"></div>
+<div class="full"><label for="u_msg">Popup message</label><textarea id="u_msg" rows="2" maxlength="300" placeholder="Leave blank for the default message"></textarea></div>
+<div class="full"><label for="u_notes">What's new (one point per line)</label><textarea id="u_notes" rows="4" maxlength="600" placeholder="Bus alerts fixed&#10;Faster loading"></textarea></div>
+<div><label for="u_snooze">"Later" hides popup for (hours)</label><input id="u_snooze" type="number" min="1" max="720" value="3"></div>
+<div><label for="u_web">Android button for browser visitors</label><select id="u_web"><option value="1">Show</option><option value="0">Hide</option></select></div>
+</div>
+<p class="row" style="margin-top:12px"><button type="button" id="u_save">Save</button><button type="button" class="ghost" id="u_prev">👁 Preview popup</button><button type="button" class="ghost" id="u_re">🔁 Ask everyone again now</button></p>
+<p class="muted" id="u_info"></p></div></div>
 </div>
 </section></main>
 <script src="/api/config"></script>
@@ -340,7 +360,7 @@ $('xrows').onclick=async e=>{const t=e.target.dataset.a;if(!t)return;const id=e.
 if(t==='ed')spForm(sps.find(x=>x.id===id));
 if(t==='dl'&&confirm('Delete this special bus?')){const{error}=await sb.from('special_buses').delete().eq('id',id);error?msg(error.message,1):(msg('Deleted.'),loadSp())}};
 /* ===== tabs ===== */
-const PGS=['inbox','buses','places','ads','notices','special','apps','settings'];
+const PGS=['inbox','buses','places','ads','notices','special','apps','appupd','settings'];
 function goTab(p){if(!PGS.includes(p))p='inbox';PGS.forEach(x=>{$('tp-'+x).hidden=x!==p});
  [...$('atabs').querySelectorAll('.tb[data-p]')].forEach(b=>{const on=b.dataset.p===p;b.classList.toggle('on',on);if(on)b.scrollIntoView({inline:'center',block:'nearest'})});
  try{sessionStorage.setItem('adm_tab',p);history.replaceState(null,'','#'+p)}catch(e){}scrollTo({top:0})}
@@ -389,7 +409,7 @@ async function loadSettingsTab(){
  $('tk_t').value=m.ticker_text||'';$('tk_on').checked=m.ticker_on!=='0';
  const{data:lm,error}=await sb.from('app_limits').select('*').eq('id',1).maybeSingle();
  if(lm){$('lm_p').value=lm.max_pending;$('lm_d').value=lm.max_per_day;$('lm_m').textContent=''}else $('lm_m').textContent=error?'Run schema_v17_limits_block.sql in Supabase to use limits.':'';
- await loadBlocked();loadPeople()}
+ await loadBlocked();loadPeople();loadUpd()}
 $('tk_s').onclick=async()=>{const{error}=await sb.from('settings').upsert([{key:'ticker_text',value:$('tk_t').value.trim()},{key:'ticker_on',value:$('tk_on').checked?'1':'0'}]);error?msg(error.message+' (run schema_v5_settings.sql)',1):msg('Saved. Website updates in about 30 seconds.')};
 $('tk_c').onclick=()=>{$('tk_t').value='';$('tk_s').click()};
 $('lm_s').onclick=async()=>{const p=parseInt($('lm_p').value,10),d=parseInt($('lm_d').value,10);if(!(p>=1&&p<=1000&&d>=1&&d<=5000))return msg('Enter valid numbers.',1);
@@ -411,4 +431,20 @@ async function loadPeople(){const{data,error}=await sb.from('submissions').selec
 $('pp_ls').onclick=async e=>{const b=e.target.closest('button[data-a="blk"]');if(!b)return;const em=b.closest('.card').dataset.e;if(!confirm('Block '+em+'? They will not be able to send requests or use the site.'))return;await blockEmail(em,'Blocked by admin')};
 goTab((location.hash||'').slice(1)||sessionStorage.getItem('adm_tab')||'inbox');
 boot();
+
+/* ===== app update control ===== */
+const UK={mode:'u_mode',target:'u_target',min_code:'u_min',latest_code:'u_latest',latest_name:'u_vname',size:'u_size',url:'u_url',title:'u_title',message:'u_msg',notes:'u_notes',snooze_h:'u_snooze',show_web:'u_web'};
+const UD={mode:'optional',target:'both',min_code:'0',snooze_h:'3',show_web:'1'};
+let uEpoch='0';
+async function loadUpd(){const{data,error}=await sb.from('settings').select('*').in('key',Object.keys(UK).map(k=>'upd_'+k).concat('upd_epoch'));
+if(error)return msg(error.message,1);const m=Object.fromEntries((data||[]).map(r=>[r.key.slice(4),r.value]));uEpoch=m.epoch||'0';
+for(const k in UK)$(UK[k]).value=m[k]!==undefined?m[k]:(UD[k]||'');updInfo()}
+function updInfo(){$('u_info').textContent=({off:'Popup is OFF: nobody is asked to update.',optional:'Popup is optional: users can tap Later.',force:'Popup is FORCED: users cannot skip it.'})[$('u_mode').value]+(($('u_url').value.trim()||(typeof apps!=='undefined'&&apps.some(x=>x.platform==='android'&&x.active)))?'':' ⚠️ No APK link yet: add one here or in the Apps tab.')}
+$('u_mode').onchange=updInfo;$('u_url').oninput=updInfo;
+$('u_save').onclick=async()=>{const u=$('u_url').value.trim();if(u&&!/^https?:\/\//i.test(u))return msg('APK link must start with https://',1);
+for(const k of ['u_min','u_latest']){const v=$(k).value;if(v!==''&&!(+v>=0))return msg('Version codes must be numbers.',1)}
+const rows=Object.keys(UK).map(k=>({key:'upd_'+k,value:String($(UK[k]).value).trim()}));rows.push({key:'upd_epoch',value:uEpoch});
+const{error}=await sb.from('settings').upsert(rows);error?msg(error.message,1):(msg('Saved. Users see it in about 30 seconds.'),updInfo())};
+$('u_re').onclick=async()=>{const e=String((+uEpoch||0)+1);const{error}=await sb.from('settings').upsert({key:'upd_epoch',value:e});error?msg(error.message,1):(uEpoch=e,msg('Done. Everyone who tapped Later will be asked again.'))};
+$('u_prev').onclick=()=>window.open('/?updpreview=1','_blank');
 </script></body></html>

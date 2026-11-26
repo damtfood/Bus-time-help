@@ -1,11 +1,12 @@
--- v18: Android app update prompt. Run once in Supabase > SQL Editor.
--- 1) Apps whose versionCode is below this number are asked to install the new APK.
---    (Apps that have no AndroidBridge.syncAlerts are always treated as old.)
-insert into settings (key, value) values ('app_min_code', '0') on conflict (key) do nothing;
--- When you release a new APK: update settings set value = '2' where key = 'app_min_code';
-
--- 2) The "Install update" button opens the FIRST active Android link in app_links.
---    Add it here (or in Admin > app links), replacing the URL with your hosted APK:
--- insert into app_links (label, url, platform, sort_order)
--- values ('Thanikkottagam Bus App (new)', 'https://YOUR-SITE.vercel.app/BusTimings.apk', 'android', 1);
+-- v18: App update control (Admin > "App update" tab). Run once in Supabase > SQL Editor.
+-- Needs the settings table (schema_v5) and app_links table (schema_v10).
+-- Everything is edited from the admin page; these are just the default values.
+insert into settings (key, value) values
+  ('upd_mode', 'optional'),   -- off | optional | force
+  ('upd_target', 'both'),     -- both | old | below | all
+  ('upd_min_code', '0'),
+  ('upd_snooze_h', '3'),
+  ('upd_show_web', '1'),
+  ('upd_epoch', '0')
+on conflict (key) do nothing;
 notify pgrst, 'reload schema';

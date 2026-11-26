@@ -88,29 +88,35 @@ const CK='bt_cache_v4';
 function apply(d){if(!d)return;
 buses=d.buses||[];const P=d.places||[];
 const h=P.find(p=>/thanik+k?ott?a?g?am|தாணிக்கோட்ட/i.test((p.name||'')+' '+(p.name_ta||'')))||P.find(p=>p.is_home)||P[0];
-homeId=h?h.id:null;PL=h||null;loaded=true;refreshFilters();render();loadApps(d.app_links);checkUpdate(d)}
+homeId=h?h.id:null;PL=h||null;loaded=true;refreshFilters();render();loadApps(d.app_links,d.settings);checkUpdate(d)}
 async function load(){try{const r=await fetch('/api/data');if(!r.ok)throw 0;const d=await r.json();if(!d||!d.buses)throw 0;try{localStorage.setItem(CK,JSON.stringify(d))}catch(e){}apply(d)}
 catch(e){if(!loaded)$('next').innerHTML='<p class="empty">Could not load buses. Check your internet and refresh.</p>'}}
 /* ---- Android app: detect old version and ask for the new one ---- */
 const AI={android:'🤖',windows:'🪟',ios:'🍎',other:'📥'};
-function loadApps(a){const el=$('alk');if(window.AndroidBridge){el.hidden=true;return}
+function loadApps(a,st){const el=$('alk'),w=(st||[]).find(r=>r.key==='upd_show_web');if(window.AndroidBridge||(w&&w.value==='0')){el.hidden=true;return}
 const L=(a||[]).filter(x=>url(x.url)&&x.platform==='android');el.hidden=!L.length;
 el.innerHTML=L.map(x=>`<a href="${esc(url(x.url))}" target="_blank" rel="noopener noreferrer" download>${AI.android} ${esc(x.label)} <span>⬇</span></a>`).join('')}
 function appInfo(){const b=window.AndroidBridge;if(!b)return null;let code=null;
 try{if(typeof b.getVersionCode==='function')code=+b.getVersionCode()}catch(e){}
 if(code==null||isNaN(code)){const m=/BusApp\/(\d+)/i.exec(navigator.userAgent);code=m?+m[1]:null}
 return{code,old:typeof b.syncAlerts!=='function'}}
-function checkUpdate(d){const a=appInfo();if(!a)return;
-const m=Object.fromEntries((d.settings||[]).map(r=>[r.key,r.value])),min=parseInt(m.app_min_code||'0',10)||0;
-if(!(a.old||(a.code!=null&&min>0&&a.code<min)))return;
-try{if(Date.now()<+localStorage.getItem('bt_upd_snooze'))return}catch(e){}
-const L=(d.app_links||[]).find(x=>x.platform==='android'&&url(x.url)),u=L&&url(L.url);let chrome='';
+function checkUpdate(d){const m=Object.fromEntries((d.settings||[]).map(r=>[r.key,r.value])),pv=/[?&]updpreview=1/.test(location.search),a=appInfo(),mode=m.upd_mode||'optional';
+if(!pv&&(!a||mode==='off'))return;
+const min=parseInt(m.upd_min_code||m.app_min_code||'0',10)||0,latest=parseInt(m.upd_latest_code||'0',10)||0,tg=m.upd_target||'both';
+const isOld=!!(a&&a.old),isBelow=!!(a&&a.code!=null&&min>0&&a.code<min),isAll=!!a&&(latest>0?(a.code==null||a.code<latest):true);
+const need=pv||(tg==='old'?isOld:tg==='below'?isBelow:tg==='all'?isAll:(isOld||isBelow));
+if(!need)return;
+const force=mode==='force'&&!pv,ep=m.upd_epoch||'0';
+if(!force&&!pv){try{const s=JSON.parse(localStorage.getItem('bt_upd_snooze')||'null');if(s&&s.e===ep&&Date.now()<s.t)return}catch(e){}}
+const L=(d.app_links||[]).find(x=>x.platform==='android'&&url(x.url)),u=url(m.upd_url)||(L&&url(L.url));let chrome='';
 if(u){try{const x=new URL(u);chrome=`intent://${x.host}${x.pathname}${x.search}#Intent;scheme=${x.protocol.replace(':','')};package=com.android.chrome;end`}catch(e){}}
-$('upd').innerHTML=`<div class="ub"><div class="ui">📲</div><h2 id="ut">புதிய App வந்துவிட்டது!</h2><p><b>New app version available.</b> உங்கள் app பழைய version. Bus alerts, வேகம், சரிசெய்தல்கள் கிடைக்க புதியதை install செய்யுங்கள்.</p>
+const notes=String(m.upd_notes||'').split('\n').map(x=>x.trim()).filter(Boolean),ver=[m.upd_latest_name&&'v'+m.upd_latest_name,m.upd_size].filter(Boolean).join(' · ');
+$('upd').innerHTML=`<div class="ub"><div class="ui">📲</div><h2 id="ut">${esc(m.upd_title||'புதிய App வந்துவிட்டது!')}</h2>${ver?`<span class="uv">${esc(ver)}</span>`:''}<p>${m.upd_message?esc(m.upd_message):'<b>New app version available.</b> உங்கள் app பழைய version. Bus alerts, வேகம், சரிசெய்தல்கள் கிடைக்க புதியதை install செய்யுங்கள்.'}</p>
+${notes.length?`<ul class="un">${notes.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
 ${u?`<a class="ug" href="${esc(u)}" target="_blank" rel="noopener" download>⬇ புதிய App Install செய் · Install update</a>${chrome?`<a class="uc" href="${esc(chrome)}">Chrome-ல் திற · Open in Chrome</a>`:''}
 <ol><li>Download முடிந்ததும் <b>Install</b> தட்டவும்.</li><li>“Unknown source” கேட்டால் <b>Allow</b> செய்யவும்.</li><li>Install ஆகவில்லை என்றால் பழைய app-ஐ uninstall செய்து மீண்டும் install செய்யவும்.</li></ol>`:'<p class="uw">Update link இன்னும் சேர்க்கப்படவில்லை. நிர்வாகியைத் தொடர்பு கொள்ளவும்.</p>'}
-<button type="button" class="ul" id="uLater">பிறகு · Later</button></div>`;
-$('upd').hidden=false;$('uLater').onclick=()=>{try{localStorage.setItem('bt_upd_snooze',Date.now()+3*3600e3)}catch(e){}$('upd').hidden=true}}
+${force?'<p class="uf">இந்த update கட்டாயம் · This update is required.</p>':'<button type="button" class="ul" id="uLater">பிறகு · Later</button>'}</div>`;
+$('upd').hidden=false;const lb=$('uLater');if(lb)lb.onclick=()=>{const h=Math.max(1,parseFloat(m.upd_snooze_h)||3);if(!pv){try{localStorage.setItem('bt_upd_snooze',JSON.stringify({t:Date.now()+h*3600e3,e:ep}))}catch(e){}}$('upd').hidden=true}}
 /* ---- login (only asked when setting an alert or reporting) ---- */
 const paintWho=n=>{$('who').innerHTML=n?`👤 ${esc(n)} <button class="lk" id="lo">Log out</button>`:''};
 function gate(on){$('gate').hidden=!on;document.body.classList.toggle('gated',!!on)}
