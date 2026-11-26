@@ -52,7 +52,15 @@
 .addcta{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0 10px;padding:11px 16px;border-radius:16px;text-decoration:none;font-weight:800;color:#1a1200;background:linear-gradient(135deg,#F6D06F,#E3A92B 60%,#C98A12);box-shadow:0 6px 18px #E3A92B44}
 #hpw{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 2px}#hpw select,#hpw input{width:100%;min-width:0;border-radius:12px}
 .addcta:active{transform:scale(.98)}#hk button b{opacity:.7;margin-left:4px;font-size:.8em}
+#gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;color:#EAF2F1;background:radial-gradient(60% 40% at 15% 0%,#E3A92B33,transparent 70%),radial-gradient(50% 40% at 95% 20%,#35C2C833,transparent 70%),linear-gradient(180deg,#0B1B20,#050C0F);overflow:auto}
+#gate[hidden]{display:none}body.gated{overflow:hidden}
+#gate .gbox{max-width:380px;width:100%;text-align:center;padding:28px 22px;border-radius:26px;border:1px solid #ffffff22;background:linear-gradient(160deg,#ffffff14,#ffffff06);backdrop-filter:blur(14px);box-shadow:0 24px 60px #000a}
+#gate img{border-radius:22px;border:2px solid #E3A92B;background:#fff;box-shadow:0 10px 36px #E3A92B55}
+#gate h2{margin:14px 0 6px;background:linear-gradient(90deg,#F6D06F,#E3A92B 50%,#fff3c4);-webkit-background-clip:text;background-clip:text;color:transparent}
+#gate p{color:#8FA7AA;margin:6px 0}#gate button{margin-top:14px;width:100%;padding:14px;font-weight:800;border:0;border-radius:99px;color:#1a1200;background:linear-gradient(135deg,#F6D06F,#E3A92B 60%,#C98A12);box-shadow:0 8px 24px #E3A92B55;cursor:pointer;font-size:1rem}
 </style>
+<link rel="stylesheet" href="index-premium.css?v=1">
+<script src="alerts.js?v=2" defer></script>
 </head><body>
 <header class="top">
 <i class="cloud" style="--y:12px;--d:52s;--s:-8s"></i><i class="cloud" style="--y:40px;--d:70s;--s:-40s;width:46px"></i><i class="cloud" style="--y:70px;--d:60s;--s:-22s;width:56px"></i><div class="wrap">
@@ -66,9 +74,11 @@
 <div class="road" aria-hidden="true"></div>
 <div class="busw" aria-hidden="true"><span class="tow"><b><img src="logo.png" alt="" width="20" height="20">Dhineshkumar Adpc - Murugan Trader 🦚📊</b><i class="rope"></i></span><i class="puff"></i><i class="puff p2"></i><svg class="bus" viewBox="0 0 64 30" width="58" height="27"><rect x="2" y="2" width="58" height="20" rx="5" fill="#E3A92B"/><rect x="8" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="20" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="32" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="46" y="6" width="11" height="12" rx="1.5" fill="#0B1B20"/><g class="wh" style="transform-origin:16px 23px"><circle cx="16" cy="23" r="5" fill="#0B1B20" stroke="#E3A92B" stroke-width="2"/><path d="M16 19v8M12 23h8" stroke="#E3A92B" stroke-width="1.3"/></g><g class="wh" style="transform-origin:48px 23px"><circle cx="48" cy="23" r="5" fill="#0B1B20" stroke="#E3A92B" stroke-width="2"/><path d="M48 19v8M44 23h8" stroke="#E3A92B" stroke-width="1.3"/></g></svg></div>
 </header>
+<div id="tick" hidden role="marquee" aria-label="Announcement"><span class="tkl">📢</span><div class="tkw"><div class="tkt" id="tkt"></div></div></div>
 <section id="ntc" hidden aria-live="polite"></section>
 <main class="wrap">
 <nav class="mt" id="mt" role="tablist" aria-label="Sections"><button type="button" role="tab" data-v="bus" class="on">🚌 பேருந்து நேரம்</button><button type="button" role="tab" data-v="help">🛺 ஆட்டோ &amp; உதவி</button></nav>
+<a class="addcta" href="add.html">➕ உங்கள் பேருந்து / வாகனம் சேர்க்க · Add your bus / vehicle</a>
 <div id="v_bus">
 <section class="plc" id="pk" hidden>
 <div class="pkh"><span class="pkl">📍 ஊர் / நகரம் · Village / City</span><b id="pkc"></b></div>
@@ -79,10 +89,12 @@
 <p class="pkn" id="pkn" hidden></p>
 </section>
 <section id="spec" hidden></section>
-<h2>Next buses · அடுத்த பேருந்துகள்</h2>
+<nav class="mt" id="bt" role="tablist" aria-label="Bus views"><button type="button" role="tab" data-b="next" class="on">⏰ அடுத்த பேருந்து · Next <b id="bcN">0</b></button><button type="button" role="tab" data-b="all">🚌 எல்லா பேருந்து · All <b id="bcA">0</b></button></nav>
+<div id="bt_next">
 <p class="fl" id="fl" hidden></p>
 <div class="next" id="next"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
-<h2>All buses</h2>
+</div>
+<div id="bt_all" hidden>
 <nav class="mt" id="rt" role="tablist" aria-label="Routes"><button type="button" role="tab" data-r="" class="on">All</button><button type="button" role="tab" data-r="tv">Thiruthuraipoondi → Vedaranyam</button><button type="button" role="tab" data-r="vt">Vedaranyam → Thiruthuraipoondi</button><button type="button" role="tab" data-r="ot">Others</button></nav>
 <div class="filters">
 <input id="q" type="search" placeholder="Search bus name, number or place" aria-label="Search buses">
@@ -90,6 +102,7 @@
 <select id="ty" aria-label="Bus type"><option value="">All types</option></select>
 </div>
 <div id="list"></div>
+</div>
 </div>
 <div id="v_help" hidden>
 <h2>ஆட்டோ · கடை · அவசர உதவி · கோயில் · செய்தி</h2>
@@ -102,8 +115,10 @@
 </div>
 <section id="adsec" hidden><h2>Ads · விளம்பரம்</h2><div class="ads" id="ads"><div class="trk" id="trk"></div></div></section>
 </main>
+<button type="button" id="up" aria-label="Back to top">⬆</button>
 <dialog id="dlg"></dialog>
-<div class="wrap" style="text-align:center;margin:18px auto 6px"><button type="button" id="fbBtn">💬 Feedback · கருத்து</button></div>
+<div id="gate" hidden role="dialog" aria-modal="true" aria-labelledby="gt"><div class="gbox"><img src="logo.png" width="84" height="84" alt=""><h2 id="gt">வணக்கம்! Welcome</h2><p>Login with Google to see bus timings, set bus alerts and more.</p><p><small>பேருந்து நேரங்களைப் பார்க்கவும், நினைவூட்டல் அமைக்கவும் Google மூலம் உள்நுழையவும்.</small></p><button type="button" id="gGo">Continue with Google</button><p id="gMsg" role="status"></p></div></div>
+<div class="wrap" style="text-align:center;margin:18px auto 6px"><button type="button" id="alBtn">🔔 My alerts · என் நினைவூட்டல்</button> <button type="button" id="fbBtn">💬 Feedback · கருத்து</button></div>
 <div class="wrap"><a class="adv" href="https://wa.me/919585298480?text=Hi%2C%20I%20want%20to%20advertise%20on%20the%20Bus%20Timings%20page." target="_blank" rel="noopener"><svg class="wa" viewBox="0 0 24 24" aria-hidden="true"><path fill="#25D366" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg><span><b>உங்கள் விளம்பரம் இங்கே! · Advertise here</b><small>WhatsApp: +91 95852 98480</small></span></a></div>
 <footer class="by"><a href="https://adpc.shop" target="_blank" rel="noopener"><img src="logo.png" alt="Murugan Trader logo" width="64" height="64" loading="lazy"><span>by <b>Dhineshkumar Adpc - Murugan Trader</b> <span class="pk">🦚</span>📊</span></a><small>Timings can change. Please confirm at the bus stand.</small></footer>
 <div class="alk" id="alk" hidden></div>
@@ -153,7 +168,8 @@ list.forEach(b=>{const td=tms(b).filter(today).sort((x,y)=>x.departure_time.loca
 tdAll.sort((x,y)=>x.t.departure_time.localeCompare(y.t.departure_time));
 const fe=$('fl');if(tdAll.length){const f0=tdAll[0],l0=tdAll[tdAll.length-1];fe.hidden=false;fe.innerHTML=`<span class="hchip" title="${esc(f0.b.name)}">🌅 முதல் பேருந்து · ${fmt(f0.t.departure_time)}</span><span class="hchip" title="${esc(l0.b.name)}">🌙 கடைசி பேருந்து · ${fmt(l0.t.departure_time)}</span>`}else fe.hidden=true;
 up.sort((a,c)=>a.m-c.m);
-$('next').innerHTML=up.slice(0,6).map(({b,t,m,last})=>`<div class="n${m<=5?' soon':''}${first?' pop':''}"><span class="t">${fmt(t.departure_time)}</span><span class="i">${esc(b.name)}<br><small class="muted">to ${esc(b.to_place)}${t.stop?' · '+esc(t.stop):''}${last?' · <b class="lastb">கடைசி பேருந்து!</b>':''}</small></span><span class="w">${wait(m)}</span></div>`).join('')||'<p class="empty">No more buses today here. · இன்று இனி பேருந்து இல்லை</p>';
+$('bcN').textContent=up.length;$('bcA').textContent=list.length;
+$('next').innerHTML=up.map(({b,t,m,last})=>`<div class="n${m<=5?' soon':''}${first?' pop':''}"><span class="t">${fmt(t.departure_time)}</span><span class="i">${esc(b.name)}<br><small class="muted">to ${esc(b.to_place)}${t.stop?' · '+esc(t.stop):''}${last?' · <b class="lastb">கடைசி பேருந்து!</b>':''}</small></span><span class="w">${wait(m)}</span></div>`).join('')||'<p class="empty">No more buses today here. · இன்று இனி பேருந்து இல்லை</p>';
 $('list').innerHTML=list.map(b=>{
 const ts=tms(b).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time));
 const nx=ts.find(t=>left(t)>=0),firstT=ts[0],lastT=ts[ts.length-1],isLast=nx&&nx===lastT&&ts.length>1,done=ts.length&&!nx;
@@ -162,7 +178,7 @@ return `<article class="card bus${seen.has(b.id)?'':' rv'}${isF(b.id)?' isfav':'
 <h3>${esc(b.name)}${b.bus_no?`<span class="tag">${esc(b.bus_no)}</span>`:''}<span class="tag">${esc(b.bus_type||'')}</span>${b.service_class?`<span class="tag">${esc(b.service_class)}</span>`:''}</h3>
 <p class="muted">${esc(b.from_place)} to ${esc(b.to_place)}${b.via?' via '+esc(b.via):''}${b.fare?' · Fare '+esc(b.fare):''}</p>
 <div class="chips">${ts.map(t=>`<span class="chip ${left(t)<0?'past':t===nx?'nx':''}${t===lastT&&ts.length>1?' last':''}">${fmt(t.departure_time)}${t===lastT&&ts.length>1?' <small>கடைசி</small>':''}</span>`).join('')||'<span class="muted">No service today</span>'}</div>
-${ts.length?`<p class="fl2">🌅 முதல் ${fmt(firstT.departure_time)} · 🌙 கடைசி ${fmt(lastT.departure_time)}${isLast?' <b class="lastb">⚠️ இன்றைய கடைசி பேருந்து!</b>':done?' <span class="done">இன்றைய சேவை முடிந்தது</span>':''}</p>`:''}${b.notes?`<p class="muted">${esc(b.notes)}</p>`:''}${(()=>{const ph=String(b.phone||'').replace(/[^\d+]/g,'');return ph?`<div class="row" style="margin:8px 0"><a class="fill" href="tel:${ph}">📞 Call · ${esc(b.phone)}</a></div>`:''})()}<button class="ghost rep" data-id="${b.id}">Timing wrong? Report it</button><button class="ghost shr" data-id="${b.id}">📤 Share</button></div></article>`}).join('')||'<p class="empty">No buses match. Clear the search or filters. · பேருந்து இல்லை</p>';document.querySelectorAll('.rv').forEach(e=>io.observe(e));first=false;
+${ts.length?`<p class="fl2">🌅 முதல் ${fmt(firstT.departure_time)} · 🌙 கடைசி ${fmt(lastT.departure_time)}${isLast?' <b class="lastb">⚠️ இன்றைய கடைசி பேருந்து!</b>':done?' <span class="done">இன்றைய சேவை முடிந்தது</span>':''}</p>`:''}${b.notes?`<p class="muted">${esc(b.notes)}</p>`:''}${(()=>{const ph=String(b.phone||'').replace(/[^\d+]/g,'');return ph?`<div class="row" style="margin:8px 0"><a class="fill" href="tel:${ph}">📞 Call · ${esc(b.phone)}</a></div>`:''})()}<button class="ghost rep" data-id="${b.id}">Timing wrong? Report it</button><button class="ghost shr" data-id="${b.id}">📤 Share</button><button class="ghost alr" data-id="${b.id}">🔔 Notify me</button></div></article>`}).join('')||'<p class="empty">No buses match. Clear the search or filters. · பேருந்து இல்லை</p>';document.querySelectorAll('.rv').forEach(e=>io.observe(e));first=false;
 }
 const CK='bt_cache_v3';
 function apply(d){if(!d)return;window.__D=d;
@@ -257,13 +273,24 @@ $('rt').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)re
 
 let user=null,cur=null;
 const dlg=$('dlg');
-const paintWho=n=>{$('who').innerHTML=n?`${esc(n)} <button class="lk" id="lo">Log out</button>`:''};
-async function who(){if(!hasAuth()){user=null;paintWho('');return}
+const paintWho=n=>{$('who').innerHTML=n?`👤 ${esc(n)} <button class="lk" id="lo">Log out</button>`:''};
+async function who(){if(!hasAuth()){user=null;paintWho('');gate(true);return}
 if(!user){try{const n=localStorage.getItem('bt_who');if(n)paintWho(n)}catch(e){}}
 let session;try{const sb=await getSB();session=(await sb.auth.getSession()).data.session}catch(e){return}   // network problem: keep the saved login, try again later
-user=session?.user||null;const nm=user?(user.user_metadata?.full_name||user.email):'';
-try{nm?localStorage.setItem('bt_who',nm):localStorage.removeItem('bt_who')}catch(e){}paintWho(nm);
+user=session?.user||null;const nm=user?(user.user_metadata?.full_name||user.user_metadata?.name||user.email):'';
+try{nm?localStorage.setItem('bt_who',nm):localStorage.removeItem('bt_who')}catch(e){}paintWho(nm);gate(!user);if(user&&window.__onUser)__onUser(user);
 const af=sessionStorage.getItem('after');if(user&&af){sessionStorage.removeItem('after');if(af==='fb')openFb();else if(af.startsWith('rep:'))openRep(af.slice(4))}}
+function setBT(v){[...$('bt').children].forEach(x=>x.classList.toggle('on',x.dataset.b===v));$('bt_next').hidden=v!=='next';$('bt_all').hidden=v!=='all';try{sessionStorage.setItem('bt',v)}catch(e){}}
+$('bt').onclick=e=>{const b=e.target.closest('button');if(b){setBT(b.dataset.b);scrollTo({top:0,behavior:'smooth'})}};
+try{setBT(sessionStorage.getItem('bt')==='all'?'all':'next')}catch(e){}
+addEventListener('scroll',()=>$('up').classList.toggle('show',scrollY>500),{passive:true});$('up').onclick=()=>scrollTo({top:0,behavior:'smooth'});
+function gate(on){$('gate').hidden=!on;document.body.classList.toggle('gated',!!on)}
+$('gGo').onclick=async()=>{const m=$('gMsg');m.textContent='';sessionStorage.setItem('hash',location.hash);
+ if(window.AndroidBridge){/* inside the Android app: phone's Google account, no redirect */
+ window.onNativeGoogle=async(tok,nonce)=>{try{const c=await getSB();const{error}=await c.auth.signInWithIdToken({provider:'google',token:tok,nonce});if(error)m.textContent='Login failed: '+error.message;else await who()}catch(e){m.textContent='Login failed. Try again.'}};
+ window.onNativeGoogleError=x=>{m.textContent='Google sign-in was cancelled or failed'+(x?' ('+x+')':'')};
+ AndroidBridge.googleSignIn();return}
+ try{const sb=await getSB();const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});if(error)m.textContent=error.message}catch(e){m.textContent='Network problem. Please try again.'}};
 document.addEventListener('click',async e=>{if(e.target.id==='lo'){const sb=await getSB();await sb.auth.signOut();try{localStorage.removeItem('bt_who')}catch(_){}user=null;paintWho('');who()}});
 $('fbBtn').addEventListener('click',openFb);
 $('list').addEventListener('click',e=>{const r=e.target.closest('.rep');if(r)return openRep(r.dataset.id);
@@ -343,7 +370,8 @@ if(ni>=nts.length)ni=0;drawN();clearInterval(nT);
 if(nts.length>1)nT=setInterval(()=>{ni++;drawN()},6500)}
 $('ntc').addEventListener('click',()=>{if(nts.length>1){ni++;drawN()}});
 let adMin=1;
-function loadSettings(data){try{const v=parseFloat(data&&data[0]&&data[0].value);if([1,2,5,10].includes(v))adMin=v}catch(e){}}
+function loadSettings(data){try{const m=Object.fromEntries((data||[]).map(r=>[r.key,r.value]));const v=parseFloat(m.ad_scroll_min);if([1,2,5,10].includes(v))adMin=v;
+ const tx=String(m.ticker_text||'').trim(),t=$('tick');if(tx&&m.ticker_on!=='0'){$('tkt').textContent=tx;$('tkt').style.setProperty('--tk',Math.max(14,Math.round(tx.length*.28))+'s');t.hidden=false}else t.hidden=true}catch(e){}}
 let ax=0,aT=0,apause=0,adrag=null,amoved=false;
 (function(){const box=$('ads'),trk=$('trk');
 const qm=parseFloat(new URLSearchParams(location.search).get('scroll'));

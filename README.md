@@ -59,3 +59,20 @@ Run `schema_v15_helpers_city.sql` once in Supabase (after v14). Every auto / car
 - Index > Auto tab: city dropdown + search, then All / Auto / Car / Tractor / Other chips for that city.
 - `add.html` and `admin-help.html`: choose the city when adding. Control approve copies the city to the public list.
 - Cities come from the same `places` list used by buses (admin > Cities & Villages).
+
+## v16 / v17: Login gate, bus alerts, tabs, ticker, limits and blocking
+Run in Supabase (in order): `schema_v16_alerts.sql`, then `schema_v17_limits_block.sql`.
+
+**Index:** login is mandatory (Google). Bus tab has `Next buses` (all upcoming) and `All buses` tabs, a scrolling text bar and a back-to-top button. Admin > Settings sets the scrolling text.
+
+**Bus alerts:** "🔔 Notify me" on a bus card: choose time, minutes before, repeat and tone.
+- Android app: local alarms, custom tone (bundled or from phone), works offline.
+- Web (Chrome etc.): web push. Needs these Vercel env vars, then redeploy:
+  `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (run `npx web-push generate-vapid-keys`), `VAPID_SUBJECT` (mailto:you@mail.com),
+  `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (Supabase > Settings > API, secret!), `CRON_SECRET` (long random text).
+  Then call `https://YOUR-SITE.vercel.app/api/send-alerts?key=CRON_SECRET` every minute: use the pg_cron snippet at the bottom of `schema_v16_alerts.sql`.
+- Web custom tones play only while the site is open; with the browser closed the phone's default sound plays (browser limit).
+
+**Admin > Settings:** scrolling text, customer request limits (default 20 waiting / 50 per day), block / unblock users.
+
+**Android app (release):** folder `android-app/` (package `com.murugan.busadd`, opens the index page). Build: see `keystore.properties.example`, or run the GitHub workflow "Build App APK (release)".

@@ -3,5 +3,5 @@ module.exports = (req, res) => {
   res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=300');
   const j = v => JSON.stringify(v || '');
-  res.end(`const SUPABASE_URL=${j(process.env.SUPABASE_URL)};const SUPABASE_ANON_KEY=${j(process.env.SUPABASE_ANON_KEY)};const VILLAGE_NAME=${j(process.env.VILLAGE_NAME || 'Your Village')};`);
+  res.end(`const SUPABASE_URL=${j(process.env.SUPABASE_URL)};const SUPABASE_ANON_KEY=${j(process.env.SUPABASE_ANON_KEY)};const VILLAGE_NAME=${j(process.env.VILLAGE_NAME || 'Your Village')};const VAPID_PUBLIC_KEY=${j(process.env.VAPID_PUBLIC_KEY)};`);
 };

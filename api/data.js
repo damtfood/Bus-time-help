@@ -5,7 +5,7 @@ const Q = [
   ['places',    'select=*&active=eq.true&order=is_home.desc,sort_order,name'],
   ['ads',       'select=*&active=eq.true&order=sort_order'],
   ['notices',   'select=*&active=eq.true&order=sort_order'],
-  ['settings',  'select=*&key=eq.ad_scroll_min'],
+  ['settings',  'select=*'],
   ['helpers',   'select=*&active=eq.true&order=sort_order,name'],
   ['shops',     'select=*&active=eq.true&order=sort_order,name'],
   ['emergency', 'select=*&active=eq.true&order=sort_order,name'],

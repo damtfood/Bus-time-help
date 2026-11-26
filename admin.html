@@ -27,6 +27,7 @@
 <button type="button" class="tb" data-p="notices">🔔 Notices</button>
 <button type="button" class="tb" data-p="special">🎉 Special</button>
 <button type="button" class="tb" data-p="apps">📱 Apps</button>
+<button type="button" class="tb" data-p="settings">⚙️ Settings</button>
 <a class="tb" href="admin-help.html">🛺 Auto · Car · Shops ➜</a>
 </nav>
 <div class="tp" id="tp-inbox">
@@ -119,6 +120,23 @@
 </div><p class="row"><button id="x_save">Save special bus</button><button class="ghost" id="x_clr">Clear form</button></p></div></div>
 <div id="xrows"></div>
 </div>
+<div class="tp" id="tp-settings" hidden>
+<h2>📢 Scrolling text · மேலே ஓடும் செய்தி</h2>
+<div class="card"><div class="body"><label for="tk_t">Text shown at the top of the website</label><input id="tk_t" maxlength="250" placeholder="e.g. Pongal special buses from 12 Jan!">
+<label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="tk_on" checked> Show on website</label>
+<div class="row" style="margin-top:10px"><button type="button" id="tk_s">Save</button><button type="button" class="ghost" id="tk_c">Clear</button></div></div></div>
+<h2>🚦 Customer request limits</h2>
+<div class="card"><div class="body"><p class="muted">How many bus / vehicle requests one customer can send.</p>
+<label for="lm_p">Max waiting requests per customer</label><input id="lm_p" type="number" min="1" max="1000" value="20">
+<label for="lm_d">Max requests per customer per day</label><input id="lm_d" type="number" min="1" max="5000" value="50">
+<div class="row" style="margin-top:10px"><button type="button" id="lm_s">Save limits</button></div><p class="muted" id="lm_m"></p></div></div>
+<h2>🚫 Blocked users <span class="tag" id="bl_c">0</span></h2>
+<div class="card"><div class="body"><label for="bl_e">Block by email</label><input id="bl_e" type="email" autocapitalize="none" placeholder="user@gmail.com"><label for="bl_r">Reason (optional)</label><input id="bl_r" maxlength="120">
+<div class="row" style="margin-top:10px"><button type="button" class="danger" id="bl_a">Block this user</button></div></div></div>
+<div id="bl_ls"></div>
+<h2>👥 Customers who sent requests</h2>
+<div id="pp_ls"></div>
+</div>
 <div class="tp" id="tp-apps" hidden>
 <h2>App download links · செயலி லிங்க்</h2>
 <div class="card"><div class="body"><input type="hidden" id="p_id"><div class="grid">
@@ -142,7 +160,7 @@ let buses=[];
 function msg(t,bad){const m=$('msg');m.textContent=t;m.className=bad?'err':'ok';m.hidden=false;setTimeout(()=>m.hidden=true,4000)}
 let shown=false;
 function show(on){$('login').hidden=on;$('app').hidden=!on;$('out').hidden=!on;if(on===shown)return;shown=on;
-if(on)Promise.allSettled([loadPlaces(),refresh(),loadReq(),loadFb(),loadAds(),loadNts(),loadSt(),loadApps(),loadSp(),loadSubs()]).then(()=>badges())}
+if(on)Promise.allSettled([loadPlaces(),refresh(),loadReq(),loadFb(),loadAds(),loadNts(),loadSt(),loadApps(),loadSp(),loadSubs(),loadSettingsTab()]).then(()=>badges())}
 async function verify(){for(let i=0;i<3;i++){const{data,error}=await sb.rpc('is_admin');if(!error)return data?'yes':'no';await new Promise(r=>setTimeout(r,500*(i+1)))}return 'err'}
 async function notAdmin(){localStorage.removeItem('adm_ok');await sb.auth.signOut();show(false);msg('This account is not an admin.',1)}
 async function enter(){const{data:{session}}=await sb.auth.getSession();if(!session)return;const em=session.user.email;const r=await verify();
@@ -322,7 +340,7 @@ $('xrows').onclick=async e=>{const t=e.target.dataset.a;if(!t)return;const id=e.
 if(t==='ed')spForm(sps.find(x=>x.id===id));
 if(t==='dl'&&confirm('Delete this special bus?')){const{error}=await sb.from('special_buses').delete().eq('id',id);error?msg(error.message,1):(msg('Deleted.'),loadSp())}};
 /* ===== tabs ===== */
-const PGS=['inbox','buses','places','ads','notices','special','apps'];
+const PGS=['inbox','buses','places','ads','notices','special','apps','settings'];
 function goTab(p){if(!PGS.includes(p))p='inbox';PGS.forEach(x=>{$('tp-'+x).hidden=x!==p});
  [...$('atabs').querySelectorAll('.tb[data-p]')].forEach(b=>{const on=b.dataset.p===p;b.classList.toggle('on',on);if(on)b.scrollIntoView({inline:'center',block:'nearest'})});
  try{sessionStorage.setItem('adm_tab',p);history.replaceState(null,'','#'+p)}catch(e){}scrollTo({top:0})}
@@ -363,6 +381,34 @@ $('subs').onclick=async e=>{const b=e.target.closest('button[data-a]');if(!b||su
   else if(b.dataset.a==='srj'){const n=prompt('Reason for rejecting (customer can see this):','');if(n===null)return;await subStatus(r,'rejected',n.trim()||null);msg('Rejected.')}
   else if(b.dataset.a==='sdl'&&confirm('Delete this request?')){const{error}=await sb.from('submissions').delete().eq('id',r.id);if(error)throw error;msg('Deleted.')}
   loadSubs()}catch(er){msg(er.message||'Failed',1)}finally{subBusy=false;b.disabled=false}};
+
+/* ===== settings tab: ticker, limits, blocked users ===== */
+let blocked=[];
+async function loadSettingsTab(){
+ const{data:st}=await sb.from('settings').select('*').in('key',['ticker_text','ticker_on']);const m=Object.fromEntries((st||[]).map(r=>[r.key,r.value]));
+ $('tk_t').value=m.ticker_text||'';$('tk_on').checked=m.ticker_on!=='0';
+ const{data:lm,error}=await sb.from('app_limits').select('*').eq('id',1).maybeSingle();
+ if(lm){$('lm_p').value=lm.max_pending;$('lm_d').value=lm.max_per_day;$('lm_m').textContent=''}else $('lm_m').textContent=error?'Run schema_v17_limits_block.sql in Supabase to use limits.':'';
+ await loadBlocked();loadPeople()}
+$('tk_s').onclick=async()=>{const{error}=await sb.from('settings').upsert([{key:'ticker_text',value:$('tk_t').value.trim()},{key:'ticker_on',value:$('tk_on').checked?'1':'0'}]);error?msg(error.message+' (run schema_v5_settings.sql)',1):msg('Saved. Website updates in about 30 seconds.')};
+$('tk_c').onclick=()=>{$('tk_t').value='';$('tk_s').click()};
+$('lm_s').onclick=async()=>{const p=parseInt($('lm_p').value,10),d=parseInt($('lm_d').value,10);if(!(p>=1&&p<=1000&&d>=1&&d<=5000))return msg('Enter valid numbers.',1);
+ const{error}=await sb.from('app_limits').update({max_pending:p,max_per_day:d,updated_at:new Date().toISOString()}).eq('id',1);error?msg(error.message+' (run schema_v17_limits_block.sql)',1):msg('Limits saved.')};
+async function loadBlocked(){const{data,error}=await sb.from('blocked_users').select('*').order('created_at',{ascending:false});
+ if(error){$('bl_ls').innerHTML='<p class="empty">Run schema_v17_limits_block.sql in Supabase.</p>';return}
+ blocked=data;$('bl_c').textContent=data.length;
+ $('bl_ls').innerHTML=data.map(b=>`<article class="card" data-e="${esc(b.email)}"><div class="body"><div class="row" style="justify-content:space-between"><div><strong>🚫 ${esc(b.email)}</strong>${b.reason?`<br><span class="muted">${esc(b.reason)}</span>`:''}</div><button type="button" class="ghost" data-a="unb">Unblock</button></div></div></article>`).join('')||'<p class="empty">No blocked users.</p>'}
+async function blockEmail(email,reason){email=String(email||'').trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return msg('Enter a valid email.',1);
+ const{error}=await sb.from('blocked_users').upsert({email,reason:reason||null});if(error)return msg(error.message,1);msg('Blocked '+email);await loadBlocked();loadPeople()}
+$('bl_a').onclick=async()=>{await blockEmail($('bl_e').value,$('bl_r').value.trim());$('bl_e').value='';$('bl_r').value=''};
+$('bl_ls').onclick=async e=>{const b=e.target.closest('button[data-a="unb"]');if(!b)return;const em=b.closest('.card').dataset.e;if(!confirm('Unblock '+em+'?'))return;
+ const{error}=await sb.from('blocked_users').delete().eq('email',em);error?msg(error.message,1):(msg('Unblocked.'),loadBlocked().then(loadPeople))};
+async function loadPeople(){const{data,error}=await sb.from('submissions').select('user_email,user_name,status,created_at').order('created_at',{ascending:false}).limit(500);
+ if(error){$('pp_ls').innerHTML='';return}
+ const g={};data.forEach(r=>{const k=String(r.user_email||'').toLowerCase();if(!k)return;(g[k]=g[k]||{email:k,name:r.user_name||'',n:0,p:0,last:r.created_at});g[k].n++;if(r.status==='pending')g[k].p++});
+ const bs=new Set(blocked.map(b=>b.email.toLowerCase()));
+ $('pp_ls').innerHTML=Object.values(g).sort((a,b)=>b.n-a.n).map(u=>`<article class="card" data-e="${esc(u.email)}"><div class="body"><div class="row" style="justify-content:space-between"><div><strong>👤 ${esc(u.name||u.email)}</strong><br><span class="muted">${esc(u.email)} · ${u.n} requests · ${u.p} waiting · last ${new Date(u.last).toLocaleDateString('en-IN')}</span></div>${bs.has(u.email)?'<span class="tag off">blocked</span>':'<button type="button" class="danger" data-a="blk">Block</button>'}</div></div></article>`).join('')||'<p class="empty">No requests from customers yet.</p>'}
+$('pp_ls').onclick=async e=>{const b=e.target.closest('button[data-a="blk"]');if(!b)return;const em=b.closest('.card').dataset.e;if(!confirm('Block '+em+'? They will not be able to send requests or use the site.'))return;await blockEmail(em,'Blocked by admin')};
 goTab((location.hash||'').slice(1)||sessionStorage.getItem('adm_tab')||'inbox');
 boot();
 </script></body></html>
