@@ -11,12 +11,15 @@
 <script src="alerts.js?v=6" defer></script>
 </head><body>
 <header class="top"><i class="orb o1"></i><i class="orb o2"></i>
-<div class="wrap">
+<i class="cloud" style="--y:12px;--d:52s;--s:-8s"></i><i class="cloud" style="--y:40px;--d:70s;--s:-40s;width:46px"></i><i class="cloud" style="--y:70px;--d:60s;--s:-22s;width:56px"></i><div class="wrap">
 <div class="brand"><img src="logo.png" alt="" width="46" height="46"><div><h1 id="title">Bus Timings</h1><p class="sub">பேருந்து நேரம் · Free for everyone</p></div></div>
 <p class="stop"><i class="pin">📍</i><span><b>THANIKKOTTAGAM - தாணிக்கோட்டகம்</b> Bus Stop · பேருந்து நிறுத்தம்</span></p>
 <div class="clock"><b id="clk">--:--</b><span id="dt"></span><span class="live"><i></i>Live</span></div>
+<div class="wx" id="wx" hidden></div>
 <p id="who"></p>
-</div></header>
+</div>
+<div class="road" aria-hidden="true"></div>
+<div class="busw" aria-hidden="true"><span class="tow"><b><img src="logo.png" alt="" width="20" height="20">Dhineshkumar Adpc - Murugan Trader 🦚📊</b><i class="rope"></i></span><i class="puff"></i><i class="puff p2"></i><svg class="bus" viewBox="0 0 64 30" width="58" height="27"><rect x="2" y="2" width="58" height="20" rx="5" fill="#E3A92B"/><rect x="8" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="20" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="32" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="46" y="6" width="11" height="12" rx="1.5" fill="#0B1B20"/><g class="wh" style="transform-origin:16px 23px"><circle cx="16" cy="23" r="5" fill="#0B1B20" stroke="#E3A92B" stroke-width="2"/><path d="M16 19v8M12 23h8" stroke="#E3A92B" stroke-width="1.3"/></g><g class="wh" style="transform-origin:48px 23px"><circle cx="48" cy="23" r="5" fill="#0B1B20" stroke="#E3A92B" stroke-width="2"/><path d="M48 19v8M44 23h8" stroke="#E3A92B" stroke-width="1.3"/></g></svg></div></header>
 <main class="wrap">
 <nav class="mt" id="bt" role="tablist" aria-label="Bus views"><button type="button" role="tab" data-b="next" class="on">⏰ அடுத்த பேருந்து · Next <b id="bcN">0</b></button><button type="button" role="tab" data-b="all">🚌 எல்லா பேருந்து · All <b id="bcA">0</b></button></nav>
 <div id="bt_next"><p class="fl" id="fl" hidden></p><div class="next" id="next"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div></div>
@@ -175,5 +178,32 @@ const sh=e.target.closest('.shr');if(sh)shareBus(sh.dataset.id)});
 who();
 try{const c=localStorage.getItem(CK);if(c)apply(JSON.parse(c))}catch(e){}
 setInterval(tick,1000);setInterval(load,120000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});tick();load();
+</script>
+<script>
+(function(){
+const el=document.getElementById('wx');if(!el)return;
+let W=null;
+const RAIN=c=>(c>=51&&c<=67)||(c>=80&&c<=82)||c>=95;
+const drops=()=>Array.from({length:9},(_,i)=>`<i class="dr" style="left:${8+i*11}%;animation-delay:${(i*.17).toFixed(2)}s"></i>`).join('');
+function paint(){
+ if(!W||typeof W.temp!=='number'){el.hidden=true;return}
+ const now=Date.now(),c=W.code,t=Math.round(W.temp)+'°C';
+ let cls='',em='',msg='',dr=false;
+ const mins=W.rainAt!=null?Math.max(0,Math.ceil((W.rainAt-now)/60000)):null;
+ if(W.rainNow||RAIN(c)){cls='wrain';em='☔';msg='மழை பெய்ய வாய்ப்பு! குடை எடுத்துக்கோ 😅';dr=true}
+ else if(mins!=null&&mins<=15){cls='wrain wsoon';em='☔';msg='சில நிமிடங்களில் மழை வரலாம்! குடை எடுத்துக்கோங்க 🏃';dr=true}
+ else if(c===45||c===48){cls='wcl';em='🌫️';msg='பனி மூட்டம் - மெதுவா போங்க'}
+ else if(c>=3){cls='wcl';em='⛅';msg='மேகமூட்டம் - மழை இல்லை போல'}
+ else if(W.day===0){cls='';em='🌙';msg='இரவு அமைதி - நிம்மதியா போங்க'}
+ else{cls='wsun';em='😎';msg='வெயில் சுள்ளுனு இருக்கு!'}
+ el.className='wx '+cls;el.hidden=false;
+ el.innerHTML=(dr?drops():'')+`<span class="we">${em}</span><span class="wt">${t}</span><span>${msg}</span><small class="wn">forecast · தோராயம்</small>`;
+}
+const TQ=new URLSearchParams(location.search).get('wx'),T0=Date.now();
+const MOCK={rain:{temp:27,code:61,day:1,rainNow:true,rainAt:null},soon:{temp:29,code:3,day:1,rainNow:false,rainAt:T0+8*60000},sun:{temp:34,code:0,day:1,rainNow:false,rainAt:null},cloud:{temp:29,code:3,day:1,rainNow:false,rainAt:null},night:{temp:25,code:0,day:0,rainNow:false,rainAt:null},fog:{temp:24,code:45,day:1,rainNow:false,rainAt:null}};
+async function get(){if(TQ&&MOCK[TQ]){W=MOCK[TQ];paint();return}try{const r=await fetch('/api/weather');if(!r.ok)throw 0;W=await r.json();paint()}catch(e){if(!W)el.hidden=true}}
+get();setInterval(get,300000);setInterval(paint,30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)get()});
+})();
 </script>
 </body></html>
