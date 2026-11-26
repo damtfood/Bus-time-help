@@ -75,3 +75,10 @@ header.top #who{margin:3px 0 0;font-size:.78rem}
 .plc input,.plc select{min-height:36px;padding:4px 10px;font-size:.85rem;border-radius:10px;min-width:0}
 .plc ul{right:auto;width:max(100%,260px);max-width:calc(100vw - 40px)}
 .plc .pkn{margin:4px 0 0;font-size:.78rem}
+
+/* ===== bell on every Next-bus ticket + small settings icon in the header corner ===== */
+.n .w{padding:0 8px 0 10px}
+.n .nbell{align-self:center;flex:0 0 30px;width:30px;min-height:30px;height:30px;padding:0;margin-right:10px;border-radius:50%;font-size:.85rem;line-height:1;background:transparent;border:1px solid #ffffff2e;opacity:.55;display:grid;place-items:center}
+.n .nbell.on{opacity:1;background:linear-gradient(135deg,#F6D06F,#E3A92B);border-color:transparent}
+#alTop{position:absolute;top:6px;right:8px;z-index:3;width:30px;height:30px;min-height:0;padding:0;border-radius:50%;font-size:.95rem;line-height:1;display:grid;place-items:center;color:#fff;background:#ffffff14;border:1px solid #ffffff33}
+#alTop.on{border-color:#E3A92B;color:#F6D06F}

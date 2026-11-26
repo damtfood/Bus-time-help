@@ -59,8 +59,8 @@
 #gate h2{margin:14px 0 6px;background:linear-gradient(90deg,#F6D06F,#E3A92B 50%,#fff3c4);-webkit-background-clip:text;background-clip:text;color:transparent}
 #gate p{color:#8FA7AA;margin:6px 0}#gate button{margin-top:14px;width:100%;padding:14px;font-weight:800;border:0;border-radius:99px;color:#1a1200;background:linear-gradient(135deg,#F6D06F,#E3A92B 60%,#C98A12);box-shadow:0 8px 24px #E3A92B55;cursor:pointer;font-size:1rem}
 </style>
-<link rel="stylesheet" href="index-premium.css?v=4">
-<script src="alerts.js?v=5" defer></script>
+<link rel="stylesheet" href="index-premium.css?v=5">
+<script src="alerts.js?v=6" defer></script>
 </head><body>
 <header class="top">
 <i class="cloud" style="--y:12px;--d:52s;--s:-8s"></i><i class="cloud" style="--y:40px;--d:70s;--s:-40s;width:46px"></i><i class="cloud" style="--y:70px;--d:60s;--s:-22s;width:56px"></i><div class="wrap">
@@ -168,7 +168,7 @@ tdAll.sort((x,y)=>x.t.departure_time.localeCompare(y.t.departure_time));
 const fe=$('fl');if(tdAll.length){const f0=tdAll[0],l0=tdAll[tdAll.length-1];fe.hidden=false;fe.innerHTML=`<span class="hchip" title="${esc(f0.b.name)}">🌅 முதல் பேருந்து · ${fmt(f0.t.departure_time)}</span><span class="hchip" title="${esc(l0.b.name)}">🌙 கடைசி பேருந்து · ${fmt(l0.t.departure_time)}</span>`}else fe.hidden=true;
 up.sort((a,c)=>a.m-c.m);
 $('bcN').textContent=up.length;$('bcA').textContent=list.length;
-$('next').innerHTML=up.map(({b,t,m,last})=>`<div class="n${m<=5?' soon':''}${first?' pop':''}"><span class="t">${fmt(t.departure_time)}</span><span class="i">${esc(b.name)}<br><small class="muted">to ${esc(b.to_place)}${t.stop?' · '+esc(t.stop):''}${last?' · <b class="lastb">கடைசி பேருந்து!</b>':''}</small></span><span class="w">${wait(m)}</span></div>`).join('')||'<p class="empty">No more buses today here. · இன்று இனி பேருந்து இல்லை</p>';
+$('next').innerHTML=up.map(({b,t,m,last})=>`<div class="n${m<=5?' soon':''}${first?' pop':''}"><span class="t">${fmt(t.departure_time)}</span><span class="i">${esc(b.name)}<br><small class="muted">to ${esc(b.to_place)}${t.stop?' · '+esc(t.stop):''}${last?' · <b class="lastb">கடைசி பேருந்து!</b>':''}</small></span><span class="w">${wait(m)}</span><button type="button" class="ghost nbell" data-id="${esc(b.id)}" data-t="${String(t.departure_time).slice(0,5)}" aria-label="Notify me" title="Notify me">🔔</button></div>`).join('')||'<p class="empty">No more buses today here. · இன்று இனி பேருந்து இல்லை</p>';
 $('list').innerHTML=list.map(b=>{
 const ts=tms(b).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time));
 const nx=ts.find(t=>left(t)>=0),firstT=ts[0],lastT=ts[ts.length-1],isLast=nx&&nx===lastT&&ts.length>1,done=ts.length&&!nx;

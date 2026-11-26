@@ -101,7 +101,13 @@
   }
   function badge() { const b = document.getElementById('alBtn'); if (b) b.textContent = '🔔 My alerts · என் நினைவூட்டல்' + (ALERTS.length ? ' (' + ALERTS.length + ')' : ''); paintAlr() }
   /* Notify button on each bus card: ON -> tap = switch OFF straight away; OFF -> tap = ask settings (dialog) */
+  function offIds() { try { return JSON.parse(localStorage.getItem('al_off') || '[]') } catch (e) { return [] } }
   function paintAlr() {
+    document.querySelectorAll('button.nbell').forEach(b => {
+      const on = ALERTS.some(a => a.bus_id === b.dataset.id && a.enabled && hhmm(a.dep_time) === b.dataset.t);
+      b.classList.toggle('on', on); b.title = on ? 'Alert ON · tap to turn off' : 'Notify me';
+    });
+    const tp = document.getElementById('alTop'); if (tp) tp.classList.toggle('on', ALERTS.some(a => a.enabled));
     document.querySelectorAll('button.alr').forEach(b => {
       const on = ALERTS.some(a => a.bus_id === b.dataset.id && a.enabled);
       b.classList.toggle('on', on);
@@ -112,8 +118,8 @@
     });
   }
   async function toggleAlr(btn) {
-    const id = btn.dataset.id, on = ALERTS.filter(x => x.bus_id === id && x.enabled);
-    if (!on.length) return window.openAlert(id);
+    const id = btn.dataset.id, tt = btn.dataset.t, on = ALERTS.filter(x => x.bus_id === id && x.enabled && (!tt || hhmm(x.dep_time) === tt));
+    if (!on.length) return window.openAlert(id, tt);
     btn.disabled = true;
     try { const sb = await getSB(); const { error } = await sb.from('bus_alerts').update({ enabled: false, last_sent: null }).in('id', on.map(x => x.id)); if (error) alert(error.message) } catch (e) {}
     await loadAlerts(); btn.disabled = false;
@@ -134,15 +140,16 @@
   }
 
   /* ---------- "Notify me" dialog ---------- */
-  window.openAlert = async function (id) {
+  window.openAlert = async function (id, pref) {
     await who(); if (!user) return;
     const b = buses.find(x => x.id === id); if (!b) return;
     const ts = [...tms(b)].sort((x, y) => x.departure_time.localeCompare(y.departure_time));
     if (!ts.length) return alert('No timings for this bus.');
     const mine = ALERTS.filter(a => a.bus_id === b.id), ex0 = mine.find(a => a.enabled) || mine[0];
     let sv = {}; try { sv = JSON.parse(localStorage.getItem('al_last') || '{}') } catch (e) {}
-    const pre = { m: ex0 ? ex0.minutes_before : (sv.m ?? 10), once: ex0 ? !!ex0.fire_on : sv.r === 0, tone: ex0 ? ex0.tone : (sv.tone || 'default') };
-    const nx = (ex0 && ts.find(t => hhmm(t.departure_time) === hhmm(ex0.dep_time))) || ts.find(t => left(t) >= 0 && today(t)) || ts[0];
+    const nx = (pref && ts.find(t => hhmm(t.departure_time) === pref)) || (ex0 && ts.find(t => hhmm(t.departure_time) === hhmm(ex0.dep_time))) || ts.find(t => left(t) >= 0 && today(t)) || ts[0];
+    const exN = mine.find(a => hhmm(a.dep_time) === hhmm(nx.departure_time));
+    const pre = { m: exN ? exN.minutes_before : (sv.m ?? 10), once: exN ? !!exN.fire_on : sv.r === 0, tone: exN ? exN.tone : (sv.tone || 'default') };
     const pn = (typeof PL !== 'undefined' && PL && PL.name) || '';
     dlg.innerHTML = `<h3>🔔 Notification settings · அறிவிப்பு அமைப்பு</h3><p><b>${E(b.name)}</b><br><span class="muted">${E(b.from_place)} → ${E(b.to_place)}</span></p>
 <label for="al_t">Bus time · பேருந்து நேரம்</label><select id="al_t">${ts.map((t, i) => `<option value="${i}"${t === nx ? ' selected' : ''}>${fmt(t.departure_time)} · ${E(t.days || 'Daily')}</option>`).join('')}</select>
@@ -188,13 +195,27 @@
     const st = async () => {
       let s = ''; if (IN_APP()) { try { s = AndroidBridge.hasNotifPermission() ? '✅ App notifications are ON.' : '🚫 Notifications are off. Tap “Enable”.'; if (!AndroidBridge.canExact()) s += ' Alerts may come a few minutes late. Tap “Exact timing” to fix.' } catch (e) {} }
       else if (!('Notification' in window)) s = statusMsg('unsupported'); else s = Notification.permission === 'granted' ? '✅ Notifications are ON for this browser.' : Notification.permission === 'denied' ? statusMsg('denied') : 'Notifications are not enabled yet. Tap “Enable”.';
+      if (offIds().length && !ALERTS.some(a => a.enabled)) s = '🔕 Notifications are turned OFF. Tap “Enable” to turn them back on.';
       document.getElementById('al_st').textContent = s;
     };
     dlg.innerHTML = `<h3>🔔 My alerts · என் நினைவூட்டல்</h3><p class="muted" id="al_st"></p><div id="al_ls"></div>
-<div class="row" style="margin-top:10px"><button id="al_en">Enable</button><button class="ghost" id="al_tt">▶ Test</button>${IN_APP() ? '<button class="ghost" id="al_ex">Exact timing</button>' : ''}<button class="ghost" id="r_x">Close</button></div>`;
+<div class="row" style="margin-top:10px"><button id="al_en">Enable</button><button class="ghost" id="al_dis">Disable</button><button class="ghost" id="al_tt">▶ Test</button>${IN_APP() ? '<button class="ghost" id="al_ex">Exact timing</button>' : ''}<button class="ghost" id="r_x">Close</button></div>`;
     draw(); st(); dlg.showModal();
     document.getElementById('r_x').onclick = () => dlg.close();
-    document.getElementById('al_en').onclick = async () => { if (IN_APP()) { try { AndroidBridge.requestNotifPermission() } catch (e) {} } else { const r = await ensurePush(true); alert(statusMsg(r)) } st() };
+    document.getElementById('al_en').onclick = async () => {
+      if (IN_APP()) { try { AndroidBridge.requestNotifPermission() } catch (e) {} } else { const r = await ensurePush(true); alert(statusMsg(r)) }
+      const ids = ALERTS.filter(a => offIds().includes(a.id) && !a.enabled).map(a => a.id);
+      if (ids.length) { const sb = await getSB(); await sb.from('bus_alerts').update({ enabled: true, last_sent: null }).in('id', ids) }
+      try { localStorage.removeItem('al_off') } catch (e) {}
+      await loadAlerts(); draw(); st();
+    };
+    document.getElementById('al_dis').onclick = async () => {
+      const on = ALERTS.filter(a => a.enabled), sb = await getSB();
+      if (on.length) { const { error } = await sb.from('bus_alerts').update({ enabled: false, last_sent: null }).in('id', on.map(a => a.id)); if (error) return alert(error.message) }
+      try { localStorage.setItem('al_off', JSON.stringify(on.map(a => a.id))) } catch (e) {}
+      if (!IN_APP() && 'serviceWorker' in navigator) { try { const reg = await navigator.serviceWorker.getRegistration(), sub = reg && await reg.pushManager.getSubscription(); if (sub) { await sb.from('push_subscriptions').delete().eq('endpoint', sub.endpoint); await sub.unsubscribe() } } catch (e) {} }
+      await loadAlerts(); draw(); st();
+    };
     document.getElementById('al_tt').onclick = () => testNotif((ALERTS[0] && ALERTS[0].tone) || 'default');
     const ex = document.getElementById('al_ex'); if (ex) ex.onclick = () => { try { AndroidBridge.openExactSettings() } catch (e) {} };
     const ls = document.getElementById('al_ls');
@@ -231,8 +252,13 @@
     if (!IN_APP() && 'Notification' in window && Notification.permission === 'granted') ensurePush(false);
   };
   if ('serviceWorker' in navigator && !IN_APP()) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'play-tone') playTone(e.data.tone) });
-  const lst = document.getElementById('list'); if (lst) new MutationObserver(paintAlr).observe(lst, { childList: true });
+  ['list', 'next'].forEach(i => { const el = document.getElementById(i); if (el) new MutationObserver(paintAlr).observe(el, { childList: true }) });
+  /* small settings icon in the top corner of the header */
+  const hd = document.querySelector('header.top');
+  if (hd) { const g = document.createElement('button'); g.type = 'button'; g.id = 'alTop'; g.title = 'Notification settings'; g.setAttribute('aria-label', 'Notification settings'); g.textContent = '⚙'; hd.appendChild(g) }
   document.addEventListener('click', e => {
+    if (e.target.closest('#alTop')) { window.openMyAlerts(); return }
+    const nb = e.target.closest('.nbell'); if (nb) { toggleAlr(nb); return }
     const g = e.target.closest('.alset'); if (g) { window.openAlert(g.dataset.id); return }
     const a = e.target.closest('.alr'); if (a) { toggleAlr(a); return }
     if (e.target.closest('#alBtn')) window.openMyAlerts();
