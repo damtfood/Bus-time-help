@@ -1,331 +1,140 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050C0F">
 <title>Bus Timings</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2:wght@500;700;800&family=Noto+Sans+Tamil:wght@400;700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2:wght@500;700;800&family=Noto+Sans+Tamil:wght@400;700&display=swap"></noscript>
 <link rel="preload" href="/api/data" as="fetch" crossorigin>
 <link rel="stylesheet" href="style.css?v=4">
-<style>.mt{display:flex;gap:8px;overflow-x:auto;padding:6px 0 12px}.mt button{white-space:nowrap;font:inherit;font-weight:700;color:inherit;background:transparent;border:2px solid currentColor;border-radius:99px;padding:8px 16px;cursor:pointer;opacity:.75}.mt button.on{opacity:1;background:rgba(128,128,128,.25)}
-#hl img.pic{width:100%;max-height:190px;object-fit:cover;border-radius:10px;margin-bottom:8px}#hl .card{margin-bottom:12px}#hl p{margin:4px 0}.hchip{display:inline-block;padding:2px 10px;border-radius:99px;border:1px solid currentColor;font-size:.8rem;margin:2px 6px 2px 0}.alk{text-align:center;margin:10px auto 18px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-.alk a{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:7px;font-size:.85rem;font-weight:800;text-decoration:none;color:#1a1200;border-radius:99px;padding:8px 18px;background:linear-gradient(135deg,#F6D06F,#E3A92B 60%,#C98A12);box-shadow:0 6px 16px #E3A92B55;animation:aRing 2.4s ease-in-out infinite;transition:transform .2s}
-.alk a:hover{transform:translateY(-3px) scale(1.04)}.alk a:active{transform:scale(.95)}
-.alk a::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,#fff9 50%,transparent 60%);transform:translateX(-140%);animation:aSweep 3.2s ease-in-out infinite}
-.alk .ai{display:inline-block;animation:aWob 1.8s ease-in-out infinite}.alk .dl{display:inline-block;animation:aDown 1.1s ease-in-out infinite}
-@keyframes aRing{50%{box-shadow:0 6px 16px #E3A92B55,0 0 0 7px #E3A92B26}}
-@keyframes aSweep{50%,100%{transform:translateX(140%)}}
-@keyframes aWob{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg) scale(1.15)}}
-@keyframes aDown{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
-.wx{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:3px 11px 3px 6px;border-radius:99px;font-size:.76rem;max-width:100%;font-weight:700;background:linear-gradient(135deg,#ffffff1f,#ffffff0a);border:1px solid #ffffff33;animation:wIn .6s cubic-bezier(.2,.8,.3,1) both}
-.wx[hidden]{display:none}
-.wx .wn{font-size:.55rem;font-weight:400;opacity:.65;white-space:nowrap}
-.wx .we{font-size:1.15rem;line-height:1;display:inline-block;animation:wBob 2.4s ease-in-out infinite}
-.wx .wt{font-family:"Baloo Thambi 2",sans-serif;font-size:.85rem;color:var(--gold)}
-.wx.wsun .we{animation:wSun 3s ease-in-out infinite;filter:drop-shadow(0 0 8px #FFD54A)}
-.wx.wcl .we{animation:wFloat 4s ease-in-out infinite}
-.wx.wrain{background:linear-gradient(135deg,#1f6fb2,#0b3d63);border-color:#7cc4ff;animation:wIn .6s both,wShake 3s ease-in-out 1s infinite}
-.wx.wrain .we{animation:wUmb 1.2s ease-in-out infinite;transform-origin:50% 90%}
-.wx.wrain.wsoon{box-shadow:0 0 0 0 #7cc4ff88;animation:wIn .6s both,wShake 3s ease-in-out 1s infinite,wPing 1.8s infinite}
-.wx i.dr{position:absolute;top:-8px;width:2px;height:9px;border-radius:2px;background:#bfe3ff;opacity:.8;animation:wDrop .9s linear infinite}
-@keyframes wIn{from{opacity:0;transform:translateY(-8px) scale(.9)}}
-@keyframes wBob{50%{transform:translateY(-3px)}}
-@keyframes wSun{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(8deg) scale(1.12)}}
-@keyframes wFloat{0%,100%{transform:translateX(-3px)}50%{transform:translateX(5px)}}
-@keyframes wUmb{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
-@keyframes wShake{0%,90%,100%{transform:translateX(0)}93%{transform:translateX(-3px)}96%{transform:translateX(3px)}}
-@keyframes wPing{70%{box-shadow:0 0 0 9px #7cc4ff00}100%{box-shadow:0 0 0 0 #7cc4ff00}}
-@keyframes wDrop{to{transform:translateY(46px);opacity:0}}
-@media(max-width:480px){.wx{gap:5px;padding:2px 9px 2px 5px;font-size:.7rem;margin-top:6px}.wx .we{font-size:1rem}.wx .wt{font-size:.78rem}.wx .wn{display:none}.wx i.dr{height:7px}}
-@media(prefers-reduced-motion:reduce){.alk *,.alk a,.wx,.wx *{animation:none!important}}
-.plc{margin:4px 0 6px;padding:12px;border-radius:16px;border:1px solid #E3A92B55;background:linear-gradient(160deg,var(--card),color-mix(in srgb,var(--card) 90%,#000));box-shadow:0 6px 18px #0002}
-.plc .plch{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;margin-bottom:8px}.plc .plcl{font-size:.8rem;color:var(--muted)}.plc #pkc{font-family:"Baloo Thambi 2",sans-serif;font-size:1.15rem;color:var(--gold)}
-.plc .plcr{display:grid;grid-template-columns:1.2fr 1fr;gap:8px}.plc .plcs{position:relative}
-.plc ul{list-style:none;margin:4px 0 0;padding:4px;position:absolute;left:0;right:0;top:100%;z-index:30;max-height:280px;overflow:auto;background:var(--card);border:1px solid var(--gold);border-radius:12px;box-shadow:0 12px 28px #0006}
-.plc li{padding:10px 12px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center}.plc li small{color:var(--muted);white-space:nowrap}
-.plc li.on,.plc li:hover{background:color-mix(in srgb,var(--gold) 28%,transparent)}.plc li.no{cursor:default;color:var(--muted)}.plc li mark{background:none;color:var(--gold);font-weight:800}
-.plc .plcn{margin:8px 0 0;font-size:.85rem;color:var(--muted)}
-@media(max-width:520px){.plc .plcr{grid-template-columns:1fr}}
-.mt button[hidden]{display:none}
-.ad img,.card.ad>img{aspect-ratio:auto!important;height:auto!important;max-height:none!important;object-fit:contain!important;animation:none!important;transform:none!important}
-.addcta{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0 10px;padding:11px 16px;border-radius:16px;text-decoration:none;font-weight:800;color:#1a1200;background:linear-gradient(135deg,#F6D06F,#E3A92B 60%,#C98A12);box-shadow:0 6px 18px #E3A92B44}
-#hpw{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 2px}#hpw select,#hpw input{width:100%;min-width:0;border-radius:12px}
-.addcta:active{transform:scale(.98)}#hk button b{opacity:.7;margin-left:4px;font-size:.8em}
-#gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;color:#EAF2F1;background:radial-gradient(60% 40% at 15% 0%,#E3A92B33,transparent 70%),radial-gradient(50% 40% at 95% 20%,#35C2C833,transparent 70%),linear-gradient(180deg,#0B1B20,#050C0F);overflow:auto}
-#gate[hidden]{display:none}body.gated{overflow:hidden}
-#gate .gbox{max-width:380px;width:100%;text-align:center;padding:28px 22px;border-radius:26px;border:1px solid #ffffff22;background:linear-gradient(160deg,#ffffff14,#ffffff06);backdrop-filter:blur(14px);box-shadow:0 24px 60px #000a}
-#gate img{border-radius:22px;border:2px solid #E3A92B;background:#fff;box-shadow:0 10px 36px #E3A92B55}
-#gate h2{margin:14px 0 6px;background:linear-gradient(90deg,#F6D06F,#E3A92B 50%,#fff3c4);-webkit-background-clip:text;background-clip:text;color:transparent}
-#gate p{color:#8FA7AA;margin:6px 0}#gate button{margin-top:14px;width:100%;padding:14px;font-weight:800;border:0;border-radius:99px;color:#1a1200;background:linear-gradient(135deg,#F6D06F,#E3A92B 60%,#C98A12);box-shadow:0 8px 24px #E3A92B55;cursor:pointer;font-size:1rem}
-</style>
-<link rel="stylesheet" href="index-premium.css?v=5">
+<link rel="stylesheet" href="index-premium.css?v=6">
 <script src="alerts.js?v=6" defer></script>
 </head><body>
-<header class="top">
-<i class="cloud" style="--y:12px;--d:52s;--s:-8s"></i><i class="cloud" style="--y:40px;--d:70s;--s:-40s;width:46px"></i><i class="cloud" style="--y:70px;--d:60s;--s:-22s;width:56px"></i><div class="wrap">
-<h1 id="title">Bus Timings</h1>
-<p class="sub">பேருந்து நேரம் · Free for everyone</p>
-<p class="stop"><i class="pin">📍</i><span id="stopt"><b>THANIKKOTTAGAM - தாணிக்கோட்டகம்</b> Bus Stop · பேருந்து நிறுத்தம்</span></p>
+<header class="top"><i class="orb o1"></i><i class="orb o2"></i>
+<div class="wrap">
+<div class="brand"><img src="logo.png" alt="" width="46" height="46"><div><h1 id="title">Bus Timings</h1><p class="sub">பேருந்து நேரம் · Free for everyone</p></div></div>
+<p class="stop"><i class="pin">📍</i><span><b>THANIKKOTTAGAM - தாணிக்கோட்டகம்</b> Bus Stop · பேருந்து நிறுத்தம்</span></p>
 <div class="clock"><b id="clk">--:--</b><span id="dt"></span><span class="live"><i></i>Live</span></div>
-<div class="wx" id="wx" hidden></div>
 <p id="who"></p>
-</div>
-<div class="road" aria-hidden="true"></div>
-<div class="busw" aria-hidden="true"><span class="tow"><b><img src="logo.png" alt="" width="20" height="20">Dhineshkumar Adpc - Murugan Trader 🦚📊</b><i class="rope"></i></span><i class="puff"></i><i class="puff p2"></i><svg class="bus" viewBox="0 0 64 30" width="58" height="27"><rect x="2" y="2" width="58" height="20" rx="5" fill="#E3A92B"/><rect x="8" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="20" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="32" y="6" width="9" height="7" rx="1.5" fill="#0B1B20"/><rect x="46" y="6" width="11" height="12" rx="1.5" fill="#0B1B20"/><g class="wh" style="transform-origin:16px 23px"><circle cx="16" cy="23" r="5" fill="#0B1B20" stroke="#E3A92B" stroke-width="2"/><path d="M16 19v8M12 23h8" stroke="#E3A92B" stroke-width="1.3"/></g><g class="wh" style="transform-origin:48px 23px"><circle cx="48" cy="23" r="5" fill="#0B1B20" stroke="#E3A92B" stroke-width="2"/><path d="M48 19v8M44 23h8" stroke="#E3A92B" stroke-width="1.3"/></g></svg></div>
-</header>
-<div id="tick" hidden role="marquee" aria-label="Announcement"><span class="tkl">📢</span><div class="tkw"><div class="tkt" id="tkt"></div></div></div>
-<section id="ntc" hidden aria-live="polite"></section>
+</div></header>
 <main class="wrap">
-<nav class="mt" id="mt" role="tablist" aria-label="Sections"><button type="button" role="tab" data-v="bus" class="on">🚌 பேருந்து நேரம்</button><button type="button" role="tab" data-v="help">🛺 ஆட்டோ &amp; உதவி</button></nav>
-<div id="v_bus">
-<section class="plc" id="pk" hidden>
-<div class="pkh"><span class="pkl">📍 ஊர் / நகரம் · Village / City</span><b id="pkc"></b></div>
-<div class="pkr">
-<div class="pks"><input id="pq" type="search" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ஊர் தேடு · type 2 letters" aria-label="Search village or city" role="combobox" aria-expanded="false" aria-controls="pks" aria-autocomplete="list"><ul id="pks" role="listbox" hidden></ul></div>
-<select id="ps" aria-label="Choose village or city"></select>
-</div>
-<p class="pkn" id="pkn" hidden></p>
-</section>
-<section id="spec" hidden></section>
 <nav class="mt" id="bt" role="tablist" aria-label="Bus views"><button type="button" role="tab" data-b="next" class="on">⏰ அடுத்த பேருந்து · Next <b id="bcN">0</b></button><button type="button" role="tab" data-b="all">🚌 எல்லா பேருந்து · All <b id="bcA">0</b></button></nav>
-<div id="bt_next">
-<p class="fl" id="fl" hidden></p>
-<div class="next" id="next"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
-</div>
+<div id="bt_next"><p class="fl" id="fl" hidden></p><div class="next" id="next"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div></div>
 <div id="bt_all" hidden>
 <nav class="mt" id="rt" role="tablist" aria-label="Routes"><button type="button" role="tab" data-r="" class="on">All</button><button type="button" role="tab" data-r="tv">Thiruthuraipoondi → Vedaranyam</button><button type="button" role="tab" data-r="vt">Vedaranyam → Thiruthuraipoondi</button><button type="button" role="tab" data-r="ot">Others</button></nav>
-<div class="filters">
-<input id="q" type="search" placeholder="Search bus name, number or place" aria-label="Search buses">
-<select id="to" aria-label="Destination"><option value="">All destinations</option></select>
-<select id="ty" aria-label="Bus type"><option value="">All types</option></select>
-</div>
+<div class="filters"><input id="q" type="search" placeholder="Search bus name, number or place" aria-label="Search buses"><select id="to" aria-label="Destination"><option value="">All destinations</option></select><select id="ty" aria-label="Bus type"><option value="">All types</option></select></div>
 <div id="list"></div>
 </div>
-</div>
-<div id="v_help" hidden>
-<h2>ஆட்டோ · கடை · அவசர உதவி · கோயில் · செய்தி</h2>
-<div class="mt" id="ht" role="tablist"></div>
-<div id="hpw" hidden><select id="hps" aria-label="Choose city or village"></select><input id="hpq" type="search" list="hpl" autocomplete="off" placeholder="ஊர் தேடு · Search city" aria-label="Search city or village"><datalist id="hpl"></datalist></div>
-<div class="mt" id="hk" role="tablist" aria-label="Vehicle type" hidden></div>
-<div class="filters"><input id="hq" type="search" placeholder="தேடு · Search" aria-label="Search help"></div>
-<div id="hl"></div>
-<small class="muted">தகவல் மாறலாம். போனில் உறுதி செய்யவும்.</small>
-</div>
-<section id="adsec" hidden><h2>Ads · விளம்பரம்</h2><div class="ads" id="ads"><div class="trk" id="trk"></div></div></section>
 </main>
+<div class="wrap foot"><button type="button" id="alBtn">🔔 My alerts · என் நினைவூட்டல்</button><div class="alk" id="alk" hidden></div></div>
+<footer class="by"><a href="https://adpc.shop" target="_blank" rel="noopener"><img src="logo.png" alt="Murugan Trader logo" width="56" height="56" loading="lazy"><span>by <b>Dhineshkumar Adpc - Murugan Trader</b> 🦚📊</span></a><small>Timings can change. Please confirm at the bus stand.</small></footer>
 <button type="button" id="up" aria-label="Back to top">⬆</button>
 <dialog id="dlg"></dialog>
-<div id="gate" hidden role="dialog" aria-modal="true" aria-labelledby="gt"><div class="gbox"><img src="logo.png" width="84" height="84" alt=""><h2 id="gt">வணக்கம்! Welcome</h2><p>Login with Google to see bus timings, set bus alerts and more.</p><p><small>பேருந்து நேரங்களைப் பார்க்கவும், நினைவூட்டல் அமைக்கவும் Google மூலம் உள்நுழையவும்.</small></p><button type="button" id="gGo">Continue with Google</button><p id="gMsg" role="status"></p></div></div>
-<div class="wrap" style="text-align:center;margin:18px auto 6px"><button type="button" id="alBtn">🔔 My alerts · என் நினைவூட்டல்</button> <button type="button" id="fbBtn">💬 Feedback · கருத்து</button></div>
-<div class="wrap"><a class="adv" href="https://wa.me/919585298480?text=Hi%2C%20I%20want%20to%20advertise%20on%20the%20Bus%20Timings%20page." target="_blank" rel="noopener"><svg class="wa" viewBox="0 0 24 24" aria-hidden="true"><path fill="#25D366" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg><span><b>உங்கள் விளம்பரம் இங்கே! · Advertise here</b><small>WhatsApp: +91 95852 98480</small></span></a></div>
-<footer class="by"><a href="https://adpc.shop" target="_blank" rel="noopener"><img src="logo.png" alt="Murugan Trader logo" width="64" height="64" loading="lazy"><span>by <b>Dhineshkumar Adpc - Murugan Trader</b> <span class="pk">🦚</span>📊</span></a><small>Timings can change. Please confirm at the bus stand.</small></footer>
-<div class="alk" id="alk" hidden></div>
+<div id="upd" hidden role="dialog" aria-modal="true" aria-labelledby="ut"></div>
+<div id="gate" hidden role="dialog" aria-modal="true" aria-labelledby="gt"><div class="gbox"><img src="logo.png" width="76" height="76" alt=""><h2 id="gt">வணக்கம்! Welcome</h2><p>Login with Google to set bus alerts or report a wrong timing.</p><p><small>நினைவூட்டல் அமைக்க Google மூலம் உள்நுழையவும்.</small></p><button type="button" id="gGo">Continue with Google</button><button type="button" id="gX" class="gx">Not now · பிறகு</button><p id="gMsg" role="status"></p></div></div>
 <script>
 let _sb=null;
 const addJS=u=>new Promise((ok,no)=>{const e=document.createElement('script');e.src=u;e.onload=ok;e.onerror=no;document.head.appendChild(e)});
 function getSB(){return _sb||(_sb=(async()=>{await addJS('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js');await addJS('/api/config');
 const c=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);c.auth.onAuthStateChange(()=>setTimeout(who,0));return c})().catch(e=>{_sb=null;throw e}))}
 const hasAuth=()=>{try{for(let i=0;i<localStorage.length;i++){if(/^sb-.*-auth-token$/.test(localStorage.key(i)))return true}}catch(e){}return /access_token=|[?&]code=/.test(location.hash+location.search)};
-let VN='';
 const $=id=>document.getElementById(id);
 const D=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const safeImg=u=>/^https?:\/\//i.test(u||'')?u:'';
+const safeImg=u=>/^https?:\/\//i.test(u||'')?u:'',url=safeImg;
 const hm=t=>t.split(':').map(Number);
 const nowMin=()=>{const n=new Date();return n.getHours()*60+n.getMinutes()};
 const left=t=>{const[h,m]=hm(t.departure_time);return h*60+m-nowMin()};
 const today=t=>{const x=(t.days||'Daily').toLowerCase();return x.includes('daily')||x.includes(D[new Date().getDay()].toLowerCase())};
 const fmt=s=>{let[h,m]=hm(s);const p=h>=12?'PM':'AM';return (h%12||12)+':'+String(m).padStart(2,'0')+' '+p};
 const wait=m=>m<=0?'Now':m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min';
-let buses=[],loaded=false,first=true;
+let buses=[],loaded=false,first=true,PL=null,homeId=null,RT='',user=null,cur=null;
 let FV=new Set();try{FV=new Set(JSON.parse(localStorage.getItem('bt_fav')||'[]'))}catch(e){}
-const isF=id=>FV.has(id)?1:0;
-const seen=new Set();
+const isF=id=>FV.has(id)?1:0,seen=new Set(),dlg=$('dlg');
 const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');seen.add(x.target.dataset.bid);io.unobserve(x.target)}}),{threshold:.1});
 function fill(id,vals,all){const s=$(id),v=s.value;s.innerHTML=`<option value="">${all}</option>`+[...new Set(vals.filter(Boolean))].sort().map(x=>`<option>${esc(x)}</option>`).join('');s.value=v}
-let RT='';
-/* ---- places (village / city) ---- */
-let places=[],PL=null,homeId=null,FB=false;
-const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9\u0B80-\u0BFF]/g,'');
-const ownAt=(t,id)=>(t.place_id||homeId)===id;
-const hasOwn=p=>!!p&&buses.some(b=>(b.timings||[]).some(t=>ownAt(t,p.id)));
-const tms=b=>PL?(b.timings||[]).filter(t=>ownAt(t,FB?homeId:PL.id)):(b.timings||[]);
-const toHit=b=>{const k=norm(PL&&PL.name);return !!k&&[b.to_place,b.via].some(x=>x&&norm(x).includes(k))};
-const inPlace=b=>!PL||(FB?toHit(b)&&tms(b).length>0:tms(b).length>0);
+/* only THANIKKOTTAGAM timings are shown */
+const tms=b=>(b.timings||[]).filter(t=>(t.place_id||homeId)===homeId);
+const inPlace=b=>tms(b).length>0;
 const TTP=/t(h)?iru\s*thurai|திருத்துறை|\bttp\b/i,VED=/\bved|வேதா/i;
 function rkey(b){const f=String(b.from_place||''),t=String(b.to_place||'');return TTP.test(f)&&VED.test(t)?'tv':VED.test(f)&&TTP.test(t)?'vt':'ot'}
 function shown(){const q=$('q').value.trim().toLowerCase(),to=$('to').value,ty=$('ty').value;
 return buses.filter(b=>inPlace(b)&&(!RT||rkey(b)===RT)&&(!to||b.to_place===to)&&(!ty||b.bus_type===ty)&&(!q||[b.name,b.bus_no,b.from_place,b.to_place,b.via].join(' ').toLowerCase().includes(q))).sort((a,c)=>isF(c.id)-isF(a.id))}
-function tabs(){const base=buses.filter(inPlace),c={tv:0,vt:0,ot:0};base.forEach(b=>c[rkey(b)]++);
+function tabs(){const c={tv:0,vt:0,ot:0};buses.filter(inPlace).forEach(b=>c[rkey(b)]++);
 [...$('rt').children].forEach(x=>{const r=x.dataset.r;x.hidden=!!r&&!c[r]});
 if(RT&&!c[RT]){RT='';[...$('rt').children].forEach(x=>x.classList.toggle('on',!x.dataset.r))}}
 function render(){if(!loaded)return;tabs();
-const list=shown(),up=[];
-const tdAll=[];
+const list=shown(),up=[],tdAll=[];
 list.forEach(b=>{const td=tms(b).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time)),ls=td[td.length-1];td.forEach(t=>{tdAll.push({b,t});const m=left(t);if(m>=0)up.push({b,t,m,last:t===ls&&td.length>1})})});
 tdAll.sort((x,y)=>x.t.departure_time.localeCompare(y.t.departure_time));
 const fe=$('fl');if(tdAll.length){const f0=tdAll[0],l0=tdAll[tdAll.length-1];fe.hidden=false;fe.innerHTML=`<span class="hchip" title="${esc(f0.b.name)}">🌅 முதல் பேருந்து · ${fmt(f0.t.departure_time)}</span><span class="hchip" title="${esc(l0.b.name)}">🌙 கடைசி பேருந்து · ${fmt(l0.t.departure_time)}</span>`}else fe.hidden=true;
 up.sort((a,c)=>a.m-c.m);
 $('bcN').textContent=up.length;$('bcA').textContent=list.length;
-$('next').innerHTML=up.map(({b,t,m,last})=>`<div class="n${m<=5?' soon':''}${first?' pop':''}"><span class="t">${fmt(t.departure_time)}</span><span class="i">${esc(b.name)}<br><small class="muted">to ${esc(b.to_place)}${t.stop?' · '+esc(t.stop):''}${last?' · <b class="lastb">கடைசி பேருந்து!</b>':''}</small></span><span class="w">${wait(m)}</span><button type="button" class="ghost nbell" data-id="${esc(b.id)}" data-t="${String(t.departure_time).slice(0,5)}" aria-label="Notify me" title="Notify me">🔔</button></div>`).join('')||'<p class="empty">No more buses today here. · இன்று இனி பேருந்து இல்லை</p>';
+$('next').innerHTML=up.map(({b,t,m,last},i)=>`<div class="n${i===0?' big':''}${m<=5?' soon':''}${first?' pop':''}">${i===0?'<span class="nb">அடுத்த பேருந்து · NEXT</span>':''}<span class="t">${fmt(t.departure_time)}</span><span class="i">${esc(b.name)}<br><small class="muted">to ${esc(b.to_place)}${t.stop?' · '+esc(t.stop):''}${last?' · <b class="lastb">கடைசி பேருந்து!</b>':''}</small></span><span class="w">${wait(m)}</span><button type="button" class="ghost nbell" data-id="${esc(b.id)}" data-t="${String(t.departure_time).slice(0,5)}" aria-label="Notify me" title="Notify me">🔔</button></div>`).join('')||'<p class="empty">🌙 இன்று இனி பேருந்து இல்லை<br><small>No more buses today. Check “All” for the full list.</small></p>';
 $('list').innerHTML=list.map(b=>{
 const ts=tms(b).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time));
 const nx=ts.find(t=>left(t)>=0),firstT=ts[0],lastT=ts[ts.length-1],isLast=nx&&nx===lastT&&ts.length>1,done=ts.length&&!nx;
-const img=safeImg(b.image_url);
+const img=safeImg(b.image_url),ph=String(b.phone||'').replace(/[^\d+]/g,'');
 return `<article class="card bus${seen.has(b.id)?'':' rv'}${isF(b.id)?' isfav':''}" data-bid="${b.id}"><button type="button" class="fav${isF(b.id)?' on':''}" data-id="${b.id}" aria-label="Favourite" aria-pressed="${isF(b.id)?'true':'false'}">${isF(b.id)?'❤️':'🤍'}</button>${img?`<img src="${esc(img)}" alt="${esc(b.name)}" loading="lazy">`:''}<div class="body">
 <h3>${esc(b.name)}${b.bus_no?`<span class="tag">${esc(b.bus_no)}</span>`:''}<span class="tag">${esc(b.bus_type||'')}</span>${b.service_class?`<span class="tag">${esc(b.service_class)}</span>`:''}</h3>
 <p class="muted">${esc(b.from_place)} to ${esc(b.to_place)}${b.via?' via '+esc(b.via):''}${b.fare?' · Fare '+esc(b.fare):''}</p>
 <div class="chips">${ts.map(t=>`<span class="chip ${left(t)<0?'past':t===nx?'nx':''}${t===lastT&&ts.length>1?' last':''}">${fmt(t.departure_time)}${t===lastT&&ts.length>1?' <small>கடைசி</small>':''}</span>`).join('')||'<span class="muted">No service today</span>'}</div>
-${ts.length?`<p class="fl2">🌅 முதல் ${fmt(firstT.departure_time)} · 🌙 கடைசி ${fmt(lastT.departure_time)}${isLast?' <b class="lastb">⚠️ இன்றைய கடைசி பேருந்து!</b>':done?' <span class="done">இன்றைய சேவை முடிந்தது</span>':''}</p>`:''}${b.notes?`<p class="muted">${esc(b.notes)}</p>`:''}${(()=>{const ph=String(b.phone||'').replace(/[^\d+]/g,'');return ph?`<div class="row" style="margin:8px 0"><a class="fill" href="tel:${ph}">📞 Call · ${esc(b.phone)}</a></div>`:''})()}<button class="ghost rep" data-id="${b.id}">Timing wrong? Report it</button><button class="ghost shr" data-id="${b.id}">📤 Share</button><button class="ghost alr" data-id="${b.id}">🔔 Notify me</button></div></article>`}).join('')||'<p class="empty">No buses match. Clear the search or filters. · பேருந்து இல்லை</p>';document.querySelectorAll('.rv').forEach(e=>io.observe(e));first=false;
-}
-const CK='bt_cache_v3';
-function apply(d){if(!d)return;window.__D=d;
-if(d.v){VN=d.v;$('title').textContent=d.v+' Bus Timings';document.title=d.v+' Bus Timings'}
-buses=d.buses||[];loaded=true;initPlaces(d);
-loadAds(d.ads);loadApps(d.app_links);loadSpecial(d.special_buses);loadNotices(d.notices);loadSettings(d.settings);if(window.__hd)window.__hd()}
-async function load(){
-try{const r=await fetch('/api/data');if(!r.ok)throw 0;const d=await r.json();if(!d||!d.buses)throw 0;
-try{localStorage.setItem(CK,JSON.stringify(d))}catch(e){}apply(d)}
-catch(e){if(!loaded)$('next').innerHTML='<p class="empty">Could not load buses. Check your internet and refresh.</p>'}}
-
-const url=u=>/^https?:\/\//i.test(u||'')?u:'';
-const AI={android:'🤖',windows:'🪟',ios:'🍎',other:'📥'};
-function loadApps(a){const el=$('alk');if(!el)return;const L=(a||[]).filter(x=>url(x.url));el.hidden=!L.length;
-el.innerHTML=L.map(x=>`<a href="${esc(url(x.url))}" target="_blank" rel="noopener noreferrer" download><span class="ai">${AI[x.platform]||'📥'}</span> ${esc(x.label)} <span class="dl">⬇</span></a>`).join('')}
-function loadSpecial(a){const el=$('spec');if(!el)return;const td=new Date().toLocaleDateString('en-CA');
-const L=(a||[]).filter(x=>x.title&&(!x.bus_date||x.bus_date>=td));el.hidden=!L.length;
-el.innerHTML=L.length?'<h2>🎉 சிறப்பு பேருந்து · Special buses</h2>'+L.map(x=>{const ph=String(x.phone||'').replace(/[^\d+]/g,''),d=x.bus_date?new Date(x.bus_date+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'}):'';
-return `<article class="card sp"><div class="body"><h3>🎉 ${esc(x.title)}</h3>${x.route?`<p>🚌 ${esc(x.route)}</p>`:''}<p>${d?`<span class="hchip">📅 ${esc(d)}</span>`:''}${x.dep_time?`<span class="hchip">⏰ ${esc(x.dep_time)}</span>`:''}</p>${x.notes?`<p class="muted" style="white-space:pre-line">${esc(x.notes)}</p>`:''}${ph?`<div class="row"><a class="fill" href="tel:${ph}">📞 ${esc(x.phone)}</a></div>`:''}</div></article>`}).join(''):''}
-let adIds=[];
-const hit=(ids,k)=>{try{const body=JSON.stringify({ids,k});if(!(navigator.sendBeacon&&navigator.sendBeacon('/api/hit',new Blob([body],{type:'application/json'}))))fetch('/api/hit',{method:'POST',headers:{'Content-Type':'application/json'},body,keepalive:true})}catch(e){}};
-new IntersectionObserver(es=>{if(!es.some(x=>x.isIntersecting))return;const n=adIds.filter(i=>{try{return !sessionStorage.getItem('av_'+i)}catch(e){return true}});
-n.forEach(i=>{try{sessionStorage.setItem('av_'+i,'1')}catch(e){}});if(n.length)hit(n,'v')},{threshold:.3}).observe($('adsec'));
-document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('#ads a');if(!a)return;const c=a.closest('[data-aid]');if(c)hit([c.dataset.aid],'c')});
-const WA='https://wa.me/919585298480?text='+encodeURIComponent('Hi, I want to advertise on the Bus Timings page.');
-function loadAds(data){
-const td=new Date().toLocaleDateString('en-CA');
-const list=(data||[]).filter(a=>(!a.start_date||a.start_date<=td)&&(!a.end_date||a.end_date>=td));
-$('adsec').hidden=!list.length;adIds=list.map(a=>a.id);
-const set=list.map(a=>{const im=url(a.image_url),ln=url(a.link_url),ph=(a.phone||'').replace(/[^0-9+]/g,'');
-const wn=ph.replace(/\D/g,''),wd=wn.length===10?'91'+wn:wn;
-return `<article class="card ad${im?'':' txt'}" data-aid="${a.id}">${im?`<img src="${esc(im)}" alt="${esc(a.title||'Ad')}">`:''}<div class="body"><span class="tag" style="margin:0 0 6px">Ad</span>${a.title?`<h3>${esc(a.title)}</h3>`:''}${a.body?`<p class="muted" style="white-space:pre-line">${esc(a.body)}</p>`:''}
-${ph||ln?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">Call</a><a class="wb" href="https://wa.me/${wd}" target="_blank" rel="noopener">WhatsApp</a>`:''}${ln?`<a href="${esc(ln)}" target="_blank" rel="noopener noreferrer sponsored">Open link</a>`:''}</div>`:''}</div></article>`}).join('');
-if(!list.length)return;const trk=$('trk');if(trk.dataset.s===set)return;trk.dataset.s=set;
-trk.innerHTML=set;const k=Math.max(1,Math.ceil(($('ads').clientWidth||360)/(trk.scrollWidth||1)));
-trk.dataset.k=k;const half=set.repeat(k);
-trk.innerHTML=half+half.replace(/<article class="card ad/g,'<article aria-hidden="true" class="card ad dup').replace(/<a /g,'<a tabindex="-1" ');
-trk.style.setProperty('--dur',Math.max(14,list.length*k*7)+'s')}
-
-/* ---- place picker: dropdown + quick search (2 letters) ---- */
-const pName=p=>p.name+(p.name_ta?' · '+p.name_ta:'');
-function fillPS(){const s=$('ps'),home=places.find(p=>p.id===homeId),rest=places.filter(p=>p.id!==homeId),
- o=p=>`<option value="${esc(p.id)}">${esc(pName(p))}</option>`,
- cs=rest.filter(p=>p.kind==='city'),vs=rest.filter(p=>p.kind!=='city');
-s.innerHTML=(home?`<option value="${esc(home.id)}">⭐ ${esc(pName(home))}</option>`:'')+(cs.length?`<optgroup label="🏙 நகரங்கள் · Cities">${cs.map(o).join('')}</optgroup>`:'')+(vs.length?`<optgroup label="🏡 கிராமங்கள் · Villages">${vs.map(o).join('')}</optgroup>`:'');
-if(PL)s.value=PL.id}
+${ts.length?`<p class="fl2">🌅 முதல் ${fmt(firstT.departure_time)} · 🌙 கடைசி ${fmt(lastT.departure_time)}${isLast?' <b class="lastb">⚠️ இன்றைய கடைசி பேருந்து!</b>':done?' <span class="done">இன்றைய சேவை முடிந்தது</span>':''}</p>`:''}${b.notes?`<p class="muted">${esc(b.notes)}</p>`:''}${ph?`<div class="row" style="margin:8px 0"><a class="fill" href="tel:${ph}">📞 Call · ${esc(b.phone)}</a></div>`:''}<button class="ghost rep" data-id="${b.id}">Timing wrong? Report it</button><button class="ghost shr" data-id="${b.id}">📤 Share</button><button class="ghost alr" data-id="${b.id}">🔔 Notify me</button></div></article>`}).join('')||'<p class="empty">No buses match. Clear the search or filters. · பேருந்து இல்லை</p>';
+document.querySelectorAll('.rv').forEach(e=>io.observe(e));first=false}
 function refreshFilters(){const l=buses.filter(inPlace);fill('to',l.map(b=>b.to_place),'All destinations');fill('ty',l.map(b=>b.bus_type),'All types')}
-function paintPlace(){const box=$('pk');if(!places.length){box.hidden=true;FB=false;refreshFilters();return}
-box.hidden=false;FB=!!PL&&PL.id!==homeId&&!hasOwn(PL);
-$('pkc').textContent=PL?pName(PL):'';$('ps').value=PL?PL.id:'';
-const st=$('stopt');if(st&&PL)st.innerHTML='<b>'+esc(PL.name.toUpperCase())+(PL.name_ta?' - '+esc(PL.name_ta):'')+'</b> Bus Stop · பேருந்து நிறுத்தம்';
-const h=places.find(p=>p.id===homeId),n=$('pkn');
-if(FB&&h){n.hidden=false;const got=buses.some(b=>inPlace(b));
-const alt=got?[]:places.filter(p=>p.id!==PL.id&&hasOwn(p)&&buses.some(b=>toHit(b)&&(b.timings||[]).some(t=>ownAt(t,p.id))));
-n.innerHTML=got?`ℹ️ ${esc(PL.name)}-க்கு தனி நேர அட்டவணை இன்னும் இல்லை. ${esc(h.name)}-லிருந்து ${esc(PL.name)} செல்லும் பேருந்துகள் காட்டப்படுகின்றன.<br>No own timetable yet - showing buses from ${esc(h.name)} going to ${esc(PL.name)}.`
-:`ℹ️ ${esc(h.name)}-லிருந்து ${esc(PL.name)} செல்லும் நேரடி பேருந்து தகவல் இல்லை.<br>No bus info from ${esc(h.name)} to ${esc(PL.name)}.`+(alt.length?`<br>இங்கிருந்து பார்க்கவும் · Check from: `+alt.map(p=>`<button type="button" class="ghost" data-pid="${esc(p.id)}" style="min-height:34px;padding:2px 12px;margin:4px 6px 0 0;border-radius:99px">${esc(p.name)}</button>`).join(''):'')}else n.hidden=true;
-refreshFilters()}
-function initPlaces(d){places=(d.places||[]).slice().sort((a,b)=>((b.is_home?1:0)-(a.is_home?1:0))||((a.sort_order??100)-(b.sort_order??100))||String(a.name).localeCompare(b.name));
-const h=places.find(p=>p.is_home)||places[0];homeId=h?h.id:null;
-let c=PL&&places.find(p=>p.id===PL.id);
-if(!c){const w=new URLSearchParams(location.search).get('place');c=(w&&places.find(p=>norm(p.name)===norm(w)))||h||null}
-PL=c;fillPS();paintPlace();render()}
-function setPlace(p,keepQ){if(!p)return;PL=p;RT='';[...$('rt').children].forEach(x=>x.classList.toggle('on',!x.dataset.r));
-$('q').value='';$('pq').value='';closeSug();$('ps').value=p.id;
-try{const u=new URLSearchParams(location.search);p.id===homeId?u.delete('place'):u.set('place',p.name);const qs=u.toString();history.replaceState(null,'',location.pathname+(qs?'?'+qs:'')+location.hash)}catch(e){}
-paintPlace();render();window.scrollTo({top:Math.max(0,$('pk').getBoundingClientRect().top+scrollY-8),behavior:'smooth'})}
-$('pkn').addEventListener('click',e=>{const b=e.target.closest('button[data-pid]');if(b)setPlace(places.find(p=>p.id===b.dataset.pid))});
-$('ps').addEventListener('change',()=>setPlace(places.find(p=>p.id===$('ps').value)));
-let sug=[],si=-1;
-function closeSug(){const u=$('pks');u.hidden=true;u.innerHTML='';sug=[];si=-1;$('pq').setAttribute('aria-expanded','false')}
-function hl(t,q){const i=t.toLowerCase().indexOf(q.toLowerCase());return i<0?esc(t):esc(t.slice(0,i))+'<mark>'+esc(t.slice(i,i+q.length))+'</mark>'+esc(t.slice(i+q.length))}
-function openSug(){const q=$('pq').value.trim();if(q.length<2){closeSug();return}
-const k=q.toLowerCase(),nk=norm(q);
-const sc=p=>{const a=String(p.name).toLowerCase(),b=String(p.name_ta||'').toLowerCase();return a.startsWith(k)||b.startsWith(k)?0:a.split(/\s+/).some(w=>w.startsWith(k))?1:(a.includes(k)||b.includes(k)||(nk&&norm(p.name).includes(nk)))?2:9};
-sug=places.map(p=>({p,s:sc(p)})).filter(x=>x.s<9).sort((a,b)=>a.s-b.s||String(a.p.name).localeCompare(b.p.name)).slice(0,8).map(x=>x.p);si=sug.length?0:-1;
-const u=$('pks');u.hidden=false;$('pq').setAttribute('aria-expanded','true');
-u.innerHTML=sug.length?sug.map((p,i)=>`<li role="option" data-i="${i}" class="${i===si?'on':''}"><span>📍 ${hl(p.name,q)}${p.name_ta?' · '+esc(p.name_ta):''}</span><small>${p.kind==='city'?'நகரம்':'கிராமம்'}</small></li>`).join(''):'<li class="no">ஊர் இல்லை · No match</li>'}
-function mark(){[...$('pks').children].forEach((x,i)=>x.classList.toggle('on',i===si));const e=$('pks').children[si];if(e&&e.scrollIntoView)e.scrollIntoView({block:'nearest'})}
-$('pq').addEventListener('input',openSug);
-$('pq').addEventListener('keydown',e=>{if(e.key==='ArrowDown'&&sug.length){e.preventDefault();si=(si+1)%sug.length;mark()}
-else if(e.key==='ArrowUp'&&sug.length){e.preventDefault();si=(si-1+sug.length)%sug.length;mark()}
-else if(e.key==='Enter'){if(si>=0&&sug[si]){e.preventDefault();setPlace(sug[si])}}
-else if(e.key==='Escape')closeSug()});
-$('pks').addEventListener('mousedown',e=>{const li=e.target.closest('li[data-i]');if(li){e.preventDefault();setPlace(sug[+li.dataset.i])}});
-$('pq').addEventListener('blur',()=>setTimeout(closeSug,120));
-let lastMin=-1;
-function tick(){const n=new Date();$('clk').textContent=n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-$('dt').textContent=n.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'});
-if(n.getMinutes()!==lastMin){lastMin=n.getMinutes();render()}}
-['q','to','ty'].forEach(i=>$(i).addEventListener('input',render));
-$('rt').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;RT=b.dataset.r;[...$('rt').children].forEach(x=>x.classList.toggle('on',x===b));render()});
-
-let user=null,cur=null;
-const dlg=$('dlg');
+const CK='bt_cache_v4';
+function apply(d){if(!d)return;
+if(d.v){$('title').textContent=d.v+' Bus Timings';document.title=d.v+' Bus Timings'}
+buses=d.buses||[];const P=d.places||[];
+const h=P.find(p=>/thanik+k?ott?a?g?am|தாணிக்கோட்ட/i.test((p.name||'')+' '+(p.name_ta||'')))||P.find(p=>p.is_home)||P[0];
+homeId=h?h.id:null;PL=h||null;loaded=true;refreshFilters();render();loadApps(d.app_links);checkUpdate(d)}
+async function load(){try{const r=await fetch('/api/data');if(!r.ok)throw 0;const d=await r.json();if(!d||!d.buses)throw 0;try{localStorage.setItem(CK,JSON.stringify(d))}catch(e){}apply(d)}
+catch(e){if(!loaded)$('next').innerHTML='<p class="empty">Could not load buses. Check your internet and refresh.</p>'}}
+/* ---- Android app: detect old version and ask for the new one ---- */
+const AI={android:'🤖',windows:'🪟',ios:'🍎',other:'📥'};
+function loadApps(a){const el=$('alk');if(window.AndroidBridge){el.hidden=true;return}
+const L=(a||[]).filter(x=>url(x.url)&&x.platform==='android');el.hidden=!L.length;
+el.innerHTML=L.map(x=>`<a href="${esc(url(x.url))}" target="_blank" rel="noopener noreferrer" download>${AI.android} ${esc(x.label)} <span>⬇</span></a>`).join('')}
+function appInfo(){const b=window.AndroidBridge;if(!b)return null;let code=null;
+try{if(typeof b.getVersionCode==='function')code=+b.getVersionCode()}catch(e){}
+if(code==null||isNaN(code)){const m=/BusApp\/(\d+)/i.exec(navigator.userAgent);code=m?+m[1]:null}
+return{code,old:typeof b.syncAlerts!=='function'}}
+function checkUpdate(d){const a=appInfo();if(!a)return;
+const m=Object.fromEntries((d.settings||[]).map(r=>[r.key,r.value])),min=parseInt(m.app_min_code||'0',10)||0;
+if(!(a.old||(a.code!=null&&min>0&&a.code<min)))return;
+try{if(Date.now()<+localStorage.getItem('bt_upd_snooze'))return}catch(e){}
+const L=(d.app_links||[]).find(x=>x.platform==='android'&&url(x.url)),u=L&&url(L.url);let chrome='';
+if(u){try{const x=new URL(u);chrome=`intent://${x.host}${x.pathname}${x.search}#Intent;scheme=${x.protocol.replace(':','')};package=com.android.chrome;end`}catch(e){}}
+$('upd').innerHTML=`<div class="ub"><div class="ui">📲</div><h2 id="ut">புதிய App வந்துவிட்டது!</h2><p><b>New app version available.</b> உங்கள் app பழைய version. Bus alerts, வேகம், சரிசெய்தல்கள் கிடைக்க புதியதை install செய்யுங்கள்.</p>
+${u?`<a class="ug" href="${esc(u)}" target="_blank" rel="noopener" download>⬇ புதிய App Install செய் · Install update</a>${chrome?`<a class="uc" href="${esc(chrome)}">Chrome-ல் திற · Open in Chrome</a>`:''}
+<ol><li>Download முடிந்ததும் <b>Install</b> தட்டவும்.</li><li>“Unknown source” கேட்டால் <b>Allow</b> செய்யவும்.</li><li>Install ஆகவில்லை என்றால் பழைய app-ஐ uninstall செய்து மீண்டும் install செய்யவும்.</li></ol>`:'<p class="uw">Update link இன்னும் சேர்க்கப்படவில்லை. நிர்வாகியைத் தொடர்பு கொள்ளவும்.</p>'}
+<button type="button" class="ul" id="uLater">பிறகு · Later</button></div>`;
+$('upd').hidden=false;$('uLater').onclick=()=>{try{localStorage.setItem('bt_upd_snooze',Date.now()+3*3600e3)}catch(e){}$('upd').hidden=true}}
+/* ---- login (only asked when setting an alert or reporting) ---- */
 const paintWho=n=>{$('who').innerHTML=n?`👤 ${esc(n)} <button class="lk" id="lo">Log out</button>`:''};
-async function who(){if(!hasAuth()){user=null;paintWho('');gate(true);return}
-if(!user){try{const n=localStorage.getItem('bt_who');if(n)paintWho(n)}catch(e){}}
-let session;try{const sb=await getSB();session=(await sb.auth.getSession()).data.session}catch(e){return}   // network problem: keep the saved login, try again later
-user=session?.user||null;const nm=user?(user.user_metadata?.full_name||user.user_metadata?.name||user.email):'';
-try{nm?localStorage.setItem('bt_who',nm):localStorage.removeItem('bt_who')}catch(e){}paintWho(nm);gate(!user);if(user&&window.__onUser)__onUser(user);
-const af=sessionStorage.getItem('after');if(user&&af){sessionStorage.removeItem('after');if(af==='fb')openFb();else if(af.startsWith('rep:'))openRep(af.slice(4))}}
-function setBT(v){[...$('bt').children].forEach(x=>x.classList.toggle('on',x.dataset.b===v));$('bt_next').hidden=v!=='next';$('bt_all').hidden=v!=='all';try{sessionStorage.setItem('bt',v)}catch(e){}}
-$('bt').onclick=e=>{const b=e.target.closest('button');if(b){setBT(b.dataset.b);scrollTo({top:0,behavior:'smooth'})}};
-try{setBT(sessionStorage.getItem('bt')==='all'?'all':'next')}catch(e){}
-addEventListener('scroll',()=>$('up').classList.toggle('show',scrollY>500),{passive:true});$('up').onclick=()=>scrollTo({top:0,behavior:'smooth'});
 function gate(on){$('gate').hidden=!on;document.body.classList.toggle('gated',!!on)}
-$('gGo').onclick=async()=>{const m=$('gMsg');m.textContent='';sessionStorage.setItem('hash',location.hash);
- if(window.AndroidBridge){/* inside the Android app: phone's Google account, no redirect */
- window.onNativeGoogle=async(tok,nonce)=>{try{const c=await getSB();const{error}=await c.auth.signInWithIdToken({provider:'google',token:tok,nonce});if(error)m.textContent='Login failed: '+error.message;else await who()}catch(e){m.textContent='Login failed. Try again.'}};
- window.onNativeGoogleError=x=>{m.textContent='Google sign-in was cancelled or failed'+(x?' ('+x+')':'')};
- AndroidBridge.googleSignIn();return}
- try{const sb=await getSB();const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});if(error)m.textContent=error.message}catch(e){m.textContent='Network problem. Please try again.'}};
+async function who(){if(!hasAuth()){user=null;paintWho('');return}
+if(!user){try{const n=localStorage.getItem('bt_who');if(n)paintWho(n)}catch(e){}}
+let session;try{const sb=await getSB();session=(await sb.auth.getSession()).data.session}catch(e){return}
+user=session?.user||null;const nm=user?(user.user_metadata?.full_name||user.user_metadata?.name||user.email):'';
+try{nm?localStorage.setItem('bt_who',nm):localStorage.removeItem('bt_who')}catch(e){}paintWho(nm);if(user)gate(false);if(user&&window.__onUser)__onUser(user);
+const af=sessionStorage.getItem('after');if(user&&af){sessionStorage.removeItem('after');if(af.startsWith('rep:'))openRep(af.slice(4))}}
+function nativeLogin(m){window.onNativeGoogle=async(tok,nonce)=>{try{const c=await getSB();const{error}=await c.auth.signInWithIdToken({provider:'google',token:tok,nonce});if(error)m(`Login failed: ${error.message}`);else{dlg.open&&dlg.close();await who()}}catch(e){m('Login failed. Try again.')}};
+window.onNativeGoogleError=x=>m('Google sign-in was cancelled or failed'+(x?` (${x})`:''));AndroidBridge.googleSignIn()}
+$('gGo').onclick=async()=>{const m=$('gMsg');m.textContent='';try{sessionStorage.setItem('hash',location.hash)}catch(e){}
+if(window.AndroidBridge&&typeof AndroidBridge.googleSignIn==='function'){nativeLogin(t=>m.textContent=t);return}
+try{const sb=await getSB();const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});if(error)m.textContent=error.message}catch(e){m.textContent='Network problem. Please try again.'}};
+$('gX').onclick=()=>gate(false);
 document.addEventListener('click',async e=>{if(e.target.id==='lo'){const sb=await getSB();await sb.auth.signOut();try{localStorage.removeItem('bt_who')}catch(_){}user=null;paintWho('');who()}});
-$('fbBtn').addEventListener('click',openFb);
-$('list').addEventListener('click',e=>{const r=e.target.closest('.rep');if(r)return openRep(r.dataset.id);
-const f=e.target.closest('.fav');if(f){const id=f.dataset.id;FV.has(id)?FV.delete(id):FV.add(id);try{localStorage.setItem('bt_fav',JSON.stringify([...FV]))}catch(_){}render();return}
-const sh=e.target.closest('.shr');if(sh)shareBus(sh.dataset.id)});
-function shareBus(id){const b=buses.find(x=>x.id===id);if(!b)return;
-const ts=tms(b).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time)).map(t=>fmt(t.departure_time)).join(', ')||'-';
-const txt=`🚌 ${b.name}${b.bus_no?' ('+b.bus_no+')':''}\n${b.from_place} ➜ ${b.to_place}${b.via?' via '+b.via:''}\n⏰ ${PL?PL.name+' · ':''}இன்றைய நேரம்: ${ts}\n\n${location.origin}`;
-window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener')}
+/* alerts need a login: ask only when the person taps a bell */
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('.nbell,.alr,.alset,#alBtn,#alTop');if(!t||user)return;
+e.stopImmediatePropagation();e.preventDefault();who().then(()=>{if(user)t.click();else gate(true)})},true);
 function loginDlg(title,note,key){getSB().catch(()=>{});
 dlg.innerHTML=`<h3>${esc(title)}</h3><p>${esc(note)}</p><div class="row"><button id="gg">Continue with Google</button><button class="ghost" id="r_x">Cancel</button></div>`;
 if(!dlg.open)dlg.showModal();$('r_x').onclick=()=>dlg.close();
 $('gg').onclick=async()=>{sessionStorage.setItem('after',key);sessionStorage.setItem('hash',location.hash);
-if(window.AndroidBridge){/* inside the Android app: use the phone's Google account, no redirect */
-window.onNativeGoogle=async(tok,nonce)=>{try{const c=await getSB();const{error}=await c.auth.signInWithIdToken({provider:'google',token:tok,nonce});
-if(error){sessionStorage.removeItem('after');return alert('Login failed: '+error.message)}
-dlg.close();await who()}catch(e){alert('Login failed')}};
-window.onNativeGoogleError=m=>{sessionStorage.removeItem('after');alert('Google sign-in was cancelled or failed'+(m?' ('+m+')':''))};
-AndroidBridge.googleSignIn();return}
+if(window.AndroidBridge&&typeof AndroidBridge.googleSignIn==='function'){nativeLogin(t=>{sessionStorage.removeItem('after');alert(t)});return}
 const sb=await getSB();sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}})}}
-async function openFb(){await who();
-if(!user){loginDlg('💬 Feedback · கருத்து','Sign in with Google to send feedback. Only the admin can see your name.','fb');return}
-let rate=0;
-dlg.innerHTML=`<h3>💬 Feedback · கருத்து</h3><p class="muted">Tell us what to improve. உங்கள் கருத்தைச் சொல்லுங்கள்.</p>
-<div id="stars" role="radiogroup" aria-label="Rating" style="font-size:2rem;letter-spacing:6px;cursor:pointer;user-select:none">${[1,2,3,4,5].map(i=>`<span data-s="${i}" role="radio" aria-checked="false" aria-label="${i} star">☆</span>`).join('')}</div>
-<label for="fb_msg">Your feedback · உங்கள் கருத்து</label><textarea id="fb_msg" rows="4" maxlength="1000"></textarea>
-<div class="row" style="margin-top:12px"><button id="fb_send">Send · அனுப்பு</button><button class="ghost" id="r_x">Cancel</button></div>`;
-if(!dlg.open)dlg.showModal();$('r_x').onclick=()=>dlg.close();
-$('stars').onclick=e=>{const n=+(e.target.dataset&&e.target.dataset.s);if(!n)return;rate=n;
-[...$('stars').children].forEach((x,i)=>{x.textContent=i<n?'★':'☆';x.setAttribute('aria-checked',i<n?'true':'false')})};
-$('fb_send').onclick=async()=>{const m=$('fb_msg').value.trim();if(!m)return alert('Please write your feedback.');
-$('fb_send').disabled=true;
-try{const sb=await getSB();const{error}=await sb.from('feedback').insert({rating:rate||null,message:m});
-if(error){$('fb_send').disabled=false;return alert('Could not send: '+error.message)}
-dlg.innerHTML='<h3>Thank you! நன்றி!</h3><p>Your feedback was sent to the admin.</p><button id="r_x">Close</button>';$('r_x').onclick=()=>dlg.close()}
-catch(e){$('fb_send').disabled=false;alert('Could not send. Check your internet.')}}}
 function openRep(id){cur=buses.find(b=>b.id===id);if(!cur)return;getSB().catch(()=>{});
 if(!user){loginDlg(cur.name,'Sign in with Google to report a wrong timing. Only the admin can see your name.','rep:'+id);return}
 const ts=[...tms(cur)].sort((a,c)=>a.departure_time.localeCompare(c.departure_time));
@@ -338,133 +147,33 @@ dlg.innerHTML=`<h3>${esc(cur.name)}</h3>
 const sync=()=>{const v=$('r_type').value;$('w1').hidden=!(v==='wrong_time'||v==='remove_time');$('w2').hidden=!(v==='wrong_time'||v==='add_time')};
 $('r_type').onchange=sync;sync();dlg.showModal();$('r_x').onclick=()=>dlg.close();
 $('r_send').onclick=async()=>{const v=$('r_type').value;
-const row={bus_id:cur.id,type:v,message:$('r_msg').value.trim()||null};if(PL&&!FB)row.place_id=PL.id;
+const row={bus_id:cur.id,type:v,message:$('r_msg').value.trim()||null};if(homeId)row.place_id=homeId;
 if(v==='wrong_time'||v==='remove_time'){row.timing_id=$('r_tid').value;if(!row.timing_id)return alert('This bus has no timing to select.')}
 if(v==='wrong_time'||v==='add_time'){row.proposed_time=$('r_time').value;row.proposed_days=$('r_days').value.trim()||'Daily';if(!row.proposed_time)return alert('Please enter the correct time.')}
 if(v==='other'&&!row.message)return alert('Please write a short message.');
 const sb=await getSB();const{error}=await sb.from('requests').insert(row);
 if(error)return alert('Could not send: '+error.message);
 dlg.innerHTML='<h3>Thank you!</h3><p>Your request was sent. The admin will check it and update the timing.</p><button id="r_x">Close</button>';$('r_x').onclick=()=>dlg.close()}}
+function shareBus(id){const b=buses.find(x=>x.id===id);if(!b)return;
+const ts=tms(b).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time)).map(t=>fmt(t.departure_time)).join(', ')||'-';
+const txt=`🚌 ${b.name}${b.bus_no?' ('+b.bus_no+')':''}\n${b.from_place} ➜ ${b.to_place}${b.via?' via '+b.via:''}\n⏰ தாணிக்கோட்டகம் · இன்றைய நேரம்: ${ts}\n\n${location.origin}`;
+window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener')}
+/* ---- ui wiring ---- */
+let lastMin=-1;
+function tick(){const n=new Date();$('clk').textContent=n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+$('dt').textContent=n.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'});
+if(n.getMinutes()!==lastMin){lastMin=n.getMinutes();render()}}
+['q','to','ty'].forEach(i=>$(i).addEventListener('input',render));
+$('rt').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;RT=b.dataset.r;[...$('rt').children].forEach(x=>x.classList.toggle('on',x===b));render()});
+function setBT(v){[...$('bt').children].forEach(x=>x.classList.toggle('on',x.dataset.b===v));$('bt_next').hidden=v!=='next';$('bt_all').hidden=v!=='all';try{sessionStorage.setItem('bt',v)}catch(e){}}
+$('bt').onclick=e=>{const b=e.target.closest('button');if(b){setBT(b.dataset.b);scrollTo({top:0,behavior:'smooth'})}};
+try{setBT(sessionStorage.getItem('bt')==='all'?'all':'next')}catch(e){}
+addEventListener('scroll',()=>$('up').classList.toggle('show',scrollY>500),{passive:true});$('up').onclick=()=>scrollTo({top:0,behavior:'smooth'});
+$('list').addEventListener('click',e=>{const r=e.target.closest('.rep');if(r)return openRep(r.dataset.id);
+const f=e.target.closest('.fav');if(f){const id=f.dataset.id;FV.has(id)?FV.delete(id):FV.add(id);try{localStorage.setItem('bt_fav',JSON.stringify([...FV]))}catch(_){}render();return}
+const sh=e.target.closest('.shr');if(sh)shareBus(sh.dataset.id)});
 who();
-const FEST=[[1,1,1,'🎉','இனிய புத்தாண்டு நல்வாழ்த்துகள்!','Happy New Year!'],
-[1,14,16,'🌾','இனிய பொங்கல் நல்வாழ்த்துகள்!','Happy Pongal!'],
-[1,26,26,'🇮🇳','இனிய குடியரசு தின நல்வாழ்த்துகள்!','Happy Republic Day!'],
-[4,14,14,'🌼','இனிய தமிழ்ப் புத்தாண்டு நல்வாழ்த்துகள்!','Happy Tamil New Year!'],
-[5,1,1,'🛠️','உழைப்பாளர் தின நல்வாழ்த்துகள்!','Happy Labour Day!'],
-[8,15,15,'🇮🇳','இனிய சுதந்திர தின நல்வாழ்த்துகள்!','Happy Independence Day!'],
-[10,2,2,'🕊️','காந்தி ஜெயந்தி நல்வாழ்த்துகள்','Gandhi Jayanti'],
-[12,25,25,'🎄','இனிய கிறிஸ்துமஸ் நல்வாழ்த்துகள்!','Merry Christmas!']];
-const autoWishes=()=>{const d=new Date(),m=d.getMonth()+1,x=d.getDate();return FEST.filter(f=>f[0]===m&&x>=f[1]&&x<=f[2]).map(f=>({kind:'wish',emoji:f[3],title:f[4],body:f[5]}))};
-let nts=[],ni=0,nT=0;
-function drawN(){const el=$('ntc');if(!nts.length){el.hidden=true;return}
-const n=nts[ni%nts.length],wish=n.kind!=='news',em=esc(n.emoji||(wish?'🎉':'📢'));
-el.hidden=false;el.className='nt '+(wish?'wish':'news');
-el.innerHTML=`${wish?'':'<span class="bd">முக்கிய செய்தி · IMPORTANT</span>'}<div class="ln"><span class="em">${em}</span><div class="tx"><h3>${esc(n.title)}</h3>${n.body?`<p>${esc(n.body)}</p>`:''}</div><span class="em e2">${em}</span></div>${nts.length>1?`<div class="dots">${nts.map((_,i)=>`<i${i===ni%nts.length?' class="on"':''}></i>`).join('')}</div>`:''}`;
-if(wish){const C=['#fff','#ffd54a','#ff7ab6','#7be0e6','#9be37a'];for(let i=0;i<18;i++){const c=document.createElement('i');c.className='cf';c.style.cssText=`left:${Math.random()*100}%;background:${C[i%5]};animation-duration:${2.6+Math.random()*2.4}s;animation-delay:${-Math.random()*4}s`;el.appendChild(c)}}}
-function loadNotices(data){let rows=[];
-try{const td=new Date().toLocaleDateString('en-CA');
-rows=(data||[]).filter(a=>a.title&&(!a.start_date||a.start_date<=td)&&(!a.end_date||a.end_date>=td))}catch(e){}
-nts=[...rows.filter(r=>r.kind==='news'),...rows.filter(r=>r.kind!=='news'),...autoWishes()];
-if(ni>=nts.length)ni=0;drawN();clearInterval(nT);
-if(nts.length>1)nT=setInterval(()=>{ni++;drawN()},6500)}
-$('ntc').addEventListener('click',()=>{if(nts.length>1){ni++;drawN()}});
-let adMin=1;
-function loadSettings(data){try{const m=Object.fromEntries((data||[]).map(r=>[r.key,r.value]));const v=parseFloat(m.ad_scroll_min);if([1,2,5,10].includes(v))adMin=v;
- const tx=String(m.ticker_text||'').trim(),t=$('tick');if(tx&&m.ticker_on!=='0'){$('tkt').textContent=tx;$('tkt').style.setProperty('--tk',Math.max(14,Math.round(tx.length*.28))+'s');t.hidden=false}else t.hidden=true}catch(e){}}
-let ax=0,aT=0,apause=0,adrag=null,amoved=false;
-(function(){const box=$('ads'),trk=$('trk');
-const qm=parseFloat(new URLSearchParams(location.search).get('scroll'));
-function frame(t){const dt=Math.min(64,t-aT);aT=t;
-const half=trk.scrollWidth/2,sw=half/(+trk.dataset.k||1),mins=[1,2,5,10].includes(qm)?qm:adMin;
-if(!adrag&&Date.now()>apause&&!$('adsec').hidden)ax+=sw/(mins*60)*dt/1000;
-if(half>0)ax=((ax%half)+half)%half;
-trk.style.transform='translate3d('+(-ax)+'px,0,0)';requestAnimationFrame(frame)}
-requestAnimationFrame(t=>{aT=t;frame(t)});
-box.addEventListener('pointerdown',e=>{adrag={x:e.clientX,o:ax,id:e.pointerId};amoved=false});
-box.addEventListener('pointermove',e=>{if(!adrag||e.pointerId!==adrag.id)return;const dx=e.clientX-adrag.x;
-if(Math.abs(dx)>6){if(!amoved){amoved=true;try{box.setPointerCapture(e.pointerId)}catch(_){}}ax=adrag.o-dx}});
-const end=()=>{if(adrag){adrag=null;apause=Date.now()+4000}};
-box.addEventListener('pointerup',end);box.addEventListener('pointercancel',end);
-box.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')apause=Date.now()+1e9});
-box.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')apause=Date.now()+600});
-box.addEventListener('click',e=>{if(amoved){e.preventDefault();e.stopPropagation();amoved=false}},true);
-})();
 try{const c=localStorage.getItem(CK);if(c)apply(JSON.parse(c))}catch(e){}
 setInterval(tick,1000);setInterval(load,120000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});tick();load();
-</script><script src="sections.js?v=3"></script>
-<script>
-(function(){
-const q=id=>document.getElementById(id),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),U=u=>/^https?:\/\//i.test(u||'')?u:'',P=p=>String(p||'').replace(/[^\d+]/g,'');
-let cur=SECTIONS[0];
-q('ht').innerHTML=SECTIONS.map(s=>`<button type="button" data-t="${s.t}">${s.label}</button>`).join('');
-function view(v){q('v_bus').hidden=v!=='bus';q('v_help').hidden=v!=='help';
- [...q('mt').children].forEach(b=>b.classList.toggle('on',b.dataset.v===v));
- history.replaceState(null,'',v==='help'?'#help-'+cur.t:location.pathname+location.search);if(v==='help')load()}
-q('mt').onclick=e=>{const b=e.target.closest('button');if(b)view(b.dataset.v)};
-q('ht').onclick=e=>{const b=e.target.closest('button');if(b){cur=SECTIONS.find(s=>s.t===b.dataset.t);history.replaceState(null,'','#help-'+cur.t);load()}};
-q('hq').oninput=draw;
-const KG=[['','🔎 All · எல்லாம்'],['Auto','🛺 Auto'],['Car','🚗 Car'],['Tractor','🚜 Tractor'],['Other','🚐 Other']];let kg='';
-const kindOf=r=>{const k=String(r.kind||'').trim().toLowerCase();return k==='auto'?'Auto':k==='car'?'Car':k==='tractor'?'Tractor':'Other'};
-q('hk').onclick=e=>{const b=e.target.closest('button');if(b){kg=b.dataset.k;draw()}};
-/* city / village picker for vehicles (default = home place, Thanikkottagam) */
-const PLS=()=>(window.__D&&window.__D.places)||[],homeP=()=>{const p=PLS();return (p.find(x=>x.is_home)||p[0]||{}).id};
-const nz=s=>String(s||'').toLowerCase().replace(/[^a-z0-9\u0B80-\u0BFF]/g,'');
-const hpn=p=>p.name_ta?p.name+' · '+p.name_ta:p.name;let hp=null;
-{const w=new URLSearchParams(location.search).get('place');if(w)hp='?'+w}
-const inHP=r=>(r.place_id||homeP())===hp;
-function fillHP(all){const P=PLS();if(!P.length){q('hpw').hidden=true;return false}
- if(hp&&hp[0]==='?'){const f=P.find(p=>nz(p.name)===nz(hp.slice(1))||nz(p.name_ta)===nz(hp.slice(1)));hp=f?f.id:null}
- if(!hp||!P.some(p=>p.id===hp))hp=homeP();
- const n={};all.forEach(r=>{const id=r.place_id||homeP();n[id]=(n[id]||0)+1});
- const o=p=>`<option value="${E(p.id)}"${p.id===hp?' selected':''}>${p.id===homeP()?'⭐ ':''}${E(hpn(p))}${n[p.id]?' ('+n[p.id]+')':''}</option>`,h=P.filter(p=>p.id===homeP()),cs=P.filter(p=>p.id!==homeP()&&p.kind==='city'),vs=P.filter(p=>p.id!==homeP()&&p.kind!=='city');
- q('hps').innerHTML=h.map(o).join('')+(cs.length?`<optgroup label="🏙 நகரங்கள் · Cities">${cs.map(o).join('')}</optgroup>`:'')+(vs.length?`<optgroup label="🏡 கிராமங்கள் · Villages">${vs.map(o).join('')}</optgroup>`:'');
- if(!q('hpl').children.length)q('hpl').innerHTML=P.map(p=>`<option value="${E(p.name)}">${p.name_ta?E(p.name_ta):''}</option>`).join('');
- q('hpw').hidden=false;return true}
-q('hps').onchange=()=>{hp=q('hps').value;q('hpq').value='';kg='';draw()};
-q('hpq').oninput=()=>{const v=nz(q('hpq').value);if(!v)return;const p=PLS().find(x=>nz(x.name)===v||nz(x.name_ta)===v);if(p){hp=p.id;kg='';draw()}};
-q('hpq').onchange=()=>{const v=nz(q('hpq').value);if(!v)return;const P=PLS(),p=P.find(x=>nz(x.name)===v||nz(x.name_ta)===v)||P.find(x=>nz(x.name).startsWith(v)||nz(x.name_ta).startsWith(v));if(p){hp=p.id;kg='';draw()}};
-function load(){[...q('ht').children].forEach(b=>b.classList.toggle('on',b.dataset.t===cur.t));q('hk').hidden=cur.t!=='helpers';q('hpw').hidden=cur.t!=='helpers';draw()}
-window.__hd=draw;
-function draw(){const s=cur,k=q('hq').value.trim().toLowerCase(),lab=Object.fromEntries(s.f.map(x=>[x[0],x[1]]));
- if(!window.__D){q('hl').innerHTML='<p class="muted">ஏற்றுகிறது…</p>';return}
- const all=(window.__D[s.t])||[];
- let inCity=all;
- if(s.t==='helpers'){const hasP=fillHP(all);if(hasP)inCity=all.filter(inHP);const n={};inCity.forEach(r=>{const g=kindOf(r);n[g]=(n[g]||0)+1});
-  q('hk').innerHTML=KG.map(([v,l])=>`<button type="button" data-k="${v}" class="${v===kg?'on':''}">${l}<b>${v?(n[v]||0):inCity.length}</b></button>`).join('')}
- const L=inCity.filter(r=>(s.t!=='helpers'||!kg||kindOf(r)===kg)&&(!k||JSON.stringify(Object.values(r)).toLowerCase().includes(k)));
- q('hl').innerHTML=L.length?L.map(r=>{const im=U(r[s.img]),ph=P(r[s.phone]),lk=s.t==='helpers'?'':U(r.map_url)||((r.address||r.area||s.t==='temples')?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([r[s.title],r.address||r.area,VN].filter(Boolean).join(' ')):'');
-  return `<article class="card">${im?`<img class="pic" src="${E(im)}" alt="${E(r[s.title])}" loading="lazy">`:''}<h3>${E(r[s.title])}</h3>${s.tag&&r[s.tag]?`<span class="hchip">${E(r[s.tag])}</span>`:''}${s.flag?`<span class="hchip">${r[s.flag[0]]?s.flag[1]:s.flag[2]}</span>`:''}
-${s.show.filter(x=>r[x]).map(x=>`<p><b>${E(lab[x])}:</b> <span style="white-space:pre-line">${E(r[x])}</span></p>`).join('')}
-${ph||lk?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">📞 ${E(r[s.phone])}</a>${s.t==='helpers'?'':`<a class="wb" href="https://wa.me/${ph.replace(/^\+/,'').replace(/^(\d{10})$/,'91$1')}" target="_blank" rel="noopener">WhatsApp</a>`}`:''}${lk?`<a href="${E(lk)}" target="_blank" rel="noopener noreferrer">📍 Map · வரைபடம்</a>`:''}</div>`:''}</article>`}).join(''):(s.t==='helpers'?(()=>{const p=PLS().find(x=>x.id===hp);return `<p class="muted">இந்த ஊரில் இன்னும் வாகனங்கள் இல்லை · No ${kg?kg.toLowerCase()+' ':''}vehicles yet${p?' in '+E(p.name):''}.</p><a class="addcta" href="add.html?t=vehicle${p?'&place='+encodeURIComponent(p.name):''}">➕ இந்த ஊருக்கு வாகனம் சேர்க்க · Add a vehicle here</a>`})():'<p class="muted">இன்னும் எதுவும் இல்லை</p>')}
-{let hh=location.hash;if(!/^#help/.test(hh)){const sh=sessionStorage.getItem('hash');if(sh){hh=sh;sessionStorage.removeItem('hash')}}
-const m=/^#help(?:-(\w+))?$/.exec(hh);if(m){const f=m[1]&&SECTIONS.find(s=>s.t===m[1]);if(f)cur=f;view('help')}}
-})();
-</script>
-<script>
-(function(){
-const el=document.getElementById('wx');if(!el)return;
-let W=null;
-const RAIN=c=>(c>=51&&c<=67)||(c>=80&&c<=82)||c>=95;
-const drops=()=>Array.from({length:9},(_,i)=>`<i class="dr" style="left:${8+i*11}%;animation-delay:${(i*.17).toFixed(2)}s"></i>`).join('');
-function paint(){
- if(!W||typeof W.temp!=='number'){el.hidden=true;return}
- const now=Date.now(),c=W.code,t=Math.round(W.temp)+'°C';
- let cls='',em='',msg='',dr=false;
- const mins=W.rainAt!=null?Math.max(0,Math.ceil((W.rainAt-now)/60000)):null;
- if(W.rainNow||RAIN(c)){cls='wrain';em='☔';msg='மழை பெய்ய வாய்ப்பு! குடை எடுத்துக்கோ 😅';dr=true}
- else if(mins!=null&&mins<=15){cls='wrain wsoon';em='☔';msg='சில நிமிடங்களில் மழை வரலாம்! குடை எடுத்துக்கோங்க 🏃';dr=true}
- else if(c===45||c===48){cls='wcl';em='🌫️';msg='பனி மூட்டம் - மெதுவா போங்க'}
- else if(c>=3){cls='wcl';em='⛅';msg='மேகமூட்டம் - மழை இல்லை போல'}
- else if(W.day===0){cls='';em='🌙';msg='இரவு அமைதி - நிம்மதியா போங்க'}
- else{cls='wsun';em='😎';msg='வெயில் சுள்ளுனு இருக்கு!'}
- el.className='wx '+cls;el.hidden=false;
- el.innerHTML=(dr?drops():'')+`<span class="we">${em}</span><span class="wt">${t}</span><span>${msg}</span><small class="wn">forecast · தோராயம்</small>`;
-}
-const TQ=new URLSearchParams(location.search).get('wx'),T0=Date.now();
-const MOCK={rain:{temp:27,code:61,day:1,rainNow:true,rainAt:null},soon:{temp:29,code:3,day:1,rainNow:false,rainAt:T0+8*60000},sun:{temp:34,code:0,day:1,rainNow:false,rainAt:null},cloud:{temp:29,code:3,day:1,rainNow:false,rainAt:null},night:{temp:25,code:0,day:0,rainNow:false,rainAt:null},fog:{temp:24,code:45,day:1,rainNow:false,rainAt:null}};
-async function get(){if(TQ&&MOCK[TQ]){W=MOCK[TQ];paint();return}try{const r=await fetch('/api/weather');if(!r.ok)throw 0;W=await r.json();paint()}catch(e){if(!W)el.hidden=true}}
-get();setInterval(get,300000);setInterval(paint,30000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)get()});
-})();
 </script>
 </body></html>
