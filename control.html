@@ -34,6 +34,7 @@
 </section>
 </main>
 <script src="/api/config"></script>
+<script src="call.js?v=1"></script>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);let st='pending',rows=[],busy=false,timer=null;
@@ -62,7 +63,7 @@ function draw(){$('ls').innerHTML=rows.map(r=>{const d=r.data||{},img=safe(d.ima
 <p>${[d.bus_type,d.operator,d.fare].filter(Boolean).map(esc).join(' · ')}</p>
 <p>⏰ ${(d.timings||[]).map(t=>esc(`${t.time} ${t.days||''}${t.place?' @'+t.place:''}`)).join(' · ')}</p>`
  :`<h3>🛺 ${esc(d.name)} <span class="chip pending">${esc(d.kind)}</span></h3>
-<p>📞 <a style="color:var(--gold2)" href="tel:${esc(String(d.phone||'').replace(/[^\d+]/g,''))}">${esc(d.phone)}</a>${d.place?' · 🏙 '+esc(d.place):''}${d.area?' · 📍 '+esc(d.area):''}</p>
+<p>📞 <a style="color:var(--gold2)" href="tel:${esc(telNum(d.phone))}">${esc(d.phone)}</a>${d.place?' · 🏙 '+esc(d.place):''}${d.area?' · 📍 '+esc(d.area):''}</p>
 <p>${[d.rate,d.night_available?'🌙 Night available'+(d.night_extra?' ('+d.night_extra+')':''):''].filter(Boolean).map(esc).join(' · ')}</p>${img?`<p><a style="color:var(--teal)" href="${esc(img)}" target="_blank" rel="noopener">🖼 Picture</a></p>`:''}`;
  return `<article class="item" data-id="${r.id}">${body}${d.notes?`<p>📝 ${esc(d.notes)}</p>`:''}
 <p>👤 ${esc(r.user_name||'')} · ${esc(r.user_email||'')} · ${new Date(r.created_at).toLocaleString('en-IN')}</p>${r.admin_note?`<p><b>Note:</b> ${esc(r.admin_note)}</p>`:''}

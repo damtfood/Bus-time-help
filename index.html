@@ -60,6 +60,7 @@
 #gate p{color:#8FA7AA;margin:6px 0}#gate button{margin-top:14px;width:100%;padding:14px;font-weight:800;border:0;border-radius:99px;color:#1a1200;background:linear-gradient(135deg,#F6D06F,#E3A92B 60%,#C98A12);box-shadow:0 8px 24px #E3A92B55;cursor:pointer;font-size:1rem}
 </style>
 <link rel="stylesheet" href="index-premium.css?v=7">
+<script src="call.js?v=1"></script>
 <script src="alerts.js?v=6" defer></script>
 </head><body>
 <header class="top"><i class="orb o1"></i><i class="orb o2"></i>
@@ -176,7 +177,7 @@ return `<article class="card bus${seen.has(b.id)?'':' rv'}${isF(b.id)?' isfav':'
 <h3>${esc(b.name)}${b.bus_no?`<span class="tag">${esc(b.bus_no)}</span>`:''}<span class="tag">${esc(b.bus_type||'')}</span>${b.service_class?`<span class="tag">${esc(b.service_class)}</span>`:''}</h3>
 <p class="muted">${esc(b.from_place)} to ${esc(b.to_place)}${b.via?' via '+esc(b.via):''}${b.fare?' · Fare '+esc(b.fare):''}</p>
 <div class="chips">${ts.map(t=>`<span class="chip ${left(t)<0?'past':t===nx?'nx':''}${t===lastT&&ts.length>1?' last':''}">${fmt(t.departure_time)}${t===lastT&&ts.length>1?' <small>கடைசி</small>':''}</span>`).join('')||'<span class="muted">No service today</span>'}</div>
-${ts.length?`<p class="fl2">🌅 முதல் ${fmt(firstT.departure_time)} · 🌙 கடைசி ${fmt(lastT.departure_time)}${isLast?' <b class="lastb">⚠️ இன்றைய கடைசி பேருந்து!</b>':done?' <span class="done">இன்றைய சேவை முடிந்தது</span>':''}</p>`:''}${b.notes?`<p class="muted">${esc(b.notes)}</p>`:''}${(()=>{const ph=String(b.phone||'').replace(/[^\d+]/g,'');return ph?`<div class="row" style="margin:8px 0"><a class="fill" href="tel:${ph}">📞 Call · ${esc(b.phone)}</a></div>`:''})()}<button class="ghost rep" data-id="${b.id}">Timing wrong? Report it</button><button class="ghost shr" data-id="${b.id}">📤 Share</button><button class="ghost alr" data-id="${b.id}">🔔 Notify me</button></div></article>`}).join('')||'<p class="empty">No buses match. Clear the search or filters. · பேருந்து இல்லை</p>';document.querySelectorAll('.rv').forEach(e=>io.observe(e));first=false;
+${ts.length?`<p class="fl2">🌅 முதல் ${fmt(firstT.departure_time)} · 🌙 கடைசி ${fmt(lastT.departure_time)}${isLast?' <b class="lastb">⚠️ இன்றைய கடைசி பேருந்து!</b>':done?' <span class="done">இன்றைய சேவை முடிந்தது</span>':''}</p>`:''}${b.notes?`<p class="muted">${esc(b.notes)}</p>`:''}${(()=>{const ph=telNum(b.phone);return ph?`<div class="row" style="margin:8px 0"><a class="fill" href="tel:${ph}">📞 Call · ${esc(b.phone)}</a></div>`:''})()}<button class="ghost rep" data-id="${b.id}">Timing wrong? Report it</button><button class="ghost shr" data-id="${b.id}">📤 Share</button><button class="ghost alr" data-id="${b.id}">🔔 Notify me</button></div></article>`}).join('')||'<p class="empty">No buses match. Clear the search or filters. · பேருந்து இல்லை</p>';document.querySelectorAll('.rv').forEach(e=>io.observe(e));first=false;
 }
 const CK='bt_cache_v3';
 function apply(d){if(!d)return;window.__D=d;
@@ -215,7 +216,7 @@ ${force?'<p class="uf">இந்த update கட்டாயம் · This upda
 $('upd').hidden=false;const lb=$('uLater');if(lb)lb.onclick=()=>{const h=Math.max(1,parseFloat(m.upd_snooze_h)||3);if(!pv){try{localStorage.setItem('bt_upd_snooze',JSON.stringify({t:Date.now()+h*3600e3,e:ep}))}catch(e){}}$('upd').hidden=true}}
 function loadSpecial(a){const el=$('spec');if(!el)return;const td=new Date().toLocaleDateString('en-CA');
 const L=(a||[]).filter(x=>x.title&&(!x.bus_date||x.bus_date>=td));el.hidden=!L.length;
-el.innerHTML=L.length?'<h2>🎉 சிறப்பு பேருந்து · Special buses</h2>'+L.map(x=>{const ph=String(x.phone||'').replace(/[^\d+]/g,''),d=x.bus_date?new Date(x.bus_date+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'}):'';
+el.innerHTML=L.length?'<h2>🎉 சிறப்பு பேருந்து · Special buses</h2>'+L.map(x=>{const ph=telNum(x.phone),d=x.bus_date?new Date(x.bus_date+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'}):'';
 return `<article class="card sp"><div class="body"><h3>🎉 ${esc(x.title)}</h3>${x.route?`<p>🚌 ${esc(x.route)}</p>`:''}<p>${d?`<span class="hchip">📅 ${esc(d)}</span>`:''}${x.dep_time?`<span class="hchip">⏰ ${esc(x.dep_time)}</span>`:''}</p>${x.notes?`<p class="muted" style="white-space:pre-line">${esc(x.notes)}</p>`:''}${ph?`<div class="row"><a class="fill" href="tel:${ph}">📞 ${esc(x.phone)}</a></div>`:''}</div></article>`}).join(''):''}
 let adIds=[];
 const hit=(ids,k)=>{try{const body=JSON.stringify({ids,k});if(!(navigator.sendBeacon&&navigator.sendBeacon('/api/hit',new Blob([body],{type:'application/json'}))))fetch('/api/hit',{method:'POST',headers:{'Content-Type':'application/json'},body,keepalive:true})}catch(e){}};
@@ -227,7 +228,7 @@ function loadAds(data){
 const td=new Date().toLocaleDateString('en-CA');
 const list=(data||[]).filter(a=>(!a.start_date||a.start_date<=td)&&(!a.end_date||a.end_date>=td));
 $('adsec').hidden=!list.length;adIds=list.map(a=>a.id);
-const set=list.map(a=>{const im=url(a.image_url),ln=url(a.link_url),ph=(a.phone||'').replace(/[^0-9+]/g,'');
+const set=list.map(a=>{const im=url(a.image_url),ln=url(a.link_url),ph=telNum(a.phone);
 const wn=ph.replace(/\D/g,''),wd=wn.length===10?'91'+wn:wn;
 return `<article class="card ad${im?'':' txt'}" data-aid="${a.id}">${im?`<img src="${esc(im)}" alt="${esc(a.title||'Ad')}">`:''}<div class="body"><span class="tag" style="margin:0 0 6px">Ad</span>${a.title?`<h3>${esc(a.title)}</h3>`:''}${a.body?`<p class="muted" style="white-space:pre-line">${esc(a.body)}</p>`:''}
 ${ph||ln?`<div class="row">${ph?`<a class="fill" href="tel:${ph}">Call</a><a class="wb" href="https://wa.me/${wd}" target="_blank" rel="noopener">WhatsApp</a>`:''}${ln?`<a href="${esc(ln)}" target="_blank" rel="noopener noreferrer sponsored">Open link</a>`:''}</div>`:''}</div></article>`}).join('');
@@ -401,19 +402,19 @@ trk.style.transform='translate3d('+(-ax)+'px,0,0)';requestAnimationFrame(frame)}
 requestAnimationFrame(t=>{aT=t;frame(t)});
 box.addEventListener('pointerdown',e=>{adrag={x:e.clientX,o:ax,id:e.pointerId};amoved=false});
 box.addEventListener('pointermove',e=>{if(!adrag||e.pointerId!==adrag.id)return;const dx=e.clientX-adrag.x;
-if(Math.abs(dx)>6){if(!amoved){amoved=true;try{box.setPointerCapture(e.pointerId)}catch(_){}}ax=adrag.o-dx}});
+if(Math.abs(dx)>(e.pointerType==='mouse'?6:14)){if(!amoved){amoved=true;if(e.pointerType==='mouse'){try{box.setPointerCapture(e.pointerId)}catch(_){}}}ax=adrag.o-dx}});
 const end=()=>{if(adrag){adrag=null;apause=Date.now()+4000}};
 box.addEventListener('pointerup',end);box.addEventListener('pointercancel',end);
 box.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')apause=Date.now()+1e9});
 box.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')apause=Date.now()+600});
-box.addEventListener('click',e=>{if(amoved){e.preventDefault();e.stopPropagation();amoved=false}},true);
+box.addEventListener('click',e=>{if(amoved&&!e.target.closest('a[href^="tel:"]')){e.preventDefault();e.stopPropagation()}amoved=false},true);
 })();
 try{const c=localStorage.getItem(CK);if(c)apply(JSON.parse(c))}catch(e){}
 setInterval(tick,1000);setInterval(load,120000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});tick();load();
 </script><script src="sections.js?v=3"></script>
 <script>
 (function(){
-const q=id=>document.getElementById(id),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),U=u=>/^https?:\/\//i.test(u||'')?u:'',P=p=>String(p||'').replace(/[^\d+]/g,'');
+const q=id=>document.getElementById(id),E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),U=u=>/^https?:\/\//i.test(u||'')?u:'',P=p=>telNum(p);
 let cur=SECTIONS[0];
 q('ht').innerHTML=SECTIONS.map(s=>`<button type="button" data-t="${s.t}">${s.label}</button>`).join('');
 function view(v){q('v_bus').hidden=v!=='bus';q('v_help').hidden=v!=='help';
