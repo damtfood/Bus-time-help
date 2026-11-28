@@ -60,7 +60,7 @@
 #gate p{color:#8FA7AA;margin:6px 0}#gate button{margin-top:14px;width:100%;padding:14px;font-weight:800;border:0;border-radius:99px;color:#1a1200;background:linear-gradient(135deg,#F6D06F,#E3A92B 60%,#C98A12);box-shadow:0 8px 24px #E3A92B55;cursor:pointer;font-size:1rem}
 </style>
 <link rel="stylesheet" href="index-premium.css?v=7">
-<script src="call.js?v=1"></script>
+<script src="call.js?v=2"></script>
 <script src="alerts.js?v=6" defer></script>
 </head><body>
 <header class="top"><i class="orb o1"></i><i class="orb o2"></i>
@@ -160,7 +160,7 @@ return buses.filter(b=>inPlace(b)&&(!RT||rkey(b)===RT)&&(!to||b.to_place===to)&&
 function tabs(){const base=buses.filter(inPlace),c={tv:0,vt:0,ot:0};base.forEach(b=>c[rkey(b)]++);
 [...$('rt').children].forEach(x=>{const r=x.dataset.r;x.hidden=!!r&&!c[r]});
 if(RT&&!c[RT]){RT='';[...$('rt').children].forEach(x=>x.classList.toggle('on',!x.dataset.r))}}
-function render(){if(!loaded)return;tabs();
+function render(){if(!loaded)return;if(window.__callHold>Date.now()){setTimeout(render,window.__callHold-Date.now()+50);return}tabs();
 const list=shown(),up=[];
 const tdAll=[];
 list.forEach(b=>{const td=tms(b).filter(today).sort((x,y)=>x.departure_time.localeCompare(y.departure_time)),ls=td[td.length-1];td.forEach(t=>{tdAll.push({b,t});const m=left(t);if(m>=0)up.push({b,t,m,last:t===ls&&td.length>1})})});
