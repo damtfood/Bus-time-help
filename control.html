@@ -34,7 +34,7 @@
 </section>
 </main>
 <script src="/api/config"></script>
-<script src="call.js?v=1"></script>
+<script src="call.js?v=2"></script>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);let st='pending',rows=[],busy=false,timer=null;
