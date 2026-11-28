@@ -38,7 +38,7 @@
       b.onclick = fn; return b;
     };
     bar.appendChild(t);
-    bar.appendChild(mk('Dial', function () { location.href = 'tel:' + num; }, true));
+    bar.appendChild(mk('Dial', function () { dial(num); }, true));
     bar.appendChild(mk('Copy', function (e) {
       var b = e.currentTarget, done = function () { b.textContent = 'Copied ✓'; };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(num).then(done, fb); else fb();
@@ -52,20 +52,54 @@
     setTimeout(hideBar, 15000);
   }
 
+  /* Hold list re-rendering while a finger is on a Call button (render() rebuilds the cards every minute and
+     a rebuild between touch-down and touch-up silently drops the tap). */
+  window.__callHold = 0;
+  var hold = function (e) { if (e.target.closest && e.target.closest('a[href^="tel:"]')) window.__callHold = Date.now() + 2500; };
+  document.addEventListener('pointerdown', hold, true);
+  document.addEventListener('touchstart', hold, { capture: true, passive: true });
+
+  var UA = navigator.userAgent || '';
+  var IN_WEBVIEW = !!window.AndroidBridge || /; wv\)|\bwv\b|FBAN|FBAV|Instagram|Line\/|MicroMessenger|GSA\//i.test(UA);
+  var IS_ANDROID = /Android/i.test(UA);
+
+  function dial(num) {
+    // 1) native app bridge (if the Android wrapper app exposes one)
+    var b = window.AndroidBridge;
+    if (b) {
+      var fns = ['dial', 'call', 'openDialer', 'dialNumber', 'callNumber'];
+      for (var i = 0; i < fns.length; i++) {
+        if (typeof b[fns[i]] === 'function') { try { b[fns[i]](num); return true; } catch (_) { } }
+      }
+    }
+    // 2) normal tel: navigation
+    try { location.href = 'tel:' + num; } catch (_) { }
+    // 3) Android WebViews that ignore tel: -> DIAL intent
+    if (IS_ANDROID && IN_WEBVIEW) {
+      setTimeout(function () {
+        if (document.visibilityState === 'visible') {
+          try { location.href = 'intent:' + num + '#Intent;action=android.intent.action.DIAL;scheme=tel;end'; } catch (_) { }
+        }
+      }, 350);
+    }
+    return false;
+  }
+
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="tel:"]');
     if (!a) return;
     var num = telNum(decodeURIComponent(a.getAttribute('href').slice(4)));
-    if (!num) { e.preventDefault(); return; }
-    if (a.getAttribute('href') !== 'tel:' + num) a.setAttribute('href', 'tel:' + num);   // self-heal bad hrefs
+    e.preventDefault();                          // we dial ourselves so the tap can never be swallowed
+    if (!num) return;
     var left = false, mark = function () { left = true; };
     document.addEventListener('visibilitychange', mark, { once: true });
     window.addEventListener('pagehide', mark, { once: true });
     window.addEventListener('blur', mark, { once: true });
+    dial(num);
     clearTimeout(timer);
     timer = setTimeout(function () {
       document.removeEventListener('visibilitychange', mark); window.removeEventListener('pagehide', mark); window.removeEventListener('blur', mark);
       if (!left && document.visibilityState === 'visible') showBar(num);
-    }, 1600);
-  }, false);
+    }, 1800);
+  }, true);
 })();
